@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 2 — Ecosystem Host and MUI design system. Implementation and verification complete; Git milestone in progress.
+Stage 2 — Ecosystem Host and MUI design system. Completed, verified, committed, and pushed to `origin/main` on 2026-11-07.
 
 ## Completed Stage 1 scope
 
@@ -36,7 +36,10 @@ Stage 2 — Ecosystem Host and MUI design system. Implementation and verificatio
 - Browser verified at 390×844, 768×1024, and 1440×1000; no horizontal overflow. Mobile drawer opens and closes on navigation; Products placeholder renders correctly. A screenshot review caught and corrected a decorative line height.
 - Actual implementation date: 2026-11-07 (Asia/Kolkata). Stage 2 was explicitly requested on the same day as Stage 1; no dates were altered.
 - Final verification passed: `pnpm lint`, `pnpm typecheck`, `pnpm test` (22 tests across six files), `pnpm build` (all five apps), `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`. After a final mobile shortcut fix, Host tests, Host build/typecheck, and root lint passed again. Fresh browser load produced no console errors or warnings.
-- Implementation commit and push: pending after final review.
+- Implementation commit: `c376f936d3e4db1ed7d66588ba547f5edc979d06` (`feat: implement ecosystem host shell and mui design system`).
+- Actual commit timestamp: 2026-11-07T22:35:13+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `c2781fe` to `c376f93`.
+- This documentation receipt records the actual milestone hash and confirmed push without rewriting history. The local preview server was stopped after verification.
 
 ## Architecture decisions
 
