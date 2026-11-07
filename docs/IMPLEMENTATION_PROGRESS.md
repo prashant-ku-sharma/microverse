@@ -2,9 +2,9 @@
 
 ## Current stage
 
-Stage 1 — Initialize MICROVERSE foundation. Completed and verified on 2026-11-07. The milestone was committed and pushed to `origin/main`.
+Stage 2 — Ecosystem Host and MUI design system. Implementation and verification complete; Git milestone in progress.
 
-## Completed scope
+## Completed Stage 1 scope
 
 - Five standalone React + Vite + TypeScript apps with strict development ports 5000–5004.
 - Five private shared packages with minimal valid source exports.
@@ -13,7 +13,7 @@ Stage 1 — Initialize MICROVERSE foundation. Completed and verified on 2026-11-
 - Application-local environment examples and public-variable conventions.
 - Foundation documentation and ADR 0001.
 
-## Milestone record
+## Stage 1 milestone record
 
 - Actual implementation date: 2026-11-07 (Asia/Kolkata).
 - Implementation commit: `8dfdd6158885acd16c4f383e5c0d5fa2fbb3a612` (`chore: initialize microverse monorepo`).
@@ -27,18 +27,29 @@ Stage 1 — Initialize MICROVERSE foundation. Completed and verified on 2026-11-
 - Initial verification caught missing test matcher type declarations; application test declarations now include the shared setup. Final checks pass.
 - The sandbox denied network binding; server verification ran with approved escalation. Vite noted an existing wildcard listener on port 5000, but successfully served Ecosystem at the explicit loopback address `127.0.0.1:5000`.
 
+## Stage 2 scope and verification
+
+- Custom MUI/Emotion theme, color and layout tokens, typography/spacing conventions, component defaults, buttons, cards, status/loading indicators, page headers, and organism cards.
+- Responsive Host sidebar/header/main/footer, six React Router routes, Host-owned organism placeholders, unknown-route recovery, active navigation, titles, and focus management.
+- Dashboard branding, static organism map, overview metrics, four organism cards, navigation shortcuts, honest status/activity placeholders.
+- Shared UI tests and Host tests for sidebar/route behavior, mobile navigation, theme application, and components; other standalone app tests retained.
+- Browser verified at 390×844, 768×1024, and 1440×1000; no horizontal overflow. Mobile drawer opens and closes on navigation; Products placeholder renders correctly. A screenshot review caught and corrected a decorative line height.
+- Actual implementation date: 2026-11-07 (Asia/Kolkata). Stage 2 was explicitly requested on the same day as Stage 1; no dates were altered.
+- Final verification passed: `pnpm lint`, `pnpm typecheck`, `pnpm test` (22 tests across six files), `pnpm build` (all five apps), `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`. After a final mobile shortcut fix, Host tests, Host build/typecheck, and root lint passed again. Fresh browser load produced no console errors or warnings.
+- Implementation commit and push: pending after final review.
+
 ## Architecture decisions
 
-See [ADR 0001](decisions/0001-workspace-foundation.md). The apps are independent standalone builds. Sharing source infrastructure does not constitute Module Federation. TypeScript 5.9 is selected within the linter's supported peer range.
+See [ADR 0001](decisions/0001-workspace-foundation.md) and [ADR 0002](decisions/0002-host-shell-and-design-system.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and placeholders; Module Federation is not implemented.
 
 ## Pending stages
 
-Stages 2–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
+Stages 3–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
 
 ## Known limitations
 
-No remote modules, event delivery, state management, routing, mocks, or business features exist. Shared packages are private source packages without emitted distribution files. Deployment workflows and automated browser suites are not present in this foundation stage. No unresolved implementation issues remain. An existing wildcard listener on port 5000 caused a Vite advisory; the explicit loopback binding worked and all five browser checks passed.
+Organism routes are Host-owned placeholders. Status and activity are not live. There is no remote loading, event delivery, business state, authentication simulation, or deployment automation. Shared packages export private workspace source. BrowserRouter production deep links require the static host's index.html fallback, to be configured in the deployment stage. The existing port-5000 wildcard listener advisory remains; explicit loopback binding works.
 
 ## Next milestone
 
-Await Stage 2 instructions. Do not proceed automatically.
+Await Stage 3 instructions. Do not proceed automatically.
