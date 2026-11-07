@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+*.local
+.DS_Store
+pnpm-debug.log*
+playwright-report/
+test-results/
