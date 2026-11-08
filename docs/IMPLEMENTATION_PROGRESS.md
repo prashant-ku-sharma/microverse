@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 4 — Module Federation: PARASITE integration. Implementation and browser verification complete; final checks and Git milestone in progress.
+Stage 4 — Module Federation: PARASITE integration. Complete and pushed on 2026-11-08. Workspace checks and development/production browser verification passed. Awaiting Stage 5.
 
 ## Completed Stage 1 scope
 
