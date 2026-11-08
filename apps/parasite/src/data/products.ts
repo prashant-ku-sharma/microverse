@@ -1,0 +1,205 @@
+import type { Product } from '@microverse/shared-types';
+
+/** Static sample inventory; no API, cart state, or cross-application imports. */
+export const products: readonly Product[] = [
+  {
+    id: 'moss-planter',
+    name: 'Moss self-watering planter',
+    description:
+      'A little green, even on your busiest days. This softly rounded planter uses a cotton wick to draw water from its hidden reservoir, keeping small indoor plants comfortably hydrated.',
+    price: 1490,
+    image: '/images/products/moss-planter.svg',
+    category: 'Workspace',
+    rating: 4.8,
+    stock: 18,
+    material: 'Glazed stoneware, cotton wick',
+    features: [
+      'Fits a 10 cm nursery pot',
+      'Separate water reservoir',
+      'Plant not included',
+    ],
+  },
+  {
+    id: 'canopy-grow-kit',
+    name: 'Canopy herb grow kit',
+    description:
+      'Start a windowsill ritual with basil, mint, and coriander. Three coir pots, growing medium, and clearly labeled seed envelopes make a compact introduction to growing herbs at home.',
+    price: 890,
+    image: '/images/products/canopy-grow-kit.svg',
+    category: 'Grow kits',
+    rating: 4.7,
+    stock: 24,
+    material: 'Coconut coir, kraft paper',
+    features: [
+      'Three herb seed varieties',
+      'Peat-free coir growing medium',
+      'Illustrated sowing guide',
+    ],
+  },
+  {
+    id: 'fern-desk-lamp',
+    name: 'Fern task lamp',
+    description:
+      'A quiet pool of light for focused evenings. An adjustable shade and warm LED source illuminate your desk while the compact weighted base keeps your workspace open.',
+    price: 3290,
+    image: '/images/products/fern-desk-lamp.svg',
+    category: 'Workspace',
+    rating: 4.6,
+    stock: 3,
+    material: 'Powder-coated steel, aluminium',
+    features: [
+      'Warm 3000 K LED',
+      'Adjustable shade',
+      'USB-C powered, cable included',
+    ],
+  },
+  {
+    id: 'field-bottle',
+    name: 'Field insulated bottle',
+    description:
+      'A dependable companion from the morning commute to the walking trail. The double-wall bottle has a smooth powder-coated finish, a carry loop, and a wide opening for easy cleaning.',
+    price: 1290,
+    image: '/images/products/field-bottle.svg',
+    category: 'Everyday carry',
+    rating: 4.9,
+    stock: 32,
+    material: 'Recycled stainless steel',
+    features: [
+      '600 ml capacity',
+      'Double-wall insulation',
+      'Leak-resistant screw cap',
+    ],
+  },
+  {
+    id: 'glasshouse-terrarium',
+    name: 'Glasshouse terrarium',
+    description:
+      'Create a tiny landscape under glass. A generous glass vessel and fitted cork lid provide a home for moss and moisture-loving plants, with room to arrange stones and soil layers.',
+    price: 2490,
+    image: '/images/products/glasshouse-terrarium.svg',
+    category: 'Grow kits',
+    rating: 4.8,
+    stock: 0,
+    material: 'Borosilicate glass, cork',
+    features: [
+      '22 cm tall vessel',
+      'Removable cork lid',
+      'Plants and substrate not included',
+    ],
+  },
+  {
+    id: 'root-journal',
+    name: 'Root field journal',
+    description:
+      'Make space for observations, sketches, and small discoveries. A lay-flat linen-bound notebook with lightly dotted pages is equally at home on a desk or in a field bag.',
+    price: 590,
+    image: '/images/products/root-journal.svg',
+    category: 'Field tools',
+    rating: 4.5,
+    stock: 45,
+    material: 'Recycled paper, linen cover',
+    features: ['160 dotted pages', 'A5 format', 'Ribbon page marker'],
+  },
+  {
+    id: 'spore-mushroom-kit',
+    name: 'Spore oyster mushroom kit',
+    description:
+      'A hands-on introduction to growing edible oyster mushrooms. The ready-to-fruit block comes in a compact box with a simple misting guide for a bright spot away from direct sunlight.',
+    price: 1190,
+    image: '/images/products/spore-mushroom-kit.svg',
+    category: 'Grow kits',
+    rating: 4.4,
+    stock: 2,
+    material: 'Colonised straw substrate, cardboard',
+    features: [
+      'Ready-to-fruit growing block',
+      'Misting bottle included',
+      'Harvest timing varies with conditions',
+    ],
+  },
+  {
+    id: 'grove-canvas-tote',
+    name: 'Grove canvas tote',
+    description:
+      'Carry a notebook, a market find, and a little breathing room. This sturdy everyday tote has comfortable shoulder straps and a deep internal pocket for smaller essentials.',
+    price: 790,
+    image: '/images/products/grove-canvas-tote.svg',
+    category: 'Everyday carry',
+    rating: 4.6,
+    stock: 20,
+    material: 'Unbleached cotton canvas',
+    features: [
+      '38 \u00d7 40 cm body',
+      'Internal slip pocket',
+      'Machine washable on gentle cycle',
+    ],
+  },
+  {
+    id: 'dew-watering-can',
+    name: 'Dew watering can',
+    description:
+      'A long, narrow spout delivers water close to the soil without disturbing delicate leaves. The balanced handle and compact body make tending indoor plants a gentle daily ritual.',
+    price: 1690,
+    image: '/images/products/dew-watering-can.svg',
+    category: 'Field tools',
+    rating: 4.7,
+    stock: 12,
+    material: 'Powder-coated stainless steel',
+    features: [
+      '1 litre capacity',
+      'Precision pour spout',
+      'Designed for indoor use',
+    ],
+  },
+  {
+    id: 'strata-desk-tray',
+    name: 'Strata desk tray',
+    description:
+      'A soft landing for the objects that gather around your work. The shallow cork tray brings pens, clips, and keys together while protecting the surface beneath.',
+    price: 990,
+    image: '/images/products/strata-desk-tray.svg',
+    category: 'Workspace',
+    rating: 4.3,
+    stock: 0,
+    material: 'Natural cork',
+    features: [
+      '24 \u00d7 12 cm footprint',
+      'Lightweight cork body',
+      'Wipe clean with a damp cloth',
+    ],
+  },
+  {
+    id: 'seed-pocket-tin',
+    name: 'Seed pocket tin',
+    description:
+      'Keep seed envelopes and planting notes together between seasons. A small, reusable tin with labeled paper dividers helps make the next sowing day a little more organised.',
+    price: 450,
+    image: '/images/products/seed-pocket-tin.svg',
+    category: 'Field tools',
+    rating: 4.2,
+    stock: 28,
+    material: 'Tinplate, paper dividers',
+    features: [
+      'Six paper dividers',
+      'Compact hinged lid',
+      'Seeds not included',
+    ],
+  },
+  {
+    id: 'lichen-travel-cup',
+    name: 'Lichen travel cup',
+    description:
+      'Bring a familiar morning ritual along for the day. A compact insulated cup with a comfortable silicone sleeve and splash-resistant lid fits neatly in a work bag.',
+    price: 1090,
+    image: '/images/products/lichen-travel-cup.svg',
+    category: 'Everyday carry',
+    rating: 4.5,
+    stock: 7,
+    material: 'Stainless steel, silicone',
+    features: [
+      '350 ml capacity',
+      'Removable silicone sleeve',
+      'Splash-resistant, keep upright',
+    ],
+  },
+];

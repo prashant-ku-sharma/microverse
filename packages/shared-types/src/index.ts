@@ -1,2 +1,1 @@
-// Reserved for shared infrastructure introduced in later stages.
-export {};
+export type { Product } from './product';

@@ -1,8 +1,8 @@
 # Architecture
 
-## Current implementation: Stage 2
+## Current implementation: Stage 3
 
-MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. The other four applications remain standalone foundation pages. All apps consume the expanded shared MUI theme; there is still no Host/remote integration or federation library.
+MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. Symbiont, Commensal, and Mutant remain standalone foundation pages. All apps consume the expanded shared MUI theme; there is still no Host/remote integration or federation library.
 
 | Route        | Host-owned page                                                                           |
 | ------------ | ----------------------------------------------------------------------------------------- |
@@ -21,7 +21,7 @@ The Host owns layout, navigation, route composition, active links, titles, and r
 | -------------------------- | ------------------------------------- | ------------------------------------------ |
 | `@microverse/shared-ui`    | `microverseTheme`, tokens, components | MUI visual infrastructure                  |
 | `@microverse/config`       | Empty root, `./vite`, `./test-setup`  | Development configuration                  |
-| `@microverse/shared-types` | Empty module                          | Genuine cross-app contracts                |
+| `@microverse/shared-types` | Product interface                     | Genuine cross-app contracts                |
 | `@microverse/mycelium`     | Empty module                          | Event infrastructure, never business state |
 | `@microverse/mock-utils`   | Empty module                          | Shared mock infrastructure                 |
 
@@ -46,3 +46,9 @@ Ecosystem already owns composition and routing. It will later own the runtime re
 Remotes must remain independently runnable and deployable. Runtime federation will use the selected library's supported APIs, configurable remote URLs, aligned shared dependencies, and isolated failure states. A remote deployment must not require a Host rebuild. Deployment automation and the registry are intentionally deferred.
 
 Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. No deployment configuration is added in Stage 2.
+
+## PARASITE product ownership
+
+The shared Product interface is a contract only. PARASITE owns its synchronous mock inventory, local product illustrations, search/category/stock filters, sorting, price formatting, detail presentation, and availability rules. Its own BrowserRouter stores discovery choices in URL parameters; local lazy-loaded route chunks are ordinary static application assets.
+
+The Host's `/products` page remains a placeholder. PARASITE is reached independently at `http://127.0.0.1:5001/`, with details at `/products/:productId`. Add to Cart currently acknowledges intent without state mutation or events. There are no cross-app imports or shared business stores. See [PARASITE documentation](parasite.md) and [ADR 0003](decisions/0003-parasite-product-ownership.md).

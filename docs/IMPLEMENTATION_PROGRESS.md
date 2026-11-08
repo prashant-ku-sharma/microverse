@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 2 — Ecosystem Host and MUI design system. Completed, verified, committed, and pushed to `origin/main` on 2026-11-07.
+Stage 3 — PARASITE products microfrontend. Implementation and verification complete; Git milestone in progress.
 
 ## Completed Stage 1 scope
 
@@ -41,18 +41,32 @@ Stage 2 — Ecosystem Host and MUI design system. Completed, verified, committed
 - Push confirmed: `git push origin main` advanced `main` from `c2781fe` to `c376f93`.
 - This documentation receipt records the actual milestone hash and confirmed push without rewriting history. The local preview server was stopped after verification.
 
+## Stage 3 scope and verification
+
+- Shared readonly Product interface; PARASITE-owned fixtures for 12 products across four categories, detailed descriptions, features, materials, and bundled SVG illustrations.
+- Standalone catalog/detail routes, header navigation, search, category and stock filters, five sorting modes, INR prices, ratings, and low/out-of-stock handling.
+- URL-backed discovery state retained through card and featured-product detail links, empty results reset, missing-product and unknown-route recovery.
+- Add to Cart disabled for unavailable products. Available products show truthful intent-only feedback without changing stock, persisting a cart, or publishing events.
+- Local route splitting and shared MUI loading indicators. Host products placeholder and other apps remain unchanged.
+- Actual implementation date: 2026-11-08 (Asia/Kolkata). Actual commit timestamps will be retained.
+- Verification passed: `pnpm --filter @microverse/parasite test` (23 tests), independent development server, independent build/typecheck, and production preview on strict port 5001.
+- Workspace verification passed: `pnpm test` (43 tests across seven files), `pnpm build` (all five apps), `pnpm typecheck` (all 10 projects), `pnpm lint`, `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`.
+- Browser QA passed: desktop 1440px, tablet 768px, and phone 390px/320px without horizontal overflow. Confirmed combined filters/sorting, detail navigation and preserved choices, cart-intent feedback, and production deep-link stock handling. All twelve local illustrations loaded after scrolling. Production browser console had no errors or warnings.
+- An initial asset-path test was corrected for Vite's test transform. A build chunk-size advisory was resolved with local route splitting; final builds have no size advisory. No verification failures remain.
+- Implementation commit hash and push status: pending milestone creation.
+
 ## Architecture decisions
 
-See [ADR 0001](decisions/0001-workspace-foundation.md) and [ADR 0002](decisions/0002-host-shell-and-design-system.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and placeholders; Module Federation is not implemented.
+See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and placeholders; Module Federation is not implemented.
 
 ## Pending stages
 
-Stages 3–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
+Stages 4–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
 
 ## Known limitations
 
-Organism routes are Host-owned placeholders. Status and activity are not live. There is no remote loading, event delivery, business state, authentication simulation, or deployment automation. Shared packages export private workspace source. BrowserRouter production deep links require the static host's index.html fallback, to be configured in the deployment stage. The existing port-5000 wildcard listener advisory remains; explicit loopback binding works.
+Product inventory, ratings, and prices are static mock data. Cart actions acknowledge intent only. Host organism routes remain placeholders; there is no federation, event delivery, cart state, authentication simulation, or deployment automation. Shared packages export private workspace source. Production browser-history deep links require the hosting platform's index.html fallback. No live API is simulated. Local product images are SVG illustrations, not photographs.
 
 ## Next milestone
 
-Await Stage 3 instructions. Do not proceed automatically.
+Await Stage 4 instructions. Do not proceed automatically.
