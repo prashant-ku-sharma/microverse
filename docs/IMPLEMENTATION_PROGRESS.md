@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 3 — PARASITE products microfrontend. Implementation and verification complete; Git milestone in progress.
+Stage 3 — PARASITE products microfrontend. Completed, verified, committed, and pushed to `origin/main` on 2026-11-08.
 
 ## Completed Stage 1 scope
 
@@ -53,7 +53,10 @@ Stage 3 — PARASITE products microfrontend. Implementation and verification com
 - Workspace verification passed: `pnpm test` (43 tests across seven files), `pnpm build` (all five apps), `pnpm typecheck` (all 10 projects), `pnpm lint`, `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`.
 - Browser QA passed: desktop 1440px, tablet 768px, and phone 390px/320px without horizontal overflow. Confirmed combined filters/sorting, detail navigation and preserved choices, cart-intent feedback, and production deep-link stock handling. All twelve local illustrations loaded after scrolling. Production browser console had no errors or warnings.
 - An initial asset-path test was corrected for Vite's test transform. A build chunk-size advisory was resolved with local route splitting; final builds have no size advisory. No verification failures remain.
-- Implementation commit hash and push status: pending milestone creation.
+- Implementation commit: `2b18f54bb118e00c70875a8df1bc817bcbfd73e6` (`feat: implement parasite products microfrontend`).
+- Actual commit timestamp: 2026-11-08T16:55:13+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `7f15624` to `2b18f54`.
+- This documentation receipt records the real milestone hash and confirmed push without rewriting history. Both development and production preview servers were stopped after verification.
 
 ## Architecture decisions
 
