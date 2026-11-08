@@ -70,7 +70,10 @@ Stage 4 — Module Federation: PARASITE integration. Implementation and browser 
 - Actual implementation date: 2026-11-08 (Asia/Kolkata). All commits retain actual creation timestamps.
 - Final workspace verification passed: `pnpm test` (56 tests across 10 files), `pnpm build` (all five applications), `pnpm typecheck` (all 10 projects), `pnpm lint`, `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`. The shared MUI chunk size advisory remains non-blocking.
 - Development and production preview servers were stopped after verification.
-- Milestone commit and confirmed push will be recorded in a follow-up documentation receipt without rewriting history.
+- Implementation commit: `7fc16e029b610c16a9879ce974636f6ad107c5b6` (`feat: integrate parasite remote using module federation`).
+- Actual commit timestamp: 2026-11-08T18:08:00+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `c05f601` to `7fc16e0`.
+- This documentation receipt records the actual milestone hash and confirmed push without rewriting history.
 
 ## Architecture decisions
 
