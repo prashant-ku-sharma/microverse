@@ -45,7 +45,10 @@ describe('PARASITE standalone catalog', () => {
     ).toBeVisible();
     expect(
       within(moss).getByRole('img', { name: 'Moss self-watering planter' }),
-    ).toHaveAttribute('src', '/images/products/moss-planter.svg');
+    ).toHaveAttribute(
+      'src',
+      expect.stringContaining('/images/products/moss-planter.svg'),
+    );
     expect(within(moss).getByText('Workspace')).toBeVisible();
     expect(within(moss).getByText('In stock')).toBeVisible();
     expect(

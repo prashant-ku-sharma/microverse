@@ -61,7 +61,7 @@ export function Dashboard() {
             color="text.secondary"
             sx={{ display: 'block', textAlign: 'center' }}
           >
-            CONCEPT MAP · RUNTIME CONNECTIONS NOT YET ACTIVE
+            CONCEPT MAP · CONFIGURATION, NOT LIVE HEALTH
           </Typography>
         </Box>
       </Box>
@@ -84,7 +84,7 @@ export function Dashboard() {
           ['04', 'Independent organisms'],
           ['01', 'Host application'],
           ['06', 'Workspace routes'],
-          ['—', 'Runtime status · not connected'],
+          ['01', 'Federation remote configured'],
         ].map(([value, label]) => (
           <Box
             key={label}
@@ -152,6 +152,11 @@ export function Dashboard() {
               key={organism.name}
               {...organism}
               index={`0${i + 1}`}
+              statusLabel={
+                organism.name === 'PARASITE'
+                  ? 'Federated remote'
+                  : 'Placeholder'
+              }
               action={
                 <Button
                   component={Link}
@@ -190,8 +195,7 @@ export function Dashboard() {
             <StatusIndicator label="Preview only" tone="warning" />
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Application status placeholders. No health checks or remote
-            connections are running.
+            Application configuration. No live health checks are running.
           </Typography>
           <Stack spacing={1.5}>
             {organisms.map((o) => (
@@ -201,7 +205,13 @@ export function Dashboard() {
                 sx={{ justifyContent: 'space-between', gap: 1 }}
               >
                 <Typography variant="body2">{o.name}</Typography>
-                <StatusIndicator label="Not connected" />
+                <StatusIndicator
+                  label={
+                    o.name === 'PARASITE'
+                      ? 'Federation configured'
+                      : 'Not connected'
+                  }
+                />
               </Stack>
             ))}
           </Stack>

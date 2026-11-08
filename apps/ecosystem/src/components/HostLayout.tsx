@@ -47,8 +47,12 @@ export function HostLayout() {
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
   const location = useLocation();
   const current =
-    navigation.find((item) => item.path === location.pathname)?.label ??
-    'Page not found';
+    navigation.find(
+      (item) =>
+        item.path === location.pathname ||
+        (item.path === '/products' &&
+          location.pathname.startsWith('/products/')),
+    )?.label ?? 'Page not found';
   const brand = import.meta.env.VITE_APP_LABEL?.trim() || 'MICROVERSE';
 
   const sidebar = (
@@ -327,7 +331,7 @@ export function HostLayout() {
               MICROVERSE · A living architecture
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              STAGE 02 / HOST FOUNDATION
+              STAGE 04 / FEDERATION FOUNDATION
             </Typography>
           </Stack>
         </Box>

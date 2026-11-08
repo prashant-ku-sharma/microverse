@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./vite": "./src/vite.ts",
-    "./test-setup": "./src/test-setup.ts"
+    "./test-setup": "./src/test-setup.ts",
+    "./federation": "./src/federation.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

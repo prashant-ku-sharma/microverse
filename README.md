@@ -1,6 +1,6 @@
 # MICROVERSE
 
-A biology-inspired microfrontend ecosystem, built incrementally. **Stage 3 adds PARASITE product discovery alongside the Ecosystem Host shell and shared MUI design system.** Remote loading and cross-application communication remain deferred.
+A biology-inspired microfrontend ecosystem, built incrementally. **Stage 4 integrates PARASITE into ECOSYSTEM through runtime Module Federation.** The products app also runs independently; cross-application business events remain deferred.
 
 ## Prerequisites
 
@@ -59,10 +59,16 @@ Only `VITE_*` variables are exposed to browser code. They are **public build-tim
 
 ## Boundaries and next work
 
-Apps never import another app's code. Product data and discovery rules live in PARASITE; each future business state will remain in its owning remote. Future communication will use typed, validated Mycelium events with reconciliation where consumers can be absent. Federation, authentication simulation, cart/profile/offer business features, API mocks, resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
+Apps never import another app's code. Product data and discovery rules live in PARASITE; each future business state will remain in its owning remote. Future communication will use typed, validated Mycelium events with reconciliation where consumers can be absent. Additional remote integrations, authentication simulation, cart/profile/offer business features, API mocks, resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
 
-Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Organism routes are Host-owned placeholders. The dashboard's status and activity panels do not report live data. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
+Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Products dynamically loads PARASITE; Cart, Profile, and Offers remain Host-owned placeholders. The dashboard's status and activity panels do not report live data. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
 
-PARASITE runs independently on port 5001 with 12 local mock products, search, category/stock filters, sorting, detail pages, prices, ratings, and stock handling. Add to Cart provides an informational acknowledgment while cart communication is deferred. The Host products route remains a placeholder. See [PARASITE development and architecture](docs/parasite.md).
+PARASITE runs independently on port 5001 with 12 local mock products, search, category/stock filters, sorting, detail pages, prices, ratings, and stock handling. Add to Cart provides an informational acknowledgment while cart communication is deferred. The Host products route consumes the `parasite/routes` expose at runtime. See [PARASITE development and architecture](docs/parasite.md).
 
 See [architecture](docs/architecture.md), [foundation ADR](docs/decisions/0001-workspace-foundation.md), and [implementation progress](docs/IMPLEMENTATION_PROGRESS.md).
+
+## Federation quick start
+
+Start `pnpm --filter @microverse/parasite dev` on 5001 and `pnpm --filter @microverse/ecosystem dev` on 5000, or use `pnpm dev` for all apps. Open `http://127.0.0.1:5000/products`. Stopping PARASITE and reloading Products shows an isolated failure view while other Host routes remain usable. Already-loaded code may remain cached until a fresh request.
+
+See [Module Federation configuration, loading flow, and outage demonstration](docs/module-federation.md). No runtime remote registry is implemented. The entry URL override in Ecosystem's `.env.example` is build-time configuration.

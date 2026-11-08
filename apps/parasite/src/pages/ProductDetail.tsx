@@ -5,6 +5,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { StatusIndicator, SurfaceCard } from '@microverse/shared-ui';
 import type { Product } from '@microverse/shared-types';
 import { products } from '../data/products';
+import { useCatalogPath } from '../catalog-path';
 import { availability, formatPrice } from '../catalog';
 import { CartIntentButton, ProductRating } from '../components/ProductCard';
 
@@ -13,6 +14,7 @@ export function ProductDetail({
 }: {
   onRequest: (product: Product) => void;
 }) {
+  const catalogPath = useCatalogPath();
   const { productId } = useParams();
   const { search } = useLocation();
   const product = products.find((item) => item.id === productId);
@@ -31,7 +33,7 @@ export function ProductDetail({
         </Typography>
         <Button
           component={Link}
-          to={`/${search}`}
+          to={`${catalogPath}${search}`}
           startIcon={<ArrowBackIcon />}
           sx={{ mt: 3 }}
         >
@@ -45,7 +47,7 @@ export function ProductDetail({
       <Box>
         <Button
           component={Link}
-          to={`/${search}`}
+          to={`${catalogPath}${search}`}
           startIcon={<ArrowBackIcon />}
           sx={{ pl: 0 }}
         >

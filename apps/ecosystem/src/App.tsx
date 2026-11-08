@@ -7,12 +7,17 @@ import { Dashboard } from './pages/Dashboard';
 import { Ecosystem } from './pages/Ecosystem';
 import { OrganismPlaceholder } from './pages/OrganismPlaceholder';
 import { organisms } from './organisms';
+import { RemoteProducts } from './federation/RemoteProducts';
 
 export default function App() {
   const { pathname } = useLocation();
   useEffect(() => {
     const page =
-      organisms.find((o) => o.route === pathname)?.title ??
+      organisms.find(
+        (o) =>
+          o.route === pathname ||
+          (o.route === '/products' && pathname.startsWith('/products/')),
+      )?.title ??
       (pathname === '/'
         ? 'Overview'
         : pathname === '/ecosystem'
@@ -28,13 +33,16 @@ export default function App() {
     <Routes>
       <Route element={<HostLayout />}>
         <Route index element={<Dashboard />} />
-        {organisms.map((organism) => (
-          <Route
-            key={organism.route}
-            path={organism.route}
-            element={<OrganismPlaceholder organism={organism} />}
-          />
-        ))}
+        <Route path="/products/*" element={<RemoteProducts />} />
+        {organisms
+          .filter((organism) => organism.route !== '/products')
+          .map((organism) => (
+            <Route
+              key={organism.route}
+              path={organism.route}
+              element={<OrganismPlaceholder organism={organism} />}
+            />
+          ))}
         <Route path="/ecosystem" element={<Ecosystem />} />
         <Route
           path="*"

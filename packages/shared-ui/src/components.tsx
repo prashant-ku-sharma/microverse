@@ -175,6 +175,7 @@ export function OrganismCard({
   accent,
   index,
   action,
+  statusLabel = 'Placeholder',
 }: {
   name: string;
   title: string;
@@ -182,6 +183,7 @@ export function OrganismCard({
   accent: OrganismAccent;
   index: string;
   action: ReactNode;
+  statusLabel?: string;
 }) {
   const color = organismColors[accent];
   return (
@@ -236,7 +238,7 @@ export function OrganismCard({
             flexWrap: 'wrap',
           }}
         >
-          <StatusIndicator label="Placeholder" />
+          <StatusIndicator label={statusLabel} />
           {action}
         </Stack>
       </Box>

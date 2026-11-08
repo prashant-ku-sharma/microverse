@@ -6,6 +6,10 @@ import { MemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 
+vi.mock('./federation/loadParasite', () => ({
+  loadParasite: vi.fn(async () => ({ default: () => <h1>Products</h1> })),
+}));
+
 function renderHost(path = '/', desktop = true) {
   vi.stubGlobal(
     'matchMedia',
@@ -44,7 +48,8 @@ describe('Ecosystem Host', () => {
       'A living system.',
     );
     expect(screen.getAllByRole('article')).toHaveLength(4);
-    expect(screen.getAllByText('Not connected')).toHaveLength(4);
+    expect(screen.getAllByText('Not connected')).toHaveLength(3);
+    expect(screen.getByText('Federation configured')).toBeVisible();
     expect(screen.getByText(/not a live event feed/)).toBeVisible();
     expect(
       screen.getByRole('img', { name: /One host, four independent organisms/ }),
@@ -80,7 +85,6 @@ describe('Ecosystem Host', () => {
   });
 
   it.each([
-    ['/products', 'Products', 'PARASITE'],
     ['/cart', 'Cart', 'SYMBIONT'],
     ['/profile', 'Profile', 'COMMENSAL'],
     ['/offers', 'Offers', 'MUTANT'],
@@ -114,7 +118,7 @@ describe('Ecosystem Host', () => {
     renderHost();
     await user.click(screen.getByRole('link', { name: 'Open products' }));
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Products' }),
+      await screen.findByRole('heading', { level: 1, name: 'Products' }),
     ).toBeVisible();
     expect(screen.getByRole('main')).toHaveFocus();
   });

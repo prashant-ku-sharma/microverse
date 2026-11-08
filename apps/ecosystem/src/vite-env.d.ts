@@ -2,4 +2,5 @@
 
 interface ImportMetaEnv {
   readonly VITE_APP_LABEL?: string;
+  readonly VITE_PARASITE_REMOTE_ENTRY?: string;
 }

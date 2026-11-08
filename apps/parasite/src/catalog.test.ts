@@ -119,7 +119,13 @@ describe('product discovery rules', () => {
       expect(product.stock).toBeGreaterThanOrEqual(0);
       expect(product.features.length).toBeGreaterThan(0);
       expect(
-        existsSync(resolve(process.cwd(), 'public', product.image.slice(1))),
+        existsSync(
+          resolve(
+            process.cwd(),
+            'public',
+            new URL(product.image).pathname.slice(1),
+          ),
+        ),
       ).toBe(true);
     }
   });

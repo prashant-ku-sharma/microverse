@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 3 — PARASITE products microfrontend. Completed, verified, committed, and pushed to `origin/main` on 2026-11-08.
+Stage 4 — Module Federation: PARASITE integration. Implementation and browser verification complete; final checks and Git milestone in progress.
 
 ## Completed Stage 1 scope
 
@@ -58,18 +58,32 @@ Stage 3 — PARASITE products microfrontend. Completed, verified, committed, and
 - Push confirmed: `git push origin main` advanced `main` from `7f15624` to `2b18f54`.
 - This documentation receipt records the real milestone hash and confirmed push without rewriting history. Both development and production preview servers were stopped after verification.
 
+## Stage 4 scope and verification
+
+- Verified official Vite, runtime API, sharing, and share-strategy documentation before selecting @module-federation/vite 1.23.11 with runtime 2.9.3.
+- PARASITE exposes ./routes; ECOSYSTEM uses real registerRemotes/loadRemote calls behind React.lazy/Suspense. No remote source imports, registry, or Nucleus implementation.
+- Shared framework singleton configuration includes React/React DOM and JSX/client subpaths, React Router, MUI, and Emotion, with compatible versions and pnpm suffix matching. Babel fallback is explicitly pinned without overriding nested Emotion dependencies.
+- Embedded mode preserves Host routing/theme/shell and PARASITE product ownership; standalone entry remains functional. Remote-origin assets and container-aware product cards work in both contexts.
+- Host route loading timeout, loading UI, module validation, and error boundary contain loading and render failures. Configuration labels do not claim live health.
+- Browser demonstration passed in development and production: open Host, navigate Products, search/open details; confirm remote images on 5001 and one Host main region; stop PARASITE; fresh Products request shows contained fallback; Cart/Profile/Overview remain usable. Fresh production overview also starts offline.
+- Standalone PARASITE works in development and production. A remote-only production rebuild was consumed by the unchanged Host build. Embedded responsive checks passed at 390px and 900px, with detail verification at 1440px.
+- Actual implementation date: 2026-11-08 (Asia/Kolkata). All commits retain actual creation timestamps.
+- Final workspace verification passed: `pnpm test` (56 tests across 10 files), `pnpm build` (all five applications), `pnpm typecheck` (all 10 projects), `pnpm lint`, `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`. The shared MUI chunk size advisory remains non-blocking.
+- Development and production preview servers were stopped after verification.
+- Milestone commit and confirmed push will be recorded in a follow-up documentation receipt without rewriting history.
+
 ## Architecture decisions
 
-See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and placeholders; Module Federation is not implemented.
+See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration.
 
 ## Pending stages
 
-Stages 4–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
+Stages 5–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
 
 ## Known limitations
 
-Product inventory, ratings, and prices are static mock data. Cart actions acknowledge intent only. Host organism routes remain placeholders; there is no federation, event delivery, cart state, authentication simulation, or deployment automation. Shared packages export private workspace source. Production browser-history deep links require the hosting platform's index.html fallback. No live API is simulated. Local product images are SVG illustrations, not photographs.
+Only PARASITE is federated. The development entry/CORS configuration uses 127.0.0.1 ports 5000/5001. Entry selection is build-time configuration; Nucleus, runtime registry, immutable release/cache policy, deployment automation, and business event delivery remain deferred. Cached modules are not a live health signal; recovery from cached import failures uses a page reload. The loading timeout does not cancel imports. Product data is static and cart intent remains informational. The Host shared MUI provider chunk produces a non-blocking size advisory; no limit is suppressed.
 
 ## Next milestone
 
-Await Stage 4 instructions. Do not proceed automatically.
+Await Stage 5 instructions. Do not proceed automatically.

@@ -1,6 +1,6 @@
 # PARASITE products application
 
-Stage 3 turns PARASITE into a functional standalone product-discovery application. It runs at `http://127.0.0.1:5001` with no Host or other organism running. Ecosystem's `/products` route remains a Host-owned placeholder until federation is explicitly implemented.
+Stage 3 turns PARASITE into a functional standalone product-discovery application. It runs at `http://127.0.0.1:5001` with no Host or other organism running. Stage 4 also exposes the same product behavior to ECOSYSTEM at `/products/*` through Module Federation.
 
 ## Run and verify
 
@@ -43,7 +43,7 @@ Examples:
 
 No product data or product business rules were placed in shared-ui, mock-utils, config, or Mycelium. No application imports another application's source. React Router is declared in PARASITE's own manifest, and its own BrowserRouter wraps its own entry point. The shared MUI/Emotion theme remains in use.
 
-Catalog and detail pages use ordinary local React.lazy/Suspense imports with the shared LoadingIndicator. This splits the static build into smaller route bundles; it is not runtime Module Federation. There are no remote modules or runtime registry integration.
+Catalog and detail pages use ordinary local React.lazy/Suspense imports with the shared LoadingIndicator. This splits the static build into smaller route bundles; it is not runtime Module Federation. Stage 4 adds a separate federation entry for Host consumption; local route splitting is still ordinary in-app code splitting. No runtime registry is implemented.
 
 ## Stock and Add to Cart semantics
 
@@ -58,3 +58,9 @@ Vitest/React Testing Library cover product listings, prices and ratings, search 
 Browser QA verifies standalone development and production preview, local image rendering, discovery/detail journeys, and responsive widths. `pnpm test`, `pnpm build`, `pnpm lint`, and `pnpm typecheck` continue to check the wider workspace.
 
 Official API references checked for this implementation: [React Router URL values](https://reactrouter.com/start/declarative/url-values), [useSearchParams](https://reactrouter.com/api/hooks/useSearchParams), and [MUI read-only ratings](https://mui.com/material-ui/react-rating/).
+
+## Stage 4 embedded entry
+
+`src/routes.tsx` is exposed as `./routes`; `src/App.tsx` remains the standalone wrapper. The exposed component accepts the shared ParasiteRoutesProps contract, defaulting to standalone mode. Embedded mode uses the Host router/theme and renders a region rather than a second main/header/footer. Its catalog return path is `/products`; the standalone path remains `/`. Filters and queries survive detail navigation in both modes.
+
+Product asset URLs are resolved against the remote module URL. The Host does not serve or bundle the fixture images. Card columns use available container width to remain usable within a sidebar shell. Products and cart-intent logic remain entirely in PARASITE. See [federation documentation](module-federation.md) for shared dependencies, runtime calls, startup order, and failure verification.

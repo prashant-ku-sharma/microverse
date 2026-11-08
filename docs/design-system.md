@@ -22,17 +22,17 @@ The global baseline adds a subtle green glow, visible keyboard focus, and reduce
 
 ## Exports
 
-| Export                                             | Contract                                                                                                    |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `microverseTheme`                                  | Custom dark theme for each app's own ThemeProvider                                                          |
-| `layoutTokens`, `organismColors`, `OrganismAccent` | Shared layout/color constants and accent type                                                               |
-| `ActionButton`                                     | Standard Button props with primary/secondary intent; retains disabled and event semantics                   |
-| `SurfaceCard`                                      | Outlined MUI Card with responsive padding, Card props, and caller `sx` overrides                            |
-| `StatusIndicator`                                  | Explicit label and neutral/success/warning/error tone; decorative dot is hidden from assistive technology   |
-| `LoadingIndicator`                                 | Accessible status region with label and decorative spinner                                                  |
-| `PageHeader`                                       | Eyebrow, h1, description, optional action; stacks on small screens                                          |
-| `OrganismMark`                                     | Decorative inline SVG cellular motif with accent and size                                                   |
-| `OrganismCard`                                     | Presentation-only name/title/description/index/accent, a visible placeholder label, and caller-owned action |
+| Export                                             | Contract                                                                                                                                    |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `microverseTheme`                                  | Custom dark theme for each app's own ThemeProvider                                                                                          |
+| `layoutTokens`, `organismColors`, `OrganismAccent` | Shared layout/color constants and accent type                                                                                               |
+| `ActionButton`                                     | Standard Button props with primary/secondary intent; retains disabled and event semantics                                                   |
+| `SurfaceCard`                                      | Outlined MUI Card with responsive padding, Card props, and caller `sx` overrides                                                            |
+| `StatusIndicator`                                  | Explicit label and neutral/success/warning/error tone; decorative dot is hidden from assistive technology                                   |
+| `LoadingIndicator`                                 | Accessible status region with label and decorative spinner                                                                                  |
+| `PageHeader`                                       | Eyebrow, h1, description, optional action; stacks on small screens                                                                          |
+| `OrganismMark`                                     | Decorative inline SVG cellular motif with accent and size                                                                                   |
+| `OrganismCard`                                     | Presentation-only name/title/description/index/accent, a caller-configurable status label (Placeholder by default), and caller-owned action |
 
 ```tsx
 import { CssBaseline, ThemeProvider } from '@mui/material';
@@ -53,7 +53,7 @@ import {
 </ThemeProvider>;
 ```
 
-Routing-aware actions can be passed as children/slots, for example `OrganismCard`'s `action` can be a MUI Button with `component={Link}` and `to`. This keeps the library independent of React Router. Runtime organism states will be designed in their requested stage; the current organism cards deliberately display `Placeholder`.
+Routing-aware actions can be passed as children/slots, for example `OrganismCard`'s `action` can be a MUI Button with `component={Link}` and `to`. This keeps the library independent of React Router. Runtime organism states will be designed in their requested stage; the default label is `Placeholder`; the Host labels PARASITE as a configured federated remote. This label describes configuration, not live health.
 
 ## Host composition and accessibility
 

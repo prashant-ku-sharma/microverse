@@ -1,7 +1,7 @@
 import type { Product } from '@microverse/shared-types';
 
 /** Static sample inventory; no API, cart state, or cross-application imports. */
-export const products: readonly Product[] = [
+const productData: readonly Product[] = [
   {
     id: 'moss-planter',
     name: 'Moss self-watering planter',
@@ -203,3 +203,10 @@ export const products: readonly Product[] = [
     ],
   },
 ];
+
+// Resolve public assets against this remote module's origin, never the Host page origin.
+const productModuleUrl = import.meta.url;
+export const products: readonly Product[] = productData.map((product) => ({
+  ...product,
+  image: new URL(product.image, productModuleUrl).href,
+}));

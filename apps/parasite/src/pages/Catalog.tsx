@@ -255,7 +255,7 @@ export function Catalog({
               Cart connection coming in a later stage.
             </Typography>
           </SurfaceCard>
-          <Box sx={{ minWidth: 0 }}>
+          <Box sx={{ minWidth: 0, containerType: 'inline-size' }}>
             <Stack
               direction={{ xs: 'column', sm: 'row' }}
               spacing={2}
@@ -336,10 +336,12 @@ export function Catalog({
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: {
-                    xs: '1fr',
-                    sm: 'repeat(2, minmax(0, 1fr))',
-                    lg: 'repeat(3, minmax(0, 1fr))',
+                  gridTemplateColumns: '1fr',
+                  '@container (min-width: 520px)': {
+                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  },
+                  '@container (min-width: 800px)': {
+                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
                   },
                   gap: 2.5,
                 }}

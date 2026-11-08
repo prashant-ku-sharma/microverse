@@ -29,23 +29,27 @@ export function Ecosystem() {
             color="text.secondary"
             sx={{ textAlign: 'center' }}
           >
-            Conceptual architecture · no live runtime connections
+            Conceptual architecture · not a live health monitor
           </Typography>
         </SurfaceCard>
         <SurfaceCard>
-          <StatusIndicator label="Stage 2 · Host shell" tone="success" />
+          <StatusIndicator
+            label="Stage 4 · Federation integration"
+            tone="success"
+          />
           <Typography variant="h2" sx={{ mt: 3, mb: 2 }}>
             A home for independent applications
           </Typography>
           <Typography color="text.secondary">
             Ecosystem owns navigation, page composition, and the application
-            shell. The four organism routes currently render Host-owned
-            placeholders.
+            shell. Products loads PARASITE through Module Federation; the other
+            three organism routes remain Host-owned placeholders.
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Runtime registry, remote loading, authentication simulation, and
-            failure boundaries belong to future milestones. No application
-            imports another application.
+            PARASITE is loaded from its own server and isolated by a Host-owned
+            error boundary. Runtime registry and authentication simulation
+            remain future milestones. No application imports another
+            application’s source.
           </Typography>
           <Button component={Link} to="/" sx={{ mt: 3 }}>
             Return to overview

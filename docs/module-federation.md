@@ -1,0 +1,87 @@
+# Module Federation: first remote
+
+Stage 4 integrates PARASITE into ECOSYSTEM through genuine runtime Module Federation. The apps remain separate builds and servers. The Host has no imports of PARASITE source and does not bundle its product fixtures.
+
+## Selected implementation and verified references
+
+Selected `@module-federation/vite` 1.23.11 with its matching `@module-federation/runtime` 2.9.3. The plugin's published peer range includes Vite 8, used by this workspace. Official documentation and installed API/types were reviewed on 2026-11-08 before configuration and runtime integration:
+
+- [Official Vite integration](https://module-federation.io/integrations/build-tool/vite): plugin, expose, ESM remote, development origin, and shared configuration.
+- [Runtime APIs](https://module-federation.io/guide/runtime/runtime-api): registerRemotes and loadRemote, including remote name/expose syntax.
+- [Shared dependency options](https://module-federation.io/configure/shared): singleton, version requirements, subpaths, and pnpm suffix matching.
+- [Share strategy](https://module-federation.io/configure/shareStrategy.html): loaded-first defers remote loading; version-first may contact offline remotes during Host initialization.
+- [Maintainer Vite README](https://github.com/module-federation/vite): browser runtime package and build behavior.
+
+## Build configuration
+
+`apps/parasite/vite.config.ts` names the remote `parasite`, emits `remoteEntry.js`, and exposes `./routes` from `src/routes.tsx`. Its server origin is `http://127.0.0.1:5001`; development and preview CORS allow the Host origin `http://127.0.0.1:5000`.
+
+`apps/ecosystem/vite.config.ts` names the consumer `ecosystem`, declares the ESM `parasite` remote, and uses the same share configuration. The development entry defaults to `http://127.0.0.1:5001/remoteEntry.js`. `VITE_PARASITE_REMOTE_ENTRY` can override it at build/dev startup; changing this variable requires restarting/rebuilding the Host. It is **not** a runtime registry. Nucleus is not implemented.
+
+Both use `shareStrategy: 'loaded-first'`. Framework dependencies can initialize from the Host without contacting PARASITE. Both keep local shared fallbacks, preserving standalone execution. Automatic remote declaration downloads are disabled with `dts: false`; Host builds and unit tests do not need a running remote.
+
+Source unit tests use Vite's test mode without the federation build transform. Unit tests mock only the Host runtime adapter; actual dev and production browser checks verify the real federation boundary.
+
+## Dependency policy
+
+`packages/config/src/federation.ts` supplies identical share rules for both builds:
+
+| Shared module                        | Installed version / rule                        |
+| ------------------------------------ | ----------------------------------------------- |
+| React and JSX runtime subpaths       | 19.3.1, singleton                               |
+| React DOM and client subpath         | 19.3.1, singleton                               |
+| React Router                         | 8.5.1, singleton; preserves Host router context |
+| MUI material and styles entry points | 9.5.0, singleton; preserves Host theme context  |
+| Emotion React                        | 11.14.0, singleton                              |
+| Emotion styled                       | 11.14.1, singleton                              |
+
+Each share declares a version, a compatible required range, and `allowNodeModulesSuffixMatch` for pnpm/workspace package resolution. The dependency catalog aligns the applications. Babel runtime 8.1.0 is an explicit dependency in both federated applications to make the plugin's fallback selection unambiguous. This does not override Emotion's own nested Babel 7 dependency.
+
+The Host's full shared MUI provider currently produces a chunk above Vite's 500 kB warning threshold (about 567 kB minified, 164 kB gzip). This is a non-blocking size advisory, not a failed build; no warning limit was raised. Further shared-library payload optimization is deferred.
+
+## Exposed module contract and routing
+
+`parasite/routes` exports a default React component accepting the shared `ParasiteRoutesProps` contract. It does not mount a DOM root or create a BrowserRouter/ThemeProvider.
+
+- `mode="embedded"`: renders beneath Host route `/products/*`. Catalog is `/products`; product details are `/products/:productId`. The Host owns its shell, browser router, theme, titles, and focus.
+- Default standalone mode: the existing PARASITE entry owns its BrowserRouter, theme, header, main, and footer. Catalog remains `/`; details remain `/products/:productId`.
+
+PARASITE owns both views' products, filters, sorting, details, availability, and cart-intent feedback. Its local navigation context carries only the catalog return path, never business state. Catalog and detail links preserve URL query parameters. Product images resolve against the remote module URL, so embedded views fetch images from port 5001 instead of the Host. Product card columns use available container width to fit inside the Host shell.
+
+## Runtime loading flow
+
+1. The federation plugin initializes ECOSYSTEM's runtime and shared providers before application bootstrap. No PARASITE entry is needed for the overview.
+2. Navigation to `/products/*` mounts the Host-owned `RemoteProducts` boundary and Suspense fallback.
+3. The Host adapter explicitly calls `registerRemotes` with the configured ESM entry, then `loadRemote('parasite/routes')`. This registration is essential: the plugin may prune remotes that are requested only through runtime APIs rather than static remote imports.
+4. The runtime requests PARASITE's remote entry and chunks from port 5001, negotiates shared dependencies, and resolves the expose's module namespace.
+5. The adapter validates the default component and returns it to React.lazy. The Host passes embedded mode; PARASITE consumes the existing router and theme contexts.
+6. Rejected loads, invalid modules, a 12-second stalled-load timeout, and remote render/chunk failures reach the route error boundary. The sidebar/header and other Host routes remain outside that boundary.
+
+No ordinary local import stands in for a remote. No createInstance/init call invents a separate Host sharing scope. No JSON registry is fetched.
+
+## Failure and caching behavior
+
+The fallback reads Products are resting, provides Back to overview, and offers a full-page reload after the remote recovers. A full reload is intentional: native ESM and federation caches can retain prior imports or failures. The timeout bounds the displayed loading state; it does not cancel an underlying network import.
+
+Stopping a server does not invalidate JavaScript already loaded into a browser. An existing catalog/detail view may keep working until it needs another remote resource. This is not a live health monitor. A fresh page load at Products demonstrates an unavailable entry, while a fresh overview still boots independently. The dashboard labels federation configuration, not observed availability.
+
+Deploying a changed PARASITE at the same entry URL does not require a Host rebuild. In verification, PARASITE was rebuilt and reloaded into an already-built Host. The current root entry URL and CORS policy target local development; production hosting, immutable release directories/cache policy, and runtime registry selection await their stages. Generated JS chunks already have content hashes.
+
+## Reproduce the requested demonstration
+
+Start each app in its own terminal:
+
+```sh
+pnpm --filter @microverse/parasite dev
+pnpm --filter @microverse/ecosystem dev
+```
+
+Open `http://127.0.0.1:5000/`, choose Products, search for moss, and open its details. Confirm that the URL stays on port 5000, the Host sidebar stays visible, and product images come from port 5001. PARASITE's standalone collection remains available at `http://127.0.0.1:5001/`.
+
+Stop only the PARASITE terminal with Ctrl-C. The loaded screen may remain cached. Reload Products to force a fresh remote request: the contained fallback appears. Navigate to Cart/Profile/Overview; the Host remains usable. A fresh overview loads with PARASITE offline. Restart PARASITE and use Reload page to make a fresh attempt.
+
+For production verification, stop dev servers, build each app independently (or run `pnpm build`), then run the two filtered `preview` commands on the same ports. Both build outputs have been checked together, including direct detail URLs, standalone PARASITE, and Host startup with the remote stopped. Builds also succeeded with PARASITE's dev server stopped. Static hosting requires SPA fallbacks on both sites and remote CORS allowing the Host.
+
+## Checks
+
+`pnpm test` covers the loader's actual API call contract, bad exports, rejection, timeout cleanup, loading UI, embedded props, load/render failure containment, Host navigation after failure, embedded detail routing, query preservation, and standalone regressions. Browser verification supplements these source tests; mocked loader tests alone are not federation evidence.
