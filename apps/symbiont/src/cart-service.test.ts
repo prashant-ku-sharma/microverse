@@ -195,6 +195,18 @@ describe('Product → SYMBIONT → cart facts', () => {
     expect(service.getSnapshot().cart.items[0]?.quantity).toBe(1);
     expect(pendingEvents()).toHaveLength(1);
   });
+  it('does not announce an uninitialized cart when another owner starts after failed restoration', () => {
+    sessionStorage.setItem(CART_STORAGE_KEY, '{bad');
+    const updated = vi.fn();
+    stops.push(subscribe(events.CART_UPDATED, updated));
+    const service = createCartService();
+    stops.push(service.start(), service.start());
+    expect(service.getSnapshot().error).not.toBeNull();
+    expect(updated).not.toHaveBeenCalled();
+    service.reset();
+    expect(updated.mock.calls.at(-1)?.[0].payload.itemCount).toBe(0);
+  });
+
   it('does not overwrite invalid persisted cart data until an explicit reset', () => {
     sessionStorage.setItem(CART_STORAGE_KEY, '{bad');
     const service = createCartService();

@@ -51,6 +51,7 @@ export function createCartService() {
     notify();
   }
   function announce(correlationId?: string) {
+    if (snapshot.error) return;
     bus.publish(
       events.CART_UPDATED,
       { ...calculateTotals(snapshot.cart.items), revision },
