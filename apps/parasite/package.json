@@ -22,7 +22,8 @@
     "@emotion/styled": "catalog:",
     "@microverse/shared-types": "workspace:*",
     "react-router": "8.5.1",
-    "@babel/runtime": "8.1.0"
+    "@babel/runtime": "8.1.0",
+    "@microverse/mycelium": "workspace:*"
   },
   "devDependencies": {
     "@microverse/config": "workspace:*",

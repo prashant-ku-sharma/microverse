@@ -1,6 +1,6 @@
 # MICROVERSE
 
-A biology-inspired microfrontend ecosystem, built incrementally. **Stage 5 adds the independent SYMBIONT cart and integrates it into ECOSYSTEM alongside PARASITE through runtime Module Federation.** Both remotes also run independently; cross-application business events remain deferred.
+A biology-inspired microfrontend ecosystem, built incrementally. **Stage 6 connects PARASITE, SYMBIONT, and the Host cart count through MYCELIUM typed events.** Product adds are persisted before delivery; the independently federated cart service owns reconciliation and state. Both remotes continue to run standalone.
 
 ## Prerequisites
 
@@ -49,7 +49,7 @@ docs/decisions/0001-workspace-foundation.md
 docs/IMPLEMENTATION_PROGRESS.md
 ```
 
-Each application has its own entry point, HTML, package manifest, Vite config, TypeScript project, tests, and build output. Shared packages expose TypeScript source consumed by Vite and are private workspace packages, not published artifacts. Their build command validates their source; it does not emit a distribution. `shared-ui` exports a custom dark MUI theme, tokens, and reusable presentation components. `config` provides common Vite and test configuration; `shared-types` exports Product and remote presentation contracts; Mycelium and mock-utils still have empty exports.
+Each application has its own entry point, HTML, package manifest, Vite config, TypeScript project, tests, and build output. Shared packages expose TypeScript source consumed by Vite and are private workspace packages, not published artifacts. Their build command validates their source; it does not emit a distribution. `shared-ui` exports a custom dark MUI theme, tokens, and reusable presentation components. `config` provides common Vite and test configuration; `shared-types` exports Product and remote presentation contracts; MYCELIUM exports typed/validated CustomEvent transport and an opaque durable inbox; mock-utils still has empty exports.
 
 ## Environment conventions
 
@@ -59,13 +59,13 @@ Only `VITE_*` variables are exposed to browser code. They are **public build-tim
 
 ## Boundaries and next work
 
-Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; other business state will remain in its owning remote. Future communication will use typed, validated Mycelium events with reconciliation where consumers can be absent. Additional remote integrations, authentication simulation, profile/offer business features, API mocks, resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
+Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; other business state will remain in its owning remote. MYCELIUM carries typed, validated product/cart events, with a persisted inbox and SYMBIONT-owned reconciliation when its consumer is absent. Additional remote integrations, authentication simulation, profile/offer business features, API mocks, resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
 
-Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Products dynamically loads PARASITE and Cart loads SYMBIONT. Profile and Offers remain Host-owned placeholders. The dashboard's status and activity panels do not report live data. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
+Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Products dynamically loads PARASITE and Cart loads SYMBIONT. Profile and Offers remain Host-owned placeholders. The cart count observes live MYCELIUM facts; the dashboard's configuration and activity panels remain explicit placeholders. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
 
-PARASITE runs independently on port 5001 with 12 local mock products, search, category/stock filters, sorting, detail pages, prices, ratings, and stock handling. Add to Cart provides an informational acknowledgment while cart communication is deferred. The Host products route consumes the `parasite/routes` expose at runtime. See [PARASITE development and architecture](docs/parasite.md).
+PARASITE runs independently on port 5001 with 12 local mock products, search, category/stock filters, sorting, detail pages, prices, ratings, and stock handling. Add to Cart publishes a durable MYCELIUM request; SYMBIONT decides cart quantities and stock handling. The Host products route consumes the `parasite/routes` expose at runtime. See [PARASITE development and architecture](docs/parasite.md).
 
-SYMBIONT provides quantity updates, removals, empty state, integer-paise totals, a local 10% sample discount, and checkout simulation with an order receipt. Its cart starts with local fixtures on each mount; it is not yet connected to product discovery. See [SYMBIONT ownership and verification](docs/symbiont.md).
+SYMBIONT provides quantity updates, removals, empty state, integer-paise totals, a local 10% sample discount, and checkout simulation with an order receipt. A fresh cart starts empty; sample loading remains explicit. In the Host it consumes product requests and persists its cart across route navigation/reload in this browser tab. Standalone ports keep separate sessions. See [SYMBIONT ownership and verification](docs/symbiont.md).
 
 See [architecture](docs/architecture.md), [foundation ADR](docs/decisions/0001-workspace-foundation.md), and [implementation progress](docs/IMPLEMENTATION_PROGRESS.md).
 
@@ -74,3 +74,7 @@ See [architecture](docs/architecture.md), [foundation ADR](docs/decisions/0001-w
 Start `pnpm --filter @microverse/parasite dev` on 5001, `pnpm --filter @microverse/symbiont dev` on 5002, and `pnpm --filter @microverse/ecosystem dev` on 5000, or use `pnpm dev` for all apps. Open `http://127.0.0.1:5000/products` or `http://127.0.0.1:5000/cart`. Stopping either remote and reloading its Host route shows an isolated failure view while other Host routes remain usable. Already-loaded code may remain cached until a fresh request.
 
 See [Module Federation configuration, loading flow, and outage demonstration](docs/module-federation.md). No runtime remote registry is implemented. The entry URL overrides in Ecosystem's `.env.example` are build-time configuration.
+
+## Event-driven demonstration
+
+Open Products in the Host and add products before opening Cart: its count updates from SYMBIONT's background service. Navigate to Cart and reload; items remain. Stop SYMBIONT, reload Products, and save another add request. Restart SYMBIONT and reload the Host: its persisted inbox reconciles the request once. Communication is scoped to this Host origin/tab; standalone ports do not share a cart. See [event contracts, APIs, durability, and lifetime](docs/communication.md).

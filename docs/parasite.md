@@ -26,7 +26,7 @@ Stop the development server before `pnpm --filter @microverse/parasite preview`;
 - Category, in-stock-only, and search filters combine. Sort by featured order, price ascending/descending, highest rating, or name. Sorting never mutates source inventory; ties are resolved by name then ID.
 - Empty results include a reset action. The current result count is announced through a polite status region.
 
-The URL stores `q`, `category`, `sort`, and `stock=available`. Unsupported categories and sort values fall back to the default view. Search keystrokes replace history entries; other filter choices create navigable entries. Product-card and featured-product links carry the current query, so the Back to collection link restores the discovery view. Browser Back also works. No localStorage or shared global store is used.
+The URL stores `q`, `category`, `sort`, and `stock=available`. Unsupported categories and sort values fall back to the default view. Search keystrokes replace history entries; other filter choices create navigable entries. Product-card and featured-product links carry the current query, so the Back to collection link restores the discovery view. Browser Back also works. Discovery state remains in the URL; no shared global business store is used. MYCELIUM uses sessionStorage for durable add delivery.
 
 Examples:
 
@@ -49,7 +49,7 @@ Catalog and detail pages use ordinary local React.lazy/Suspense imports with the
 
 Zero stock displays Out of stock and disables Add to Cart on both cards and details. One to three units display a low-stock label. Higher stock displays In stock. Stock is a static non-negative integer fixture.
 
-Clicking an available product's Add to Cart button acknowledges intent with a dismissible information message: cart connection will arrive in a later stage, and no item has been added. It does not decrement stock, create a local cart, persist intent, publish CustomEvents, or communicate with Symbiont. This keeps Stage 3 truthful and within scope. Real cart delivery and reconciliation will be designed with Mycelium in a later stage.
+Clicking an available product publishes a validated PRODUCT_ADDED request with an INR/paise product snapshot and quantity one. MYCELIUM persists that intent before dispatch. PARASITE never mutates SYMBIONT state or decrements its sample inventory; stock limits/merging belong to the cart owner. The message confirms a saved request, not an accepted quantity. Persistence failures are visible. Standalone feedback explains that separate-origin apps do not share a cart; use the Host for the connected flow. See [MYCELIUM communication](communication.md).
 
 ## Verification coverage
 

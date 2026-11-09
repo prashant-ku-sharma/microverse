@@ -1,5 +1,13 @@
-import { useEffect, useReducer, useRef } from 'react';
-import { Box, Button, Chip, Divider, Stack, Typography } from '@mui/material';
+import { useEffect, useRef } from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Stack,
+  Typography,
+} from '@mui/material';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import {
@@ -8,7 +16,8 @@ import {
   StatusIndicator,
 } from '@microverse/shared-ui';
 import type { SymbiontRoutesProps } from '@microverse/shared-types';
-import { calculateTotals, cartReducer, createCart, formatMoney } from './cart';
+import { calculateTotals, formatMoney } from './cart';
+import { useCart } from './useCart';
 import { sampleCart } from './data/sample-cart';
 import { CartLine } from './components/CartLine';
 import { CartSummary } from './components/CartSummary';
@@ -16,21 +25,34 @@ import { CartSummary } from './components/CartSummary';
 export default function SymbiontRoutes({
   mode = 'standalone',
 }: SymbiontRoutesProps) {
-  const [state, dispatch] = useReducer(cartReducer, sampleCart, createCart);
+  const { cart: state, dispatch, error, retry, reset } = useCart();
   const confirmation = useRef<HTMLHeadingElement>(null);
   const totals = calculateTotals(state.items);
   const processing = state.phase === 'processing';
-  useEffect(() => {
-    if (!processing) return;
-    const timer = setTimeout(() => dispatch({ type: 'complete' }), 900);
-    return () => clearTimeout(timer);
-  }, [processing]);
   useEffect(() => {
     if (state.phase === 'confirmed') confirmation.current?.focus();
   }, [state.phase]);
   const restore = () => dispatch({ type: 'restore', items: sampleCart });
   return (
     <Box component="section" aria-label="SYMBIONT cart" sx={{ minWidth: 0 }}>
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 3 }}
+          action={
+            <Stack direction="row">
+              <Button color="inherit" onClick={retry}>
+                Retry
+              </Button>
+              <Button color="inherit" onClick={reset}>
+                Reset saved cart
+              </Button>
+            </Stack>
+          }
+        >
+          {error}
+        </Alert>
+      )}
       <Stack
         direction="row"
         sx={{ alignItems: 'center', gap: 1.5, mb: 3, flexWrap: 'wrap' }}
@@ -39,7 +61,7 @@ export default function SymbiontRoutes({
           SYMBIONT / CART & CHECKOUT
         </Typography>
         <Chip
-          label="Local sample cart"
+          label="Cart saved in this tab"
           variant="outlined"
           sx={{ color: 'text.secondary' }}
         />
@@ -209,7 +231,8 @@ export default function SymbiontRoutes({
             Room for something good.
           </Typography>
           <Typography color="text.secondary" sx={{ mt: 1 }}>
-            Your cart is empty. Restore the sample collection to explore.
+            Your cart is empty. Add products from PARASITE in the Host, or load
+            a sample collection to explore on its own.
           </Typography>
           <Button
             variant="contained"
@@ -217,7 +240,7 @@ export default function SymbiontRoutes({
             onClick={restore}
             sx={{ mt: 3 }}
           >
-            Restore sample cart
+            Load sample cart
           </Button>
         </SurfaceCard>
       ) : (
@@ -277,8 +300,8 @@ export default function SymbiontRoutes({
                 sx={{ color: 'secondary.main', fontSize: 20 }}
               />
               <Typography variant="body2" color="text.secondary">
-                Sample items live in SYMBIONT. Product discovery is connected in
-                a later stage.
+                Your cart stays with you as you explore. Changes are saved for
+                this browser tab.
               </Typography>
             </Stack>
           </Box>

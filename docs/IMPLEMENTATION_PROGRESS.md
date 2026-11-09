@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 5 — SYMBIONT cart microfrontend. Complete and pushed on 2026-11-09. Workspace checks and development/production browser verification passed. Awaiting Stage 6.
+Stage 6 — MYCELIUM event-driven communication. Implementation and verification complete; Git milestone in progress.
 
 ## Completed Stage 1 scope
 
@@ -94,18 +94,32 @@ Stage 5 — SYMBIONT cart microfrontend. Complete and pushed on 2026-11-09. Work
 - Push confirmed: `git push origin main` advanced `main` from `048437e` to `6ccb034`.
 - This documentation receipt records the actual milestone hash and confirmed push without rewriting history.
 
+## Stage 6 scope and verification
+
+- Four Zod-validated, discriminated version-1 event contracts and source-bound publish/subscribe/unsubscribe APIs using genuine browser CustomEvents. UUID IDs/correlations, timestamps, strict envelopes/payloads, cleanup, isolated subscriber failures, and bounded metadata logging.
+- Opaque persisted add-intent inbox with backpressure; SYMBIONT-owned cart + deduplication receipts committed before acknowledgement. Tab-scoped sessionStorage survives route unmount/reload without a shared business store or direct app imports.
+- Federated ./cart-service consumes while Cart UI is absent; Host starts it asynchronously and projects only validated cart facts into an accessible count. Loading failure keeps the shell/Products usable and the count unknown.
+- PARASITE publishes snapshots without modifying cart state. Quantity/removal/clear/checkout facts propagate from SYMBIONT. Connected carts start empty; sample data is explicitly loaded.
+- Actual implementation date: 2026-11-09 (Asia/Kolkata). Stage 6 was explicitly requested after Stage 5 on the same date; actual commit timestamps are retained.
+- Development browser flow passed: adds before Cart mount updated count 0→1→3; Cart quantities/totals matched and survived reload. With SYMBIONT stopped, another add request was saved and survived a reload. Production recovery restored exactly four units, including the queued journal once; a further reload retained four units. Quantity/removal counts propagated 4→3→2.
+- Final checks passed: `pnpm test` (113 tests across 16 files), `pnpm build` (all five applications), `pnpm typecheck` (all 10 projects), `pnpm lint`, `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`. The existing MUI provider chunk-size advisory remains non-blocking.
+- Final production browser verification passed: correlated PRODUCT_ADDED publication from 5001, SYMBIONT consumption/CART_UPDATED from 5002, and Host reception on 5000 used the same correlation ID. Clear and checkout restored the count to zero; reload kept the cart empty. Connected Cart at 390px had no horizontal overflow. Standalone SYMBIONT loaded its own sample cart, while standalone PARASITE explained origin-local delivery.
+- The Host build was inspected: it includes a runtime service request and contains neither cart persistence internals nor product fixtures. The service federation facade exports only its lifetime API. All task-owned development/preview servers were stopped after verification.
+- Earlier assertions were updated for the new saved-request feedback and asynchronous focus behavior. Test fixtures explicitly provide HTTP asset URLs to exercise runtime validation; timer cleanup assertions observe service behavior rather than unrelated jsdom storage/ripple timers. No verification failures remain.
+- Milestone commit and confirmed push will be recorded in a documentation receipt without rewriting history.
+
 ## Architecture decisions
 
-See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products; SYMBIONT owns cart state and checkout simulation. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration and [ADR 0005](decisions/0005-symbiont-cart-ownership.md) for cart ownership.
+See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products; SYMBIONT owns cart state and checkout simulation. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration and [ADR 0005](decisions/0005-symbiont-cart-ownership.md) for cart ownership and [ADR 0006](decisions/0006-durable-mycelium-delivery.md) for durable event intent and service lifetime.
 
 ## Pending stages
 
-Stages 6–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
+Stages 7–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
 
 ## Known limitations
 
-PARASITE and SYMBIONT are federated. The development entry/CORS configuration uses 127.0.0.1 ports 5000/5001/5002. Entry selection is build-time configuration; Nucleus, runtime registry, immutable release/cache policy, deployment automation, and business event delivery remain deferred. Cached modules are not a live health signal; recovery from cached import failures uses a page reload. The loading timeout does not cancel imports. Product data is static. Product-to-cart intent remains informational; SYMBIONT uses separate local test data and mount-local state. Checkout is a local simulation, with a fixed sample discount and no persistence/payments. The Host shared MUI provider chunk produces a non-blocking size advisory; no limit is suppressed.
+Only products/cart are integrated. Entry selection remains build-time configuration; Nucleus, immutable release/cache policy, authentication, deployment automation, and further event domains await their stages. Recovery from cached federation import failures uses a full reload. The tab/origin-scoped cart/inbox survives reload but is not a backend/account cart or cross-origin/cross-tab sync. Inbox capacity is 100 pending requests with visible rejection; diagnostic history is 100 records per module instance and applied IDs retain 1000 receipts. Corrupt inbox data is preserved/reported and needs manual inspection. Inventory and the fixed 10% discount remain sample data; checkout is a simulation. The existing Host shared MUI provider chunk-size advisory remains non-blocking.
 
 ## Next milestone
 
-Await Stage 6 instructions. Do not proceed automatically.
+Await Stage 7 instructions. Do not proceed automatically.

@@ -1,8 +1,32 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { cartService } from './cart-service';
 import SymbiontRoutes from './routes';
+
+vi.mock('./data/sample-cart', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./data/sample-cart')>();
+  return {
+    sampleCart: actual.sampleCart.map((item) => ({
+      ...item,
+      image: new URL(new URL(item.image).pathname, 'http://127.0.0.1:5002')
+        .href,
+    })),
+  };
+});
+
+beforeEach(() => {
+  sessionStorage.clear();
+  cartService.reset();
+  vi.spyOn(console, 'debug').mockImplementation(() => {});
+});
+
+function renderSampleCart() {
+  const view = render(<App />);
+  fireEvent.click(screen.getByRole('button', { name: 'Load sample cart' }));
+  return view;
+}
 
 afterEach(() => {
   vi.useRealTimers();
@@ -10,14 +34,14 @@ afterEach(() => {
 });
 describe('SYMBIONT application', () => {
   it('shows its standalone shell, products, quantities, discount and total', () => {
-    render(<App />);
+    renderSampleCart();
     expect(screen.getByRole('banner')).toHaveTextContent('SYMBIONT');
     expect(screen.getByRole('main')).toBeVisible();
     expect(screen.getAllByRole('article')).toHaveLength(3);
     expect(screen.getByTestId('subtotal')).toHaveTextContent('₹5,346.00');
     expect(screen.getByTestId('discount')).toHaveTextContent('₹534.60');
     expect(screen.getByTestId('total')).toHaveTextContent('₹4,811.40');
-    expect(screen.getByText('Local sample cart')).toBeVisible();
+    expect(screen.getByText('Cart saved in this tab')).toBeVisible();
     expect(
       screen.getByRole('img', { name: 'Lumen task light' }),
     ).toHaveAttribute(
@@ -27,7 +51,7 @@ describe('SYMBIONT application', () => {
   });
   it('updates quantities and totals and enforces minimum and stock limits', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderSampleCart();
     const increase = screen.getByRole('button', {
       name: 'Increase Lumen task light quantity',
     });
@@ -50,7 +74,7 @@ describe('SYMBIONT application', () => {
   });
   it('removes items, reaches an empty state, and restores sample data', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderSampleCart();
     for (const name of [
       'Arc ceramic mug',
       'Lumen task light',
@@ -63,16 +87,14 @@ describe('SYMBIONT application', () => {
     expect(
       screen.queryByRole('button', { name: 'Simulate checkout' }),
     ).not.toBeInTheDocument();
-    await user.click(
-      screen.getByRole('button', { name: 'Restore sample cart' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Load sample cart' }));
     expect(screen.getAllByRole('article')).toHaveLength(3);
     await user.click(screen.getByRole('button', { name: 'Clear cart' }));
     expect(screen.queryAllByRole('article')).toHaveLength(0);
   });
   it('simulates checkout once, locks editing, and confirms an accurate immutable receipt', async () => {
     vi.useFakeTimers();
-    render(<App />);
+    renderSampleCart();
     fireEvent.click(
       screen.getByRole('button', { name: 'Remove Arc ceramic mug' }),
     );
@@ -119,14 +141,15 @@ describe('SYMBIONT application', () => {
   });
   it('cleans up pending checkout on unmount', () => {
     vi.useFakeTimers();
-    const { unmount } = render(<App />);
+    const { unmount } = renderSampleCart();
     fireEvent.click(screen.getByRole('button', { name: 'Simulate checkout' }));
     unmount();
-    expect(vi.getTimerCount()).toBe(0);
+    expect(cartService.getSnapshot().cart.phase).toBe('cart');
+    expect(cartService.getSnapshot().cart.order).toBeNull();
   });
   it('supports the standalone branding override', () => {
     vi.stubEnv('VITE_APP_LABEL', 'Local organism');
-    render(<App />);
+    renderSampleCart();
     expect(screen.getByRole('banner')).toHaveTextContent('Local organism');
     expect(document.title).toBe('Local organism | Cart & checkout');
   });

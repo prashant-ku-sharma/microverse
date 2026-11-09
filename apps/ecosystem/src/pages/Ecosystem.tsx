@@ -13,7 +13,7 @@ export function Ecosystem() {
       <PageHeader
         eyebrow="ECOSYSTEM / THE HOST"
         title="Built to grow together."
-        description="A shared habitat for independent applications. The Host provides the structure; each organism will own its own behavior."
+        description="A shared habitat for independent applications. The Host provides the structure; each organism owns its own behavior."
       />
       <Box
         sx={{
@@ -33,7 +33,10 @@ export function Ecosystem() {
           </Typography>
         </SurfaceCard>
         <SurfaceCard>
-          <StatusIndicator label="Stage 5 · Cart integration" tone="success" />
+          <StatusIndicator
+            label="Stage 6 · MYCELIUM communication"
+            tone="success"
+          />
           <Typography variant="h2" sx={{ mt: 3, mb: 2 }}>
             A home for independent applications
           </Typography>
@@ -44,9 +47,10 @@ export function Ecosystem() {
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
             Both remotes load from their own servers and are isolated by
-            Host-owned error boundaries. Runtime registry and authentication
-            simulation remain future milestones. No application imports another
-            application’s source.
+            Host-owned error boundaries. MYCELIUM carries validated events
+            between product discovery, the cart, and the Host count. Runtime
+            registry and authentication simulation remain future milestones. No
+            application imports another application’s source.
           </Typography>
           <Button component={Link} to="/" sx={{ mt: 3 }}>
             Return to overview

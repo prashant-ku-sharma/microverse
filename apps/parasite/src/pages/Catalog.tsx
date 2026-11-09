@@ -252,7 +252,8 @@ export function Catalog({
             >
               A local sample collection.
               <br />
-              Cart connection coming in a later stage.
+              Add requests are saved through MYCELIUM. Open Cart in the Host to
+              review confirmed quantities.
             </Typography>
           </SurfaceCard>
           <Box sx={{ minWidth: 0, containerType: 'inline-size' }}>

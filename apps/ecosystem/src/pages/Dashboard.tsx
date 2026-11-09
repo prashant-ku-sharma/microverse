@@ -235,7 +235,7 @@ export function Dashboard() {
               color="text.secondary"
               sx={{ maxWidth: 330 }}
             >
-              Activity will appear here when organisms begin communicating. This
+              MYCELIUM logs event diagnostics in the browser console. This panel
               is a placeholder, not a live event feed.
             </Typography>
           </Stack>

@@ -28,6 +28,7 @@ export interface CartState {
   notice: string;
 }
 export type CartAction =
+  | { type: 'add'; product: Omit<CartItem, 'quantity'>; quantity: number }
   | { type: 'quantity'; id: string; quantity: number }
   | { type: 'remove'; id: string }
   | { type: 'clear' }
@@ -71,8 +72,35 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
   if (state.phase === 'processing') return state;
   if (action.type === 'restore')
     return { ...createCart(action.items), notice: 'Sample cart restored.' };
-  if (state.phase !== 'cart') return state;
+  if (state.phase !== 'cart' && action.type !== 'add') return state;
   switch (action.type) {
+    case 'add': {
+      const existing = state.items.find(
+        (item) => item.id === action.product.id,
+      );
+      const stock = existing?.stock ?? action.product.stock;
+      const quantity = (existing?.quantity ?? 0) + action.quantity;
+      if (
+        !Number.isInteger(action.quantity) ||
+        action.quantity < 1 ||
+        quantity > stock
+      )
+        return {
+          ...state,
+          notice: `${action.product.name}: the available quantity is already in your cart.`,
+        };
+      return {
+        ...state,
+        phase: 'cart',
+        order: null,
+        items: existing
+          ? state.items.map((item) =>
+              item.id === existing.id ? { ...item, quantity } : item,
+            )
+          : [...state.items, { ...action.product, quantity }],
+        notice: `${action.product.name} added to your cart.`,
+      };
+    }
     case 'quantity': {
       const item = state.items.find((item) => item.id === action.id);
       if (

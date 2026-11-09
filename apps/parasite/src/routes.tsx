@@ -11,7 +11,10 @@ import { LoadingIndicator, SurfaceCard } from '@microverse/shared-ui';
 import type { Product, ParasiteRoutesProps } from '@microverse/shared-types';
 import { CatalogPathContext } from './catalog-path';
 import { ProductLayout } from './components/ProductLayout';
+import { createMycelium, events } from '@microverse/mycelium';
 import { products } from './data/products';
+
+const mycelium = createMycelium('parasite');
 
 const Catalog = lazy(() =>
   import('./pages/Catalog').then((module) => ({ default: module.Catalog })),
@@ -41,10 +44,29 @@ export default function ParasiteRoutes({
 
   function requestCart(product: Product) {
     if (product.stock <= 0) return;
-    // Stage 3 acknowledges intent only. Cart state and events belong to later stages.
-    setCartNotice(
-      `${product.name}: cart connection is coming in a later stage. No item has been added.`,
-    );
+    try {
+      mycelium.publish(events.PRODUCT_ADDED, {
+        product: {
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          category: product.category,
+          image: product.image,
+          unitPricePaise: Math.round(product.price * 100),
+          stock: product.stock,
+        },
+        quantity: 1,
+      });
+      setCartNotice(
+        embedded
+          ? `Cart request saved for ${product.name}. View Cart for confirmed quantities.`
+          : `Cart request saved locally for ${product.name}. Use ECOSYSTEM for the connected product and cart flow; standalone apps on separate ports keep separate carts.`,
+      );
+    } catch {
+      setCartNotice(
+        'Your cart request could not be saved. Check browser storage or open Cart to reconcile pending requests, then try again.',
+      );
+    }
   }
 
   return (

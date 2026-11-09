@@ -4,6 +4,7 @@ import {
   AppBar,
   Avatar,
   Box,
+  Chip,
   Divider,
   Drawer,
   IconButton,
@@ -32,6 +33,8 @@ import {
   StatusIndicator,
 } from '@microverse/shared-ui';
 
+import { useCartConnection } from '../useCartConnection';
+
 const navigation = [
   { path: '/', label: 'Overview', icon: DashboardOutlinedIcon },
   { path: '/products', label: 'Products', icon: Inventory2OutlinedIcon },
@@ -42,6 +45,7 @@ const navigation = [
 ];
 
 export function HostLayout() {
+  const cart = useCartConnection();
   const [menuOpen, setMenuOpen] = useState(false);
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
@@ -113,6 +117,11 @@ export function HostLayout() {
             key={path}
             component={NavLink}
             to={path}
+            aria-label={
+              path === '/cart' && cart.count !== null
+                ? `Cart (${cart.count} ${cart.count === 1 ? 'item' : 'items'})`
+                : label
+            }
             end={path === '/'}
             onClick={() => setMenuOpen(false)}
             sx={{
@@ -136,7 +145,15 @@ export function HostLayout() {
                 primary: { sx: { fontSize: '.86rem', fontWeight: 600 } },
               }}
             />
-            {path !== '/' && path !== '/ecosystem' && (
+            {path === '/cart' && cart.count !== null && (
+              <Chip
+                aria-hidden="true"
+                label={cart.count}
+                size="small"
+                sx={{ bgcolor: '#b9a2ff22', color: 'secondary.main' }}
+              />
+            )}
+            {path !== '/cart' && path !== '/' && path !== '/ecosystem' && (
               <Box
                 component="span"
                 aria-hidden="true"
@@ -280,7 +297,16 @@ export function HostLayout() {
               {current}
             </Typography>
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-              <StatusIndicator label="Local foundation" tone="success" />
+              <StatusIndicator
+                label={
+                  cart.status === 'ready'
+                    ? 'MYCELIUM · Cart connected'
+                    : cart.status === 'connecting'
+                      ? 'Connecting Cart…'
+                      : 'Cart unavailable'
+                }
+                tone={cart.status === 'ready' ? 'success' : 'warning'}
+              />
             </Box>
             <Divider orientation="vertical" flexItem sx={{ my: 2 }} />
             <Avatar
@@ -331,7 +357,7 @@ export function HostLayout() {
               MICROVERSE · A living architecture
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              STAGE 05 / CART ORGANISM
+              STAGE 06 / MYCELIUM
             </Typography>
           </Stack>
         </Box>

@@ -1,10 +1,22 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import { microverseTheme } from '@microverse/shared-ui';
 import { MemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { pendingEvents } from '@microverse/mycelium';
+
+vi.mock('./data/products', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./data/products')>();
+  return {
+    products: actual.products.map((product) => ({
+      ...product,
+      image: new URL(new URL(product.image).pathname, 'http://127.0.0.1:5001')
+        .href,
+    })),
+  };
+});
 
 async function renderCatalog(path = '/') {
   const view = render(
@@ -27,6 +39,8 @@ function visibleProductNames() {
 }
 
 beforeEach(() => {
+  sessionStorage.clear();
+  vi.spyOn(console, 'debug').mockImplementation(() => {});
   vi.stubGlobal('scrollTo', vi.fn());
 });
 afterEach(() => {
@@ -125,7 +139,7 @@ describe('PARASITE standalone catalog', () => {
       ).toBeVisible();
       expect(screen.getByText('Glazed stoneware, cotton wick')).toBeVisible();
       expect(screen.getByText('Fits a 10 cm nursery pot')).toBeVisible();
-      expect(screen.getByRole('main')).toHaveFocus();
+      await waitFor(() => expect(screen.getByRole('main')).toHaveFocus());
       expect(document.title).toBe('Moss self-watering planter | PARASITE');
       await user.click(
         screen.getByRole('link', { name: 'Back to collection' }),
@@ -171,7 +185,7 @@ describe('PARASITE standalone catalog', () => {
     ).toBeDisabled();
   });
 
-  it('acknowledges cart intent honestly without publishing an event or changing stock', async () => {
+  it('publishes a durable cart request without changing its product stock', async () => {
     const user = userEvent.setup();
     const added = vi.fn();
     window.addEventListener('microverse:product:added', added);
@@ -183,14 +197,33 @@ describe('PARASITE standalone catalog', () => {
         }),
       );
       expect(screen.getByRole('alert')).toHaveTextContent(
-        'No item has been added.',
+        'Cart request saved locally for Moss self-watering planter.',
       );
       expect(screen.getByText(/18 units in sample inventory/)).toBeVisible();
-      expect(added).not.toHaveBeenCalled();
+      expect(added).toHaveBeenCalledOnce();
+      expect(pendingEvents()[0]?.payload).toMatchObject({
+        product: { id: 'moss-planter', unitPricePaise: 149000 },
+        quantity: 1,
+      });
       await user.click(screen.getByRole('button', { name: 'Close' }));
     } finally {
       window.removeEventListener('microverse:product:added', added);
     }
+  });
+
+  it('shows a failure instead of claiming delivery when browser storage rejects the request', async () => {
+    const user = userEvent.setup();
+    await renderCatalog('/products/moss-planter');
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('Full', 'QuotaExceededError');
+    });
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Add Moss self-watering planter to cart',
+      }),
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('could not be saved');
+    expect(pendingEvents()).toEqual([]);
   });
 
   it('opens standalone category navigation', async () => {

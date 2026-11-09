@@ -23,7 +23,8 @@
     "react-router": "8.5.1",
     "@module-federation/runtime": "2.9.3",
     "@microverse/shared-types": "workspace:*",
-    "@babel/runtime": "8.1.0"
+    "@babel/runtime": "8.1.0",
+    "@microverse/mycelium": "workspace:*"
   },
   "devDependencies": {
     "@microverse/config": "workspace:*",

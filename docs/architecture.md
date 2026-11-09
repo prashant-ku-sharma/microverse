@@ -1,8 +1,8 @@
 # Architecture
 
-## Current implementation: Stage 5
+## Current implementation: Stage 6
 
-MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. SYMBIONT owns a functional standalone cart and checkout simulation on port 5002. Commensal and Mutant remain standalone foundation pages. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes PARASITE and SYMBIONT through runtime Module Federation, with shared framework contexts and isolated route failure boundaries.
+MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. SYMBIONT owns a functional standalone cart, persistence/reconciliation service, and checkout simulation on port 5002. Commensal and Mutant remain standalone foundation pages. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes PARASITE and SYMBIONT through runtime Module Federation, with shared framework contexts and isolated route failure boundaries.
 
 | Route         | Rendered page                                                                             |
 | ------------- | ----------------------------------------------------------------------------------------- |
@@ -17,13 +17,13 @@ The Host owns layout, navigation, route composition, active links, titles, and r
 
 ## Shared infrastructure
 
-| Package                    | Current export                                       | Intended boundary                          |
-| -------------------------- | ---------------------------------------------------- | ------------------------------------------ |
-| `@microverse/shared-ui`    | `microverseTheme`, tokens, components                | MUI visual infrastructure                  |
-| `@microverse/config`       | Empty root, `./vite`, `./test-setup`, `./federation` | Development configuration                  |
-| `@microverse/shared-types` | Product and exposed-route interfaces                 | Genuine cross-app contracts                |
-| `@microverse/mycelium`     | Empty module                                         | Event infrastructure, never business state |
-| `@microverse/mock-utils`   | Empty module                                         | Shared mock infrastructure                 |
+| Package                    | Current export                                             | Intended boundary                          |
+| -------------------------- | ---------------------------------------------------------- | ------------------------------------------ |
+| `@microverse/shared-ui`    | `microverseTheme`, tokens, components                      | MUI visual infrastructure                  |
+| `@microverse/config`       | Empty root, `./vite`, `./test-setup`, `./federation`       | Development configuration                  |
+| `@microverse/shared-types` | Product and exposed-route interfaces                       | Genuine cross-app contracts                |
+| `@microverse/mycelium`     | Typed Zod event contracts, transport, durable intent inbox | Event infrastructure, never business state |
+| `@microverse/mock-utils`   | Empty module                                               | Shared mock infrastructure                 |
 
 Source exports keep development simple. Applications bundle shared source into their own build output; no package distribution or publication is needed at this stage. This is build-time infrastructure sharing, not runtime Module Federation.
 
@@ -41,24 +41,28 @@ Official references: [Vite requirements](https://vite.dev/guide/), [MUI installa
 
 ## Future architecture (not implemented)
 
-Ecosystem already owns composition and routing. It already isolates PARASITE/SYMBIONT failures and will later own the runtime registry, simulated authentication, and boundaries for the remaining remotes. Parasite, Symbiont, Commensal, and Mutant will own products, cart, profile, and offers respectively. Mycelium will carry typed CustomEvent envelopes validated at runtime. Consumer absence will require persistence or reconciliation in the appropriate owner; events are not durable delivery.
+Ecosystem already owns composition and routing. It already isolates PARASITE/SYMBIONT failures and will later own the runtime registry, simulated authentication, and boundaries for the remaining remotes. Parasite, Symbiont, Commensal, and Mutant will own products, cart, profile, and offers respectively. MYCELIUM already carries versioned product/cart CustomEvent envelopes validated at runtime. Its persisted inbox and SYMBIONT-owned reconciliation handle consumer absence; profile/offer contracts remain future work.
 
 Remotes must remain independently runnable and deployable. Further remote integrations must retain supported runtime APIs, configurable remote URLs, aligned shared dependencies, and isolated failure states. A remote deployment must not require a Host rebuild. Deployment automation and the registry are intentionally deferred.
 
-Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. Deployment hosting is not configured in Stage 5.
+Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. Deployment hosting is not configured in Stage 6.
 
 ## PARASITE product ownership
 
 The shared Product interface is a contract only. PARASITE owns its synchronous mock inventory, local product illustrations, search/category/stock filters, sorting, price formatting, detail presentation, and availability rules. Its own BrowserRouter stores discovery choices in URL parameters; local lazy-loaded route chunks are ordinary static application assets.
 
-The Host's `/products/*` route now consumes `parasite/routes` through the federation runtime. PARASITE is reached independently at `http://127.0.0.1:5001/`, with details at `/products/:productId`. Add to Cart currently acknowledges intent without state mutation or events. There are no cross-app imports or shared business stores. See [PARASITE documentation](parasite.md) and [ADR 0003](decisions/0003-parasite-product-ownership.md).
+The Host's `/products/*` route now consumes `parasite/routes` through the federation runtime. PARASITE is reached independently at `http://127.0.0.1:5001/`, with details at `/products/:productId`. Add to Cart publishes durable product intent through MYCELIUM without changing cart state or product inventory. There are no cross-app imports or shared business stores. See [PARASITE documentation](parasite.md) and [ADR 0003](decisions/0003-parasite-product-ownership.md).
 
 ## Runtime federation boundary
 
 The Host's lazy loader explicitly registers the configured ESM remote and calls loadRemote. It has no source imports from either remote. The plugin shares compatible React/React DOM, JSX runtime subpaths, React Router, MUI, and Emotion with identical rules from config. loaded-first keeps the overview independent of remote availability. Embedded components use the Host theme and PARASITE uses its router; standalone entries keep their own providers.
 
-The shared Host boundary, per-remote timeouts, and loading fallbacks isolate Products and Cart separately. No Nucleus/runtime registry, live health monitor, or cross-app business event layer is implemented. See [federation flow and verification](module-federation.md) and [ADR 0004](decisions/0004-first-runtime-federation.md).
+The shared Host boundary, per-remote timeouts, and loading fallbacks isolate Products and Cart separately. No Nucleus/runtime registry or live health monitor is implemented. MYCELIUM now carries the product/cart business events. See [federation flow and verification](module-federation.md) and [ADR 0004](decisions/0004-first-runtime-federation.md).
 
 ## SYMBIONT cart ownership
 
-SYMBIONT owns cart fixtures, models, reducer, quantity/stock rules, integer-paise totals, sample discount, and checkout receipts. Its ./routes entry renders inside /cart without a second root/theme/shell. Standalone keeps its own providers and layout. Mount-local state resets on navigation away or reload; it is separate from PARASITE and the Host. No Mycelium or persistence exists yet. See [SYMBIONT documentation](symbiont.md) and [ADR 0005](decisions/0005-symbiont-cart-ownership.md).
+SYMBIONT owns cart fixtures, models, reducer, quantity/stock rules, integer-paise totals, sample discount, and checkout receipts. Its ./routes entry renders inside /cart without a second root/theme/shell. Standalone keeps its own providers and layout. Its federated headless service owns the persisted cart and deduplication receipts. MYCELIUM carries opaque intent/facts; the Host projects a count. Tab-scoped state survives reload/unmount, separate from PARASITE and the Host. See [SYMBIONT documentation](symbiont.md) and [ADR 0005](decisions/0005-symbiont-cart-ownership.md).
+
+## MYCELIUM communication boundary
+
+The Host requests SYMBIONT's ./cart-service asynchronously after subscribing to cart facts. The shell remains usable if that service is unavailable. Cart UI uses the same remote-owned module instance. Product requests are validated and persisted before CustomEvent dispatch; the owner commits cart + receipt before acknowledgement. No business state or calculations live in MYCELIUM. See [communication architecture](communication.md) and [ADR 0006](decisions/0006-durable-mycelium-delivery.md).

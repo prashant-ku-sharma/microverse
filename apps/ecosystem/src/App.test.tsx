@@ -1,16 +1,18 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
 import { microverseTheme } from '@microverse/shared-ui';
 import { MemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { createMycelium, events } from '@microverse/mycelium';
 
 vi.mock('./federation/loadParasite', () => ({
   loadParasite: vi.fn(async () => ({ default: () => <h1>Products</h1> })),
 }));
 
 vi.mock('./federation/loadSymbiont', () => ({
+  loadCartService: vi.fn(async () => ({ startCartService: () => () => {} })),
   loadSymbiont: vi.fn(async () => ({ default: () => <h1>Cart</h1> })),
 }));
 
@@ -163,6 +165,21 @@ describe('Ecosystem Host', () => {
       await screen.findByRole('heading', { name: 'Built to grow together.' }),
     ).toBeVisible();
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('renders an accessible cart count from MYCELIUM facts', () => {
+    vi.spyOn(console, 'debug').mockImplementation(() => {});
+    renderHost();
+    act(() =>
+      createMycelium('symbiont').publish(events.CART_UPDATED, {
+        itemCount: 3,
+        subtotalPaise: 300,
+        discountPaise: 30,
+        totalPaise: 270,
+        revision: 1,
+      }),
+    );
+    expect(screen.getByRole('link', { name: 'Cart (3 items)' })).toBeVisible();
   });
 
   it('supports the Host branding override', () => {

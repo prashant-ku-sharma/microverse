@@ -17,7 +17,10 @@ export default defineConfig(({ mode }) =>
             federation({
               name: 'symbiont',
               filename: 'remoteEntry.js',
-              exposes: { './routes': './src/routes.tsx' },
+              exposes: {
+                './routes': './src/routes.tsx',
+                './cart-service': './src/cart-entry.ts',
+              },
               shared: federationShared,
               shareStrategy: 'loaded-first',
               dts: false,

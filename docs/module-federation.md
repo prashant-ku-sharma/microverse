@@ -95,3 +95,11 @@ SYMBIONT uses the same provider configuration at port 5002, names its container 
 RemoteBoundary is now reusable Host infrastructure. Products and Cart each mount their own boundary, loading indicator, module validation, and 12-second timeout. A rejected Cart load shows Your cart is resting while other Host routes remain usable. The reload/cache behavior described above applies to both remotes.
 
 The cart expose accepts embedded mode and uses Host MUI/Emotion contexts. It needs no nested router: checkout and confirmation are local workflow state. Its standalone entry still supplies its own root, theme, header, and main. Cart state and images remain remote-owned; the Host contains no fixture imports. See [SYMBIONT documentation](symbiont.md) for business rules and reproduction commands.
+
+## Stage 6: background cart lifetime
+
+SYMBIONT additionally exposes ./cart-service from src/cart-entry.ts, a facade that exports only startCartService from its private cart-service module. Its named startCartService export returns a lifetime cleanup function; it exposes no cart state/mutation API to the Host. The Host uses the supported registerRemotes/loadRemote APIs for symbiont/cart-service, validates the module, bounds loading, and catches failures independently of the shell. Official runtime APIs were rechecked for this integration.
+
+loaded-first still prevents plugin-driven eager initialization of all remotes. The Host now deliberately requests the small cart service asynchronously after mounting its MYCELIUM listeners; overview/Products remain usable when SYMBIONT is offline. The count stays unknown until a validated committed fact arrives. Cart UI and the service share the same independently built remote module instance.
+
+MYCELIUM need not be a federation JavaScript singleton: compatible contracts communicate through native CustomEvents and an origin/tab inbox. It contains no cart business state. See [event flow, persistence, and cleanup](communication.md).

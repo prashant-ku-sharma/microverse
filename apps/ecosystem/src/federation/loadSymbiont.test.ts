@@ -59,3 +59,18 @@ describe('SYMBIONT runtime loader', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 });
+
+describe('SYMBIONT background service expose', () => {
+  it('loads and validates the separate federation service contract', async () => {
+    const startCartService = vi.fn(() => vi.fn());
+    vi.mocked(loadRemote).mockResolvedValue({ startCartService });
+    const { loadCartService } = await import('./loadSymbiont');
+    expect(await loadCartService()).toEqual({ startCartService });
+    expect(loadRemote).toHaveBeenCalledWith('symbiont/cart-service');
+  });
+  it('rejects malformed service modules', async () => {
+    vi.mocked(loadRemote).mockResolvedValue({ default: () => null });
+    const { loadCartService } = await import('./loadSymbiont');
+    await expect(loadCartService()).rejects.toThrow('valid cart service');
+  });
+});
