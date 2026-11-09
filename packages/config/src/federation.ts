@@ -1,4 +1,4 @@
-/** Identical share rules for both builds, including imports made through workspace packages. */
+/** Identical share rules for federated builds, including imports made through workspace packages. */
 const singleton = (version: string) => ({
   singleton: true,
   version,

@@ -84,7 +84,7 @@ export function Dashboard() {
           ['04', 'Independent organisms'],
           ['01', 'Host application'],
           ['06', 'Workspace routes'],
-          ['01', 'Federation remote configured'],
+          ['02', 'Federation remotes configured'],
         ].map(([value, label]) => (
           <Box
             key={label}
@@ -153,7 +153,7 @@ export function Dashboard() {
               {...organism}
               index={`0${i + 1}`}
               statusLabel={
-                organism.name === 'PARASITE'
+                ['PARASITE', 'SYMBIONT'].includes(organism.name)
                   ? 'Federated remote'
                   : 'Placeholder'
               }
@@ -207,7 +207,7 @@ export function Dashboard() {
                 <Typography variant="body2">{o.name}</Typography>
                 <StatusIndicator
                   label={
-                    o.name === 'PARASITE'
+                    ['PARASITE', 'SYMBIONT'].includes(o.name)
                       ? 'Federation configured'
                       : 'Not connected'
                   }

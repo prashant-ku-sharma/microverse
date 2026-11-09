@@ -10,6 +10,10 @@ vi.mock('./federation/loadParasite', () => ({
   loadParasite: vi.fn(async () => ({ default: () => <h1>Products</h1> })),
 }));
 
+vi.mock('./federation/loadSymbiont', () => ({
+  loadSymbiont: vi.fn(async () => ({ default: () => <h1>Cart</h1> })),
+}));
+
 function renderHost(path = '/', desktop = true) {
   vi.stubGlobal(
     'matchMedia',
@@ -48,8 +52,8 @@ describe('Ecosystem Host', () => {
       'A living system.',
     );
     expect(screen.getAllByRole('article')).toHaveLength(4);
-    expect(screen.getAllByText('Not connected')).toHaveLength(3);
-    expect(screen.getByText('Federation configured')).toBeVisible();
+    expect(screen.getAllByText('Not connected')).toHaveLength(2);
+    expect(screen.getAllByText('Federation configured')).toHaveLength(2);
     expect(screen.getByText(/not a live event feed/)).toBeVisible();
     expect(
       screen.getByRole('img', { name: /One host, four independent organisms/ }),
@@ -85,7 +89,6 @@ describe('Ecosystem Host', () => {
   });
 
   it.each([
-    ['/cart', 'Cart', 'SYMBIONT'],
     ['/profile', 'Profile', 'COMMENSAL'],
     ['/offers', 'Offers', 'MUTANT'],
   ])('renders %s directly as a Host-owned placeholder', (path, title, name) => {
@@ -96,6 +99,17 @@ describe('Ecosystem Host', () => {
     expect(screen.getByText(`${name} / ORGANISM`)).toBeVisible();
     expect(screen.getByText('Host-owned placeholder')).toBeVisible();
     expect(document.title).toBe(`${title} | MICROVERSE`);
+  });
+
+  it('renders the federated cart route without a Host placeholder', async () => {
+    renderHost('/cart');
+    expect(
+      await screen.findByRole('heading', { name: 'Cart', level: 1 }),
+    ).toBeVisible();
+    expect(
+      screen.queryByText('Host-owned placeholder'),
+    ).not.toBeInTheDocument();
+    expect(document.title).toBe('Cart | MICROVERSE');
   });
 
   it('renders the ecosystem route and recovers unknown routes', async () => {

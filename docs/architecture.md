@@ -1,14 +1,14 @@
 # Architecture
 
-## Current implementation: Stage 4
+## Current implementation: Stage 5
 
-MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. Symbiont, Commensal, and Mutant remain standalone foundation pages. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes PARASITE through runtime Module Federation, with shared framework contexts and a products-route failure boundary.
+MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. SYMBIONT owns a functional standalone cart and checkout simulation on port 5002. Commensal and Mutant remain standalone foundation pages. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes PARASITE and SYMBIONT through runtime Module Federation, with shared framework contexts and isolated route failure boundaries.
 
 | Route         | Rendered page                                                                             |
 | ------------- | ----------------------------------------------------------------------------------------- |
 | `/`           | Dashboard, four organism cards, conceptual map, explicit status and activity placeholders |
 | `/products/*` | Federated PARASITE catalog and product detail routes                                      |
-| `/cart`       | Symbiont placeholder                                                                      |
+| `/cart`       | Federated SYMBIONT cart and checkout simulation                                           |
 | `/profile`    | Commensal placeholder                                                                     |
 | `/offers`     | Mutant placeholder                                                                        |
 | `/ecosystem`  | Host architecture overview                                                                |
@@ -41,11 +41,11 @@ Official references: [Vite requirements](https://vite.dev/guide/), [MUI installa
 
 ## Future architecture (not implemented)
 
-Ecosystem already owns composition and routing. It already isolates PARASITE failures and will later own the runtime registry, simulated authentication, and boundaries for the remaining remotes. Parasite, Symbiont, Commensal, and Mutant will own products, cart, profile, and offers respectively. Mycelium will carry typed CustomEvent envelopes validated at runtime. Consumer absence will require persistence or reconciliation in the appropriate owner; events are not durable delivery.
+Ecosystem already owns composition and routing. It already isolates PARASITE/SYMBIONT failures and will later own the runtime registry, simulated authentication, and boundaries for the remaining remotes. Parasite, Symbiont, Commensal, and Mutant will own products, cart, profile, and offers respectively. Mycelium will carry typed CustomEvent envelopes validated at runtime. Consumer absence will require persistence or reconciliation in the appropriate owner; events are not durable delivery.
 
 Remotes must remain independently runnable and deployable. Further remote integrations must retain supported runtime APIs, configurable remote URLs, aligned shared dependencies, and isolated failure states. A remote deployment must not require a Host rebuild. Deployment automation and the registry are intentionally deferred.
 
-Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. Deployment hosting is not configured in Stage 4.
+Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. Deployment hosting is not configured in Stage 5.
 
 ## PARASITE product ownership
 
@@ -55,6 +55,10 @@ The Host's `/products/*` route now consumes `parasite/routes` through the federa
 
 ## Runtime federation boundary
 
-The Host's lazy loader explicitly registers the configured ESM remote and calls loadRemote. It has no source imports from PARASITE. The plugin shares compatible React/React DOM, JSX runtime subpaths, React Router, MUI, and Emotion with identical rules from config. loaded-first keeps the overview independent of remote availability. The exposed component uses the Host router/theme in embedded mode; its standalone entry keeps its own providers.
+The Host's lazy loader explicitly registers the configured ESM remote and calls loadRemote. It has no source imports from either remote. The plugin shares compatible React/React DOM, JSX runtime subpaths, React Router, MUI, and Emotion with identical rules from config. loaded-first keeps the overview independent of remote availability. Embedded components use the Host theme and PARASITE uses its router; standalone entries keep their own providers.
 
-PARASITE's failure boundary, timeout, and loading fallback are owned by the Host and scoped to Products. No Nucleus/runtime registry, live health monitor, or cross-app business event layer is implemented. See [federation flow and verification](module-federation.md) and [ADR 0004](decisions/0004-first-runtime-federation.md).
+The shared Host boundary, per-remote timeouts, and loading fallbacks isolate Products and Cart separately. No Nucleus/runtime registry, live health monitor, or cross-app business event layer is implemented. See [federation flow and verification](module-federation.md) and [ADR 0004](decisions/0004-first-runtime-federation.md).
+
+## SYMBIONT cart ownership
+
+SYMBIONT owns cart fixtures, models, reducer, quantity/stock rules, integer-paise totals, sample discount, and checkout receipts. Its ./routes entry renders inside /cart without a second root/theme/shell. Standalone keeps its own providers and layout. Mount-local state resets on navigation away or reload; it is separate from PARASITE and the Host. No Mycelium or persistence exists yet. See [SYMBIONT documentation](symbiont.md) and [ADR 0005](decisions/0005-symbiont-cart-ownership.md).

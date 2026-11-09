@@ -1,6 +1,6 @@
-# Module Federation: first remote
+# Module Federation: products and cart
 
-Stage 4 integrates PARASITE into ECOSYSTEM through genuine runtime Module Federation. The apps remain separate builds and servers. The Host has no imports of PARASITE source and does not bundle its product fixtures.
+Stages 4–5 integrate PARASITE and SYMBIONT into ECOSYSTEM through genuine runtime Module Federation. The apps remain separate builds and servers. The Host has no remote source imports and does not bundle product/cart fixtures.
 
 ## Selected implementation and verified references
 
@@ -24,7 +24,7 @@ Source unit tests use Vite's test mode without the federation build transform. U
 
 ## Dependency policy
 
-`packages/config/src/federation.ts` supplies identical share rules for both builds:
+`packages/config/src/federation.ts` supplies identical share rules for all three federated builds:
 
 | Shared module                        | Installed version / rule                        |
 | ------------------------------------ | ----------------------------------------------- |
@@ -35,7 +35,7 @@ Source unit tests use Vite's test mode without the federation build transform. U
 | Emotion React                        | 11.14.0, singleton                              |
 | Emotion styled                       | 11.14.1, singleton                              |
 
-Each share declares a version, a compatible required range, and `allowNodeModulesSuffixMatch` for pnpm/workspace package resolution. The dependency catalog aligns the applications. Babel runtime 8.1.0 is an explicit dependency in both federated applications to make the plugin's fallback selection unambiguous. This does not override Emotion's own nested Babel 7 dependency.
+Each share declares a version, a compatible required range, and `allowNodeModulesSuffixMatch` for pnpm/workspace package resolution. The dependency catalog aligns the applications. Babel runtime 8.1.0 is an explicit dependency in all three federated applications to make the plugin's fallback selection unambiguous. This does not override Emotion's own nested Babel 7 dependency.
 
 The Host's full shared MUI provider currently produces a chunk above Vite's 500 kB warning threshold (about 567 kB minified, 164 kB gzip). This is a non-blocking size advisory, not a failed build; no warning limit was raised. Further shared-library payload optimization is deferred.
 
@@ -85,3 +85,13 @@ For production verification, stop dev servers, build each app independently (or 
 ## Checks
 
 `pnpm test` covers the loader's actual API call contract, bad exports, rejection, timeout cleanup, loading UI, embedded props, load/render failure containment, Host navigation after failure, embedded detail routing, query preservation, and standalone regressions. Browser verification supplements these source tests; mocked loader tests alone are not federation evidence.
+
+## Stage 5: SYMBIONT
+
+The official Vite integration, runtime API, and share-strategy documentation above was rechecked on 2026-11-09. The selected plugin/runtime versions and singleton policy are unchanged.
+
+SYMBIONT uses the same provider configuration at port 5002, names its container symbiont, and exposes ./routes from src/routes.tsx. ECOSYSTEM registers its ESM entry with registerRemotes and calls loadRemote('symbiont/routes') lazily at /cart. VITE_SYMBIONT_REMOTE_ENTRY defaults to http://127.0.0.1:5002/remoteEntry.js and is a build/dev-start override. Dev/preview CORS allows Host origin 5000.
+
+RemoteBoundary is now reusable Host infrastructure. Products and Cart each mount their own boundary, loading indicator, module validation, and 12-second timeout. A rejected Cart load shows Your cart is resting while other Host routes remain usable. The reload/cache behavior described above applies to both remotes.
+
+The cart expose accepts embedded mode and uses Host MUI/Emotion contexts. It needs no nested router: checkout and confirmation are local workflow state. Its standalone entry still supplies its own root, theme, header, and main. Cart state and images remain remote-owned; the Host contains no fixture imports. See [SYMBIONT documentation](symbiont.md) for business rules and reproduction commands.

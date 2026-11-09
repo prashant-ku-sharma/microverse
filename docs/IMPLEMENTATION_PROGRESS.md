@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 4 — Module Federation: PARASITE integration. Complete and pushed on 2026-11-08. Workspace checks and development/production browser verification passed. Awaiting Stage 5.
+Stage 5 — SYMBIONT cart microfrontend. Implementation and verification complete; Git milestone in progress.
 
 ## Completed Stage 1 scope
 
@@ -75,18 +75,34 @@ Stage 4 — Module Federation: PARASITE integration. Complete and pushed on 2026
 - Push confirmed: `git push origin main` advanced `main` from `c05f601` to `7fc16e0`.
 - This documentation receipt records the actual milestone hash and confirmed push without rewriting history.
 
+## Stage 5 scope and verification
+
+- SYMBIONT-owned cart fixtures and illustrations, quantity/stock guards, removal/clear/restore, empty state, integer-paise totals, and explicit 10% sample discount.
+- Cleanup-safe checkout simulation, locked editing during processing, immutable receipt snapshot, active cart clearing, focused confirmation, and sample restart. No external checkout/payment or Mycelium integration.
+- Independent standalone shell/theme on strict port 5002; ./routes expose and embedded presentation under Host /cart. Shared entry props only; no cart business models moved into shared packages.
+- Official federation documentation rechecked on 2026-11-09. Reused plugin/runtime versions, aligned singleton sharing, explicit registerRemotes/loadRemote, loaded-first, development entry/CORS, and remote-origin assets. Host route error boundary extracted for both remote consumers.
+- Host dashboard accurately labels two configured remotes; Profile/Offers remain placeholders. Cart data remains separate from PARASITE.
+- Actual implementation date: 2026-11-09 (Asia/Kolkata); actual Git timestamps retained.
+- Final workspace verification passed: `pnpm test` (82 tests across 13 files), `pnpm build` (all five applications), `pnpm typecheck` (all 10 projects), `pnpm lint`, `pnpm format:check`, and `pnpm install --frozen-lockfile --offline`.
+- Initial verification corrected an unavailable icon import and checkout test fake-timer interaction. Running build/typecheck/test concurrently caused two existing PARASITE lazy-load assertions to exceed their async query deadline; a separate complete root test run passed without code changes to PARASITE.
+- Browser verification passed for development standalone and federated cart operations, totals, removal, clear/restore, checkout/receipt, one Host main, remote-origin images, and independent mount state. Embedded 320px/390px/900px/1440px checks caught and corrected an accessibility status-region sizing overflow.
+- Independent production previews verified SYMBIONT standalone, federated Cart, receipt totals, and PARASITE regression alongside Cart. Both remote screens rendered without console errors/warnings before the deliberate outage test.
+- With SYMBIONT production preview stopped, a fresh Cart request showed the contained fallback, Profile navigation worked, and a fresh Host overview loaded. All task-owned development and preview servers were stopped after verification.
+- Dependency review made the common React Router federation fallback explicit in SYMBIONT’s manifest. Its independent build/typecheck and 17 tests passed again; final production standalone and federation rendering were reverified against the unchanged Host build.
+- Milestone commit and confirmed push will be recorded in a follow-up documentation receipt without rewriting history.
+
 ## Architecture decisions
 
-See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration.
+See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products; SYMBIONT owns cart state and checkout simulation. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration and [ADR 0005](decisions/0005-symbiont-cart-ownership.md) for cart ownership.
 
 ## Pending stages
 
-Stages 5–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
+Stages 6–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
 
 ## Known limitations
 
-Only PARASITE is federated. The development entry/CORS configuration uses 127.0.0.1 ports 5000/5001. Entry selection is build-time configuration; Nucleus, runtime registry, immutable release/cache policy, deployment automation, and business event delivery remain deferred. Cached modules are not a live health signal; recovery from cached import failures uses a page reload. The loading timeout does not cancel imports. Product data is static and cart intent remains informational. The Host shared MUI provider chunk produces a non-blocking size advisory; no limit is suppressed.
+PARASITE and SYMBIONT are federated. The development entry/CORS configuration uses 127.0.0.1 ports 5000/5001/5002. Entry selection is build-time configuration; Nucleus, runtime registry, immutable release/cache policy, deployment automation, and business event delivery remain deferred. Cached modules are not a live health signal; recovery from cached import failures uses a page reload. The loading timeout does not cancel imports. Product data is static. Product-to-cart intent remains informational; SYMBIONT uses separate local test data and mount-local state. Checkout is a local simulation, with a fixed sample discount and no persistence/payments. The Host shared MUI provider chunk produces a non-blocking size advisory; no limit is suppressed.
 
 ## Next milestone
 
-Await Stage 5 instructions. Do not proceed automatically.
+Await Stage 6 instructions. Do not proceed automatically.
