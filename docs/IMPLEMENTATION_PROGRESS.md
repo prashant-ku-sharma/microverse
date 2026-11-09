@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 6 — MYCELIUM event-driven communication. Implementation and verification complete; Git milestone in progress.
+Stage 6 — MYCELIUM event-driven communication. Complete and pushed on 2026-11-09. Completed stages: 1–6. Awaiting Stage 7.
 
 ## Completed Stage 1 scope
 
@@ -108,7 +108,8 @@ Stage 6 — MYCELIUM event-driven communication. Implementation and verification
 - Earlier assertions were updated for the new saved-request feedback and asynchronous focus behavior. Test fixtures explicitly provide HTTP asset URLs to exercise runtime validation; timer cleanup assertions observe service behavior rather than unrelated jsdom storage/ripple timers. No verification failures remain.
 - Implementation milestone: `03863fd2e4154b3408db86f5bbf401f80f9149f0` (`feat: introduce mycelium typed event communication`), created at 2026-11-09T18:26:35+05:30. Push confirmed: `git push origin main` advanced `fb2e155` to `03863fd`.
 - Final error-path review added a guard against announcing an uninitialized cart after failed restoration when a second service owner starts. The regression test and all 114 workspace tests passed; all five builds, workspace type checking, lint, and formatting passed again.
-- The follow-up fix hash and confirmed push will be recorded in a documentation receipt without rewriting history.
+- Follow-up fix: `3e062423a88003cd503954f4cc367c27addc16d7` (`fix: suppress cart facts after persistence failures`), created at 2026-11-09T18:36:12+05:30. Push confirmed: `git push origin main` advanced `03863fd` to `3e06242`.
+- This documentation receipt records actual hashes, creation dates, and confirmed pushes without rewriting history. Stage 6 is complete; no Stage 7 work was started.
 
 ## Architecture decisions
 
