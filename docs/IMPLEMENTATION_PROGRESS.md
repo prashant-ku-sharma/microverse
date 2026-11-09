@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 5 — SYMBIONT cart microfrontend. Implementation and verification complete; Git milestone in progress.
+Stage 5 — SYMBIONT cart microfrontend. Complete and pushed on 2026-11-09. Workspace checks and development/production browser verification passed. Awaiting Stage 6.
 
 ## Completed Stage 1 scope
 
@@ -89,7 +89,10 @@ Stage 5 — SYMBIONT cart microfrontend. Implementation and verification complet
 - Independent production previews verified SYMBIONT standalone, federated Cart, receipt totals, and PARASITE regression alongside Cart. Both remote screens rendered without console errors/warnings before the deliberate outage test.
 - With SYMBIONT production preview stopped, a fresh Cart request showed the contained fallback, Profile navigation worked, and a fresh Host overview loaded. All task-owned development and preview servers were stopped after verification.
 - Dependency review made the common React Router federation fallback explicit in SYMBIONT’s manifest. Its independent build/typecheck and 17 tests passed again; final production standalone and federation rendering were reverified against the unchanged Host build.
-- Milestone commit and confirmed push will be recorded in a follow-up documentation receipt without rewriting history.
+- Implementation commit: `6ccb0345935f218854374c49e713a86248381c42` (`feat: implement symbiont cart microfrontend`).
+- Actual commit timestamp: 2026-11-09T16:51:25+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `048437e` to `6ccb034`.
+- This documentation receipt records the actual milestone hash and confirmed push without rewriting history.
 
 ## Architecture decisions
 
