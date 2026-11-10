@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 9 — NUCLEUS runtime remote registry. Implementation and verification completed on 2026-11-11; milestone receipt pending. Completed stages: 1–9. Awaiting Stage 10.
+Stage 9 — NUCLEUS runtime remote registry. Complete and pushed on 2026-11-11. Completed stages: 1–9. Awaiting Stage 10.
 
 ## Completed Stage 1 scope
 
@@ -155,8 +155,12 @@ Stage 9 — NUCLEUS runtime remote registry. Implementation and verification com
 - Actual implementation dates: 2026-11-10–11 (Asia/Kolkata); completion on 2026-11-11. All commit timestamps remain actual creation times.
 - Critical production-build browser acceptance passed: independently built Cart 1.0.0 and 1.1.0; edited only deployed registry Cart version/entry; reloaded the unchanged Host; actual Cart chip and new sample image paths confirmed 1.1.0. Four persisted units survived. Host SHA-256 across 18 non-registry artifacts stayed `ad5f20006855116e21c3bea034cf12d3d3adc11686a184c85b7461fdec4fb93b` before/after. No Host build ran between the two loads.
 - Additional browser checks passed: invalid/untrusted primary selected validated fallback Cart 1.0.0 with a warning; Profile/background Cart flags disabled their capabilities; invalid policy blocked remotes while Overview remained usable. All four remotes loaded, Profile rendered, SAVE20 still confirmed against selected Cart, versioned Cart 1.1.0 ran standalone with working mock API/images, and the runtime registry had no overflow at 390px. Default development mode/registry was restored and verified; task-owned servers were stopped.
-- Unit/UI verification covers valid/invalid/missing/untrusted registry, exact origins, production requirements, fallback, failed policy, request status/JSON/size/timeout, metadata/mismatch/compatibility, disabled imports/services, runtime URL changes, actual supported runtime call ordering, deduplicated release checks and visible state. Full workspace tests passed: 202 tests across 28 files. All five builds, independent release builds, strict type checking, lint and formatting passed; final frozen installation/check receipt follows.
+- Unit/UI verification covers valid/invalid/missing/untrusted registry, exact origins, production requirements, fallback, failed policy, request status/JSON/size/timeout, metadata/mismatch/compatibility, disabled imports/services, runtime URL changes, actual supported runtime call ordering, deduplicated release checks and visible state. Full workspace tests passed: 202 tests across 28 files. All five builds, independent release builds, strict type checking for all 10 projects, lint, formatting and pnpm install --frozen-lockfile --offline passed.
 - Early verification corrected discriminated state narrowing, MUI sx usage and generated-artifact lint exclusions. Initial offline dependency restoration needed the permitted registry-backed install; no dependency versions were upgraded. Existing shared MUI chunk advisory remains non-blocking. Exact reproduction and trust/cache limitations are in docs/nucleus.md and ADR 0009.
+- Implementation commit: `9e02a137f7864a63af1ce1814072df71c04117c8` (`feat: add nucleus runtime remote registry`).
+- Actual commit timestamp: 2026-11-11T00:07:56+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `6a37bf6` to `9e02a13`.
+- This documentation receipt records the real milestone hash, creation timestamp and confirmed push without rewriting history. Stage 9 is complete; Stage 10 has not started.
 
 ## Architecture decisions
 
