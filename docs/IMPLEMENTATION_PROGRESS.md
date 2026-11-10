@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 7 — COMMENSAL profile and MUTANT offers. Implementation and verification completed on 2026-11-10; milestone commit/push receipt pending. Completed stages: 1–7. Awaiting Stage 8.
+Stage 7 — COMMENSAL profile and MUTANT offers. Complete and pushed on 2026-11-10. Completed stages: 1–7. Awaiting Stage 8.
 
 ## Completed Stage 1 scope
 
@@ -124,6 +124,10 @@ Stage 7 — COMMENSAL profile and MUTANT offers. Implementation and verification
 - Browser monetary evidence: 2 Moss planters + 1 Field bottle subtotal ₹4,270, SAVE20 savings ₹854, delivery ₹99, total ₹3,515. Removing the bottle invalidated SAVE20; FREESHIP yielded ₹2,980. WELCOME10 yielded ₹2,781 including delivery. Checkout receipt retained WELCOME10/₹298 savings/₹2,781 total; Host count became zero and reload kept Cart empty.
 - Healthy production Offers console had no errors/warnings before deliberate outages. Expected import failures during outages were contained. Task-owned development/preview servers are stopped after verification.
 - Final checks passed: pnpm test (155 tests across 21 files), pnpm build (all five apps), pnpm typecheck (all 10 projects), pnpm lint, pnpm format:check, and pnpm install --frozen-lockfile --offline. The existing Host shared MUI provider chunk-size advisory remains non-blocking. The actual commit/push receipt follows the implementation commit without rewriting history.
+- Implementation commit: `7b2e2f3f00da160d31478c903a312e44f551c6a9` (`feat: add commensal profile and mutant offers remotes`).
+- Actual commit timestamp: 2026-11-10T19:16:16+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `8ea4d9c` to `7b2e2f3`.
+- This documentation receipt records the real milestone hash, timestamp, and confirmed push without rewriting history. Stage 7 is complete; Stage 8 has not started.
 
 ## Architecture decisions
 
