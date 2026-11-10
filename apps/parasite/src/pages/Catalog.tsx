@@ -20,13 +20,11 @@ import {
   selectProducts,
   sortOptions,
 } from '../catalog';
-import { products } from '../data/products';
+import { useQuery } from '@tanstack/react-query';
+import { getProducts } from '../api/client';
+import { LoadingIndicator } from '@microverse/shared-ui';
+import { Alert } from '@mui/material';
 import { ProductCard } from '../components/ProductCard';
-
-const categories = [
-  allCategories,
-  ...new Set(products.map((product) => product.category)),
-];
 
 export function Catalog({
   onRequest,
@@ -34,6 +32,12 @@ export function Catalog({
   onRequest: (product: Product) => void;
 }) {
   const [params, setParams] = useSearchParams();
+  const query = useQuery({ queryKey: ['products'], queryFn: getProducts });
+  const products = query.data ?? [];
+  const categories = [
+    allCategories,
+    ...new Set(products.map((product) => product.category)),
+  ];
   const filters = readFilters(params, categories);
   const catalogSearch = params.toString();
   const results = selectProducts(products, filters);
@@ -55,6 +59,18 @@ export function Catalog({
     );
   }
 
+  if (query.isPending) return <LoadingIndicator label="Loading collection…" />;
+  if (query.isError)
+    return (
+      <Alert
+        severity="error"
+        action={
+          <Button onClick={() => void query.refetch()}>Retry products</Button>
+        }
+      >
+        {query.error.message}
+      </Alert>
+    );
   return (
     <Stack spacing={{ xs: 4, md: 5 }}>
       <Box

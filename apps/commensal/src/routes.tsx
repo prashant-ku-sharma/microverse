@@ -1,3 +1,11 @@
+import {
+  useQuery,
+  useMutation,
+  QueryClientProvider,
+} from '@tanstack/react-query';
+import { queryClient } from './api/query';
+import { getProfile, patchProfile, resetProfile } from './api/client';
+import { LoadingIndicator } from '@microverse/shared-ui';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import {
@@ -17,19 +25,18 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import { PageHeader, SurfaceCard } from '@microverse/shared-ui';
 import type { CommensalRoutesProps } from '@microverse/shared-types';
-import {
-  demoProfile,
-  initials,
-  profileSchema,
-  readProfile,
-  saveProfile,
-} from './profile';
+import { initials, profileSchema } from './profile';
 import type { Profile } from './profile';
 
-export default function CommensalRoutes({
+function ProfileForm({
   mode = 'standalone',
-}: CommensalRoutesProps) {
-  const [saved, setSaved] = useState(readProfile);
+  initial,
+}: CommensalRoutesProps & { initial: Profile }) {
+  const [saved, setSaved] = useState<{
+    profile: Profile;
+    error: string | null;
+  }>({ profile: initial, error: null });
+  const mutation = useMutation({ mutationFn: patchProfile });
   const [draft, setDraft] = useState<Profile | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState('');
@@ -40,7 +47,7 @@ export default function CommensalRoutes({
     setErrors({});
     setNotice('');
   }
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const parsed = profileSchema.safeParse(draft);
     if (!parsed.success) {
@@ -55,7 +62,8 @@ export default function CommensalRoutes({
       return;
     }
     try {
-      const profile = saveProfile(parsed.data);
+      const profile = await mutation.mutateAsync(parsed.data);
+      queryClient.setQueryData(['profile'], profile);
       setSaved({ profile, error: null });
       setDraft(null);
       setErrors({});
@@ -73,7 +81,7 @@ export default function CommensalRoutes({
       label={label}
       type={key === 'email' ? 'email' : 'text'}
       value={current[key]}
-      disabled={!editing}
+      disabled={!editing || mutation.isPending}
       error={Boolean(errors[key])}
       helperText={errors[key]}
       onChange={(event) => setDraft({ ...current, [key]: event.target.value })}
@@ -108,9 +116,11 @@ export default function CommensalRoutes({
           action={
             <Button
               color="inherit"
-              onClick={() => {
+              onClick={async () => {
                 try {
-                  setSaved({ profile: saveProfile(demoProfile), error: null });
+                  const profile = await resetProfile();
+                  queryClient.setQueryData(['profile'], profile);
+                  setSaved({ profile, error: null });
                   setDraft(null);
                   setNotice('Demo profile restored.');
                 } catch {
@@ -245,7 +255,7 @@ export default function CommensalRoutes({
                     }[key]
                   }
                   value={current.address[key]}
-                  disabled={!editing}
+                  disabled={!editing || mutation.isPending}
                   error={Boolean(errors[`address.${key}`])}
                   helperText={errors[`address.${key}`]}
                   onChange={(event) =>
@@ -271,7 +281,7 @@ export default function CommensalRoutes({
                 select
                 label="Favorite habitat"
                 value={current.preferences.habitat}
-                disabled={!editing}
+                disabled={!editing || mutation.isPending}
                 onChange={(event) =>
                   setDraft({
                     ...current,
@@ -298,7 +308,7 @@ export default function CommensalRoutes({
                 select
                 label="Preferred language"
                 value={current.preferences.language}
-                disabled={!editing}
+                disabled={!editing || mutation.isPending}
                 helperText="Saved preference only; interface translations are not implemented."
                 onChange={(event) =>
                   setDraft({
@@ -346,7 +356,7 @@ export default function CommensalRoutes({
                     <Switch
                       slotProps={{ input: { role: 'switch' } }}
                       checked={current.notifications[key]}
-                      disabled={!editing}
+                      disabled={!editing || mutation.isPending}
                       onChange={(_, checked) =>
                         setDraft({
                           ...current,
@@ -364,16 +374,25 @@ export default function CommensalRoutes({
           </SurfaceCard>
           {editing && (
             <Stack direction="row" spacing={2}>
-              <Button type="submit" variant="contained">
-                Save profile
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending ? 'Saving profile…' : 'Save profile'}
               </Button>
               <Button
                 type="button"
+                disabled={mutation.isPending}
                 variant="outlined"
                 onClick={() => {
                   setDraft(null);
                   setErrors({});
-                  setSaved(readProfile());
+                  setSaved({
+                    profile:
+                      queryClient.getQueryData<Profile>(['profile']) ?? initial,
+                    error: null,
+                  });
                   setNotice('Changes discarded.');
                 }}
               >
@@ -384,5 +403,40 @@ export default function CommensalRoutes({
         </Stack>
       </Box>
     </Box>
+  );
+}
+
+function CommensalRoutes(props: CommensalRoutesProps) {
+  const query = useQuery({ queryKey: ['profile'], queryFn: getProfile });
+  const reset = useMutation({
+    mutationFn: resetProfile,
+    onSuccess: (profile) => queryClient.setQueryData(['profile'], profile),
+  });
+  if (query.isPending) return <LoadingIndicator label="Loading profile…" />;
+  if (query.isError)
+    return (
+      <Alert
+        severity="error"
+        action={
+          <Stack direction="row">
+            <Button onClick={() => void query.refetch()}>Retry profile</Button>
+            <Button disabled={reset.isPending} onClick={() => reset.mutate()}>
+              Reset demo profile
+            </Button>
+          </Stack>
+        }
+      >
+        {reset.error?.message ?? query.error.message}
+      </Alert>
+    );
+  return <ProfileForm {...props} initial={query.data} />;
+}
+export default function DataRoutes(
+  props: Parameters<typeof CommensalRoutes>[0],
+) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CommensalRoutes {...props} />
+    </QueryClientProvider>
   );
 }

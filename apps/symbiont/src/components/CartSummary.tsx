@@ -8,11 +8,13 @@ export function CartSummary({
   totals,
   offerCode,
   processing,
+  updating = false,
   onCheckout,
 }: {
   totals: CartTotals;
   offerCode: string | null;
   processing: boolean;
+  updating?: boolean;
   onCheckout: () => void;
 }) {
   return (
@@ -108,12 +110,16 @@ export function CartSummary({
         fullWidth
         variant="contained"
         color="secondary"
-        disabled={processing || totals.itemCount === 0}
+        disabled={processing || updating || totals.itemCount === 0}
         onClick={onCheckout}
         endIcon={!processing && <ArrowForwardIcon />}
         sx={{ mt: 3, py: 1.5 }}
       >
-        {processing ? 'Simulating checkout…' : 'Simulate checkout'}
+        {processing
+          ? 'Simulating checkout…'
+          : updating
+            ? 'Updating cart…'
+            : 'Simulate checkout'}
       </Button>
       <Typography
         variant="caption"

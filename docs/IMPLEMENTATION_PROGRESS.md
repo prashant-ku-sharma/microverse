@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 7 — COMMENSAL profile and MUTANT offers. Complete and pushed on 2026-11-10. Completed stages: 1–7. Awaiting Stage 8.
+Stage 8 — Mock backend and data management. Implementation and verification completed on 2026-11-10; milestone receipt pending. Completed stages: 1–8. Awaiting Stage 9.
 
 ## Completed Stage 1 scope
 
@@ -129,18 +129,31 @@ Stage 7 — COMMENSAL profile and MUTANT offers. Complete and pushed on 2026-11-
 - Push confirmed: `git push origin main` advanced `main` from `8ea4d9c` to `7b2e2f3`.
 - This documentation receipt records the real milestone hash, timestamp, and confirmed push without rewriting history. Stage 7 is complete; Stage 8 has not started.
 
+## Stage 8 scope and verification
+
+- MSW 3.0.4 and TanStack Query 5.107.1 selected from stable registry releases; official browser/Query docs and MSW 3 migration/types checked before use. No real backend implemented.
+- Each remote owns API handlers, fetch client, query client/provider, seeds and business rules. All requested product, cart, profile and offer endpoint methods are implemented with strict mutation validation and explicit failure statuses.
+- Shared mock-utils provides only one-per-window worker transport registration, HTTP/error handling, deterministic 240 ms latency, slow/503/write-only-error/empty scenarios. Identical generated workers are served by all five apps, including the Host for embedded use. Host imports no handler or remote business state.
+- Products list/detail and Profile GET/PATCH use HTTP-backed data. Cart item API delegates to its existing single persisted owner service, preserving durable event reconciliation; quantity/removal controls use HTTP. MUTANT validates user coupon application through its own API before publishing; automatic owner reconciliation remains event-driven. Each remote retains its own Query cache.
+- Tests exercise real fetch through setupServer, with zero default test latency and controlled delayed handlers for loading. API success/errors, status/validation, data updates, persisted Cart/Profile, coupon calculation/failure/stale validation and UI loading/empty/retry are covered.
+- Actual implementation date: 2026-11-10 (Asia/Kolkata). Stage 8 was explicitly requested on the same day as Stage 7; all Git timestamps retain actual creation times.
+- Development browser checks passed: all five servers started together; Products loads 12 API products, Cart persisted a 1→2 quantity update through reload, Profile PATCH and reload kept Jordan API Rao/Pune, WELCOME10 confirmed ₹298 savings, slow response showed Loading collection, failed GET stayed inside Products while Profile remained usable, failed PATCH retained its draft, and an empty offers response rendered its empty state. Standalone ports 5001–5004 each loaded their own API data; Profile kept its separate Avery Rao seed and Offers preview validated ₹250 savings.
+- Production previews passed using independently built outputs and real browser worker assets: all four Host routes loaded; product detail GET and saved Profile rendered; Cart PATCH changed 2→3 planters and recalculated WELCOME10; SAVE20 validation gave ₹894 savings and ₹3,675 total including ₹99 delivery. A failed validation kept SAVE20 active. Checkout receipt retained ₹3,675, count became zero, and reload restored an empty Cart. Healthy production Cart had no console errors/warnings. Profile API failure at 390px had no horizontal overflow. All task-owned servers were stopped after verification.
+- Initial checks caught the MSW 3 option rename (onUnhandledFrame), strict partial-profile merge typing, asynchronous test assumptions, and Vitest file-URL image fixtures. These were corrected; no verification failures remain. Mutation pending copy distinguishes an update from simulated checkout.
+- Final verification passed: pnpm test (170 tests across 25 files), pnpm build (all five apps), pnpm typecheck (all 10 projects), pnpm lint, pnpm format:check and pnpm install --frozen-lockfile --offline. Generated worker hashes match across all five public roots; the Host build contains no profile/cart persistence internals or product handler factory. The existing Host shared MUI provider chunk-size advisory remains non-blocking. Actual commit/push receipt follows the implementation commit without rewriting history.
+
 ## Architecture decisions
 
-See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products; SYMBIONT owns cart state and checkout simulation. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration and [ADR 0005](decisions/0005-symbiont-cart-ownership.md) for cart ownership and [ADR 0006](decisions/0006-durable-mycelium-delivery.md) for durable event intent and service lifetime. [ADR 0007](decisions/0007-profile-and-offer-ownership.md) records private profile state, offer ownership, pricing compatibility, and quote reconciliation.
+See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products; SYMBIONT owns cart state and checkout simulation. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration and [ADR 0005](decisions/0005-symbiont-cart-ownership.md) for cart ownership and [ADR 0006](decisions/0006-durable-mycelium-delivery.md) for durable event intent and service lifetime. [ADR 0007](decisions/0007-profile-and-offer-ownership.md) records private profile state, offer ownership, pricing compatibility, and quote reconciliation. [ADR 0008](decisions/0008-owner-local-mock-apis.md) records owner-local mock APIs, private Query caches, shared worker transport and preservation of durable event ingress.
 
 ## Pending stages
 
-Stages 8–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
+Stages 9–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
 
 ## Known limitations
 
-All four remotes are integrated. Entry selection remains build-time configuration; Nucleus, immutable release/cache policy, authentication, deployment automation, and further event domains await their stages. Recovery from cached federation import failures uses a full reload. The tab/origin-scoped cart/inbox survives reload but is not a backend/account cart or cross-origin/cross-tab sync. Inbox capacity is 100 pending requests with visible rejection; diagnostic history is 100 records per module instance and applied IDs retain 1000 receipts. Corrupt inbox data is preserved/reported and needs manual inspection. Inventory/coupons/delivery are mock data; checkout is a simulation. Profile/cart/offer selection are local to the origin/tab, not backend account data. Notification delivery and translations are not implemented. Coupons use fixed UTC fixture validity through 2027-12-31. The existing Host shared MUI provider chunk-size advisory remains non-blocking.
+All four remotes are integrated. Entry selection remains build-time configuration; Nucleus, immutable release/cache policy, authentication, deployment automation, and further event domains await their stages. Recovery from cached federation import failures uses a full reload. The tab/origin-scoped cart/inbox survives reload but is not a backend/account cart or cross-origin/cross-tab sync. Inbox capacity is 100 pending requests with visible rejection; diagnostic history is 100 records per module instance and applied IDs retain 1000 receipts. Corrupt inbox data is preserved/reported and needs manual inspection. Inventory/coupons/delivery are mock data; checkout is a simulation. Profile/cart/offer selection are local to the origin/tab, not backend account data. Notification delivery and translations are not implemented. Coupons use fixed UTC fixture validity through 2027-12-31. MSW is intentionally included in built demos; no real backend or cross-origin API bridge exists. The existing Host shared MUI provider chunk-size advisory remains non-blocking.
 
 ## Next milestone
 
-Await Stage 8 instructions. Do not proceed automatically.
+Await Stage 9 instructions. Do not proceed automatically.

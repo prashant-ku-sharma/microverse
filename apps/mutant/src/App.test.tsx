@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMycelium, events, subscribe } from '@microverse/mycelium';
@@ -17,6 +23,7 @@ const cart = {
   checkoutPending: false,
 };
 beforeEach(() => {
+  vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-11-10T12:00:00Z'));
   vi.spyOn(console, 'debug').mockImplementation(() => {});
   sessionStorage.clear();
   offersService.reset();
@@ -33,6 +40,7 @@ describe('MUTANT offers UI', () => {
   it('shows all seeded coupons, details, and standalone preview controls', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await screen.findByRole('button', { name: 'Preview this cart' });
     expect(screen.getByRole('banner')).toHaveTextContent('MUTANT');
     expect(screen.getAllByRole('article')).toHaveLength(3);
     expect(screen.getByRole('button', { name: 'Apply SAVE20' })).toBeDisabled();
@@ -50,14 +58,17 @@ describe('MUTANT offers UI', () => {
   it('applies and removes a coupon in its independent local preview', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await screen.findByRole('button', { name: 'Preview this cart' });
     await user.click(screen.getByRole('button', { name: 'Preview this cart' }));
     await user.click(screen.getByRole('button', { name: 'Apply WELCOME10' }));
-    expect(screen.getByText(/WELCOME10 · Preview applied/)).toBeVisible();
+    expect(
+      await screen.findByText(/WELCOME10 · Preview applied/),
+    ).toBeVisible();
     expect(screen.getByText('₹250.00 saved in this estimate')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Remove coupon' }));
     expect(screen.getByRole('status')).toHaveTextContent('WELCOME10 removed');
   });
-  it('consumes real cart facts and publishes a quote without claiming unconfirmed application', () => {
+  it('consumes real cart facts and publishes a quote without claiming unconfirmed application', async () => {
     const applied = vi.fn();
     const stop = subscribe(events.OFFER_APPLIED, applied);
     document.title = 'Offers | MICROVERSE';
@@ -66,6 +77,7 @@ describe('MUTANT offers UI', () => {
         <Routes mode="embedded" />
       </main>,
     );
+    await screen.findByRole('button', { name: 'Apply SAVE20' });
     act(() => {
       createMycelium('symbiont').publish(events.CART_PRICING_UPDATED, {
         ...cart,
@@ -73,7 +85,9 @@ describe('MUTANT offers UI', () => {
       });
     });
     fireEvent.click(screen.getByRole('button', { name: 'Apply SAVE20' }));
-    expect(applied.mock.calls.at(-1)?.[0].payload.discountPaise).toBe(80000);
+    await waitFor(() =>
+      expect(applied.mock.calls.at(-1)?.[0].payload.discountPaise).toBe(80000),
+    );
     expect(screen.getByText(/Awaiting Cart confirmation/)).toBeVisible();
     expect(
       screen.queryByText('Standalone cart preview'),
@@ -82,8 +96,9 @@ describe('MUTANT offers UI', () => {
     expect(document.title).toBe('Offers | MICROVERSE');
     stop();
   });
-  it('blocks applying during checkout and responds to changing eligibility', () => {
+  it('blocks applying during checkout and responds to changing eligibility', async () => {
     render(<Routes mode="embedded" />);
+    await screen.findByRole('button', { name: 'Apply SAVE20' });
     act(() => {
       createMycelium('symbiont').publish(events.CART_PRICING_UPDATED, {
         ...cart,
@@ -104,9 +119,10 @@ describe('MUTANT offers UI', () => {
       screen.getByRole('button', { name: 'Apply WELCOME10' }),
     ).toBeEnabled();
   });
-  it('supports standalone branding override', () => {
+  it('supports standalone branding override', async () => {
     vi.stubEnv('VITE_APP_LABEL', 'Local offers');
     render(<App />);
+    await screen.findByRole('button', { name: 'Preview this cart' });
     expect(screen.getByRole('banner')).toHaveTextContent('Local offers');
   });
 });

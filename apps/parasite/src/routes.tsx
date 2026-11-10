@@ -1,3 +1,5 @@
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './api/query';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import {
   Link,
@@ -25,9 +27,7 @@ const ProductDetail = lazy(() =>
   })),
 );
 
-export default function ParasiteRoutes({
-  mode = 'standalone',
-}: ParasiteRoutesProps) {
+function ParasiteRoutes({ mode = 'standalone' }: ParasiteRoutesProps) {
   const embedded = mode === 'embedded';
   const catalogPath = embedded ? '/products' : '/';
   const [cartNotice, setCartNotice] = useState<string | null>(null);
@@ -141,5 +141,15 @@ export default function ParasiteRoutes({
         </Alert>
       </Snackbar>
     </CatalogPathContext>
+  );
+}
+
+export default function DataRoutes(
+  props: Parameters<typeof ParasiteRoutes>[0],
+) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ParasiteRoutes {...props} />
+    </QueryClientProvider>
   );
 }

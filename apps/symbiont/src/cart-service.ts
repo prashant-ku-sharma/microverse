@@ -320,6 +320,14 @@ export function createCartService() {
     start,
     dispatch,
     getSnapshot: () => snapshot,
+    read() {
+      try {
+        if (!initialized) hydrate();
+      } catch {
+        fail();
+      }
+      return snapshot;
+    },
     subscribe(listener: () => void) {
       listeners.add(listener);
       return () => {

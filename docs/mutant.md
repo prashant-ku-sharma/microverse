@@ -31,3 +31,7 @@ Run `pnpm --filter @microverse/mutant dev`, `test`, `typecheck`, `build`, or `pr
 In the Host add two Moss planters and a Field bottle: subtotal ₹4,270, delivery ₹99. SAVE20 saves ₹854 and Cart total is ₹3,515. Remove the bottle: subtotal ₹2,980 no longer qualifies for SAVE20, so total becomes ₹3,079. FREESHIP yields ₹2,980. Remove it and select WELCOME10: savings ₹298, total ₹2,781. Reload to verify reconciliation; simulated checkout retains that quote in the receipt and clears Cart/selection.
 
 Tests cover rules/boundaries/rounding/dates, rendering/details, standalone preview, apply/remove/replace, cart event consumption, revision changes, no acknowledgement loops, persistence restart/failure/corruption, expiry, cleanup, Host loaders and failure boundaries. Browser verification repeats development and independently built production flows, tests remote outage containment, and checks responsive widths. No backend coupon redemption or payment is implemented.
+
+## Stage 8 data layer
+
+The coupon catalog loads through GET /api/offers. User application first calls POST /api/offers/validate; failed or stale validation cannot publish an offer. Automatic eligibility/expiry reconciliation stays inside MUTANT and uses MYCELIUM cart context, without calling Cart HTTP APIs. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.

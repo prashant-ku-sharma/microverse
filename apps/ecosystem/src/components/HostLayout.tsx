@@ -359,7 +359,7 @@ export function HostLayout() {
               MICROVERSE · A living architecture
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              STAGE 07 / ALL ORGANISMS
+              STAGE 08 / MOCK DATA
             </Typography>
           </Stack>
         </Box>

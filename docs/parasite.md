@@ -64,3 +64,7 @@ Official API references checked for this implementation: [React Router URL value
 `src/routes.tsx` is exposed as `./routes`; `src/App.tsx` remains the standalone wrapper. The exposed component accepts the shared ParasiteRoutesProps contract, defaulting to standalone mode. Embedded mode uses the Host router/theme and renders a region rather than a second main/header/footer. Its catalog return path is `/products`; the standalone path remains `/`. Filters and queries survive detail navigation in both modes.
 
 Product asset URLs are resolved against the remote module URL. The Host does not serve or bundle the fixture images. Card columns use available container width to remain usable within a sidebar shell. Products and cart-intent logic remain entirely in PARASITE. See [federation documentation](module-federation.md) for shared dependencies, runtime calls, startup order, and failure verification.
+
+## Stage 8 data layer
+
+Product list and detail now use owner-local MSW GET endpoints and TanStack Query. Fixtures remain PARASITE-owned; filtering/sorting stay local discovery logic. API loading, empty collection, 404, failure and retry are visible. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.

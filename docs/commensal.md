@@ -15,3 +15,7 @@ This is a local demo, not an authenticated account. Notification selections do n
 Use `pnpm --filter @microverse/commensal dev`, `test`, `typecheck`, `build`, or `preview`. Dev/preview use strict port 5003. Stop dev before preview.
 
 Tests cover standalone/embedded layout, avatar, edit/save/remount, separate drafts/cancel, invalid fields, failed persistence, corrupt data/reset, and label overrides. Browser checks cover federated and standalone editing, preference persistence on Host reload, separate standalone-origin state, responsive layout, production loading, and contained offline entry recovery. See [federation](module-federation.md).
+
+## Stage 8 data layer
+
+Profile GET/PATCH now pass through owner-local MSW handlers and a private TanStack Query cache. Drafts are accepted only after successful persistence; failed PATCH preserves the draft and saved profile. Explicit reset also uses the mock API. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.

@@ -1,3 +1,11 @@
+import {
+  useQuery,
+  useMutation,
+  QueryClientProvider,
+} from '@tanstack/react-query';
+import { queryClient } from './api/query';
+import { getOffers, validateOffer } from './api/client';
+import { LoadingIndicator } from '@microverse/shared-ui';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import {
   Alert,
@@ -17,7 +25,7 @@ import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader, SurfaceCard } from '@microverse/shared-ui';
 import type { MutantRoutesProps } from '@microverse/shared-types';
-import { coupons, evaluateCoupon, money } from './offers';
+import { evaluateCoupon, money } from './offers';
 import type { Coupon } from './offers';
 import { offersService } from './offers-service';
 const date = (value: string) =>
@@ -28,20 +36,46 @@ const date = (value: string) =>
     timeZone: 'UTC',
   });
 
-export default function MutantRoutes({
-  mode = 'standalone',
-}: MutantRoutesProps) {
+function MutantRoutes({ mode = 'standalone' }: MutantRoutesProps) {
   const state = useSyncExternalStore(
     offersService.subscribe,
     offersService.getSnapshot,
   );
   useEffect(() => offersService.start(), []);
+  const query = useQuery({ queryKey: ['offers'], queryFn: getOffers });
+  const validation = useMutation({
+    mutationFn: async (code: string) => {
+      const before = offersService.getSnapshot();
+      const result = await validateOffer(code, before.cart);
+      const current = offersService.getSnapshot();
+      if (
+        current.cart?.cartRevision !== before.cart?.cartRevision ||
+        current.cart?.checkoutPending
+      )
+        throw new Error('Cart changed during validation. Please apply again.');
+      if (!result.eligible) throw new Error(result.reason);
+      offersService.apply(code);
+    },
+  });
   const [details, setDetails] = useState<Coupon | null>(null);
   const [preview, setPreview] = useState({ subtotal: '2500', shipping: '99' });
   const [previewError, setPreviewError] = useState('');
   const applied = Boolean(state.code && state.cart?.offerCode === state.code);
   const saving =
     (state.cart?.discountPaise ?? 0) + (state.cart?.shippingDiscountPaise ?? 0);
+  if (query.isPending) return <LoadingIndicator label="Loading offers…" />;
+  if (query.isError)
+    return (
+      <Alert
+        severity="error"
+        action={
+          <Button onClick={() => void query.refetch()}>Retry offers</Button>
+        }
+      >
+        {query.error.message}
+      </Alert>
+    );
+  const coupons = query.data;
   return (
     <Box component="section" aria-label="MUTANT offers">
       <PageHeader
@@ -50,6 +84,11 @@ export default function MutantRoutes({
         description="Find an offer that fits your collection. One thoughtful saving at a time."
         action={<Chip label="One coupon at a time" variant="outlined" />}
       />
+      {validation.error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {validation.error.message}
+        </Alert>
+      )}
       {state.error && (
         <Alert
           severity="error"
@@ -213,7 +252,7 @@ export default function MutantRoutes({
       >
         <Typography variant="h2">Available coupons</Typography>
         <Typography variant="overline" color="text.secondary">
-          03 / POSSIBILITIES
+          {coupons.length.toString().padStart(2, '0')} / POSSIBILITIES
         </Typography>
       </Stack>
       <Box
@@ -224,6 +263,12 @@ export default function MutantRoutes({
           gap: 2.5,
         }}
       >
+        {coupons.length === 0 && (
+          <SurfaceCard>
+            <Typography variant="h2">No offers available</Typography>
+            <Typography>Check back for new possibilities.</Typography>
+          </SurfaceCard>
+        )}
         {coupons.map((coupon) => {
           const eligibility = evaluateCoupon(coupon, state.cart);
           const selected = state.code === coupon.code;
@@ -330,12 +375,13 @@ export default function MutantRoutes({
                   fullWidth
                   variant="contained"
                   disabled={
+                    validation.isPending ||
                     !eligibility.eligible ||
                     selected ||
                     state.cart?.checkoutPending
                   }
                   endIcon={<ArrowForwardIcon />}
-                  onClick={() => offersService.apply(coupon.code)}
+                  onClick={() => validation.mutate(coupon.code)}
                   aria-label={`Apply ${coupon.code}`}
                 >
                   Apply coupon
@@ -394,5 +440,13 @@ export default function MutantRoutes({
         </DialogActions>
       </Dialog>
     </Box>
+  );
+}
+
+export default function DataRoutes(props: Parameters<typeof MutantRoutes>[0]) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MutantRoutes {...props} />
+    </QueryClientProvider>
   );
 }

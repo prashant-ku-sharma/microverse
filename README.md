@@ -1,6 +1,6 @@
 # MICROVERSE
 
-A biology-inspired microfrontend ecosystem, built incrementally. **Stage 7 integrates all four independently running remotes.** COMMENSAL owns profile editing and preferences. MUTANT owns coupon eligibility and savings, communicating with SYMBIONT through MYCELIUM. Product requests and coupon choices reconcile across route navigation and reload.
+A biology-inspired microfrontend ecosystem, built incrementally. **Stage 8 adds owner-local MSW mock APIs and TanStack Query data layers.** All four federated remotes remain independently runnable. Product/profile reads, profile saves, cart item operations, and user coupon validation use real fetch requests intercepted by MSW. MYCELIUM continues to connect owner business events without cross-MFE API calls.
 
 ## Prerequisites
 
@@ -49,7 +49,7 @@ docs/decisions/0001-workspace-foundation.md
 docs/IMPLEMENTATION_PROGRESS.md
 ```
 
-Each application has its own entry point, HTML, package manifest, Vite config, TypeScript project, tests, and build output. Shared packages expose TypeScript source consumed by Vite and are private workspace packages, not published artifacts. Their build command validates their source; it does not emit a distribution. `shared-ui` exports a custom dark MUI theme, tokens, and reusable presentation components. `config` provides common Vite and test configuration; `shared-types` exports Product and remote presentation contracts; MYCELIUM exports typed/validated CustomEvent transport and an opaque durable inbox; mock-utils still has empty exports.
+Each application has its own entry point, HTML, package manifest, Vite config, TypeScript project, tests, and build output. Shared packages expose TypeScript source consumed by Vite and are private workspace packages, not published artifacts. Their build command validates their source; it does not emit a distribution. `shared-ui` exports a custom dark MUI theme, tokens, and reusable presentation components. `config` provides common Vite and test configuration; `shared-types` exports Product and remote presentation contracts; MYCELIUM exports typed/validated CustomEvent transport and an opaque durable inbox; mock-utils provides transport-only MSW bootstrap, JSON/error handling, latency and fault scenarios.
 
 ## Environment conventions
 
@@ -59,7 +59,7 @@ Only `VITE_*` variables are exposed to browser code. They are **public build-tim
 
 ## Boundaries and next work
 
-Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; profile and offers remain in COMMENSAL and MUTANT respectively. MYCELIUM carries typed, validated product/cart events, with a persisted inbox and SYMBIONT-owned reconciliation when its consumer is absent. Authentication simulation, runtime registry, API mocks, further resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
+Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; profile and offers remain in COMMENSAL and MUTANT respectively. MYCELIUM carries typed, validated product/cart events, with a persisted inbox and SYMBIONT-owned reconciliation when its consumer is absent. Authentication simulation, runtime registry, further resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
 
 Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Products dynamically loads PARASITE and Cart loads SYMBIONT. Profile and Offers dynamically load COMMENSAL and MUTANT. The cart count observes live MYCELIUM facts; the dashboard's configuration and activity panels remain explicit placeholders. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
 
@@ -84,3 +84,9 @@ Open Products in the Host and add products before opening Cart: its count update
 Run all apps with `pnpm dev`. Profile supports editable name/email/address and saved user/notification preferences. Offers displays WELCOME10 (10%, ₹1,000 minimum), SAVE20 (20%, ₹3,000 minimum), and FREESHIP (delivery waiver, ₹1,500 minimum). Coupons replace each other; eligibility uses the merchandise subtotal and current mock validity dates. Cart confirms the final quote. Standalone Offers has an explicit estimate form; it does not modify another origin's cart.
 
 See [COMMENSAL profile](docs/commensal.md), [MUTANT offer rules and demonstration](docs/mutant.md), and [ADR 0007](docs/decisions/0007-profile-and-offer-ownership.md). Profile/cart/selection persistence is local to the current origin and tab. No account, notification delivery, backend order, or payment is created.
+
+## Mock API demonstration
+
+MSW is enabled in development and built previews; there is no real backend. Each remote owns its handlers, API client and Query cache. All five sites serve the generated worker script. Profile and cart saves remain local to this browser origin/tab.
+
+Open `/products?mock-products=slow` to see network loading, `/products?mock-products=error` for a retryable 503, `/profile?mock-profile=write-error` to test a failed save without losing the draft, or `/offers?mock-offers=empty` for an empty catalog. Remove the parameter and reload to recover. See [API contracts, ownership, scenarios and verification](docs/mock-apis.md).

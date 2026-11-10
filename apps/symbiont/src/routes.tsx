@@ -1,3 +1,5 @@
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './api/query';
 import { useEffect, useRef } from 'react';
 import {
   Alert,
@@ -11,6 +13,7 @@ import {
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import {
+  LoadingIndicator,
   OrganismMark,
   SurfaceCard,
   StatusIndicator,
@@ -22,17 +25,25 @@ import { sampleCart } from './data/sample-cart';
 import { CartLine } from './components/CartLine';
 import { CartSummary } from './components/CartSummary';
 
-export default function SymbiontRoutes({
-  mode = 'standalone',
-}: SymbiontRoutesProps) {
-  const { cart: state, dispatch, error, retry, reset } = useCart();
+function SymbiontRoutes({ mode = 'standalone' }: SymbiontRoutesProps) {
+  const {
+    cart: state,
+    dispatch,
+    error,
+    retry,
+    reset,
+    loading,
+    pending,
+  } = useCart();
   const confirmation = useRef<HTMLHeadingElement>(null);
   const totals = calculateTotals(state.items, state.offer);
   const processing = state.phase === 'processing';
+  const busy = processing || pending;
   useEffect(() => {
     if (state.phase === 'confirmed') confirmation.current?.focus();
   }, [state.phase]);
   const restore = () => dispatch({ type: 'restore', items: sampleCart });
+  if (loading) return <LoadingIndicator label="Loading cart…" />;
   return (
     <Box component="section" aria-label="SYMBIONT cart" sx={{ minWidth: 0 }}>
       {error && (
@@ -287,7 +298,7 @@ export default function SymbiontRoutes({
               <Button
                 size="small"
                 color="inherit"
-                disabled={processing}
+                disabled={busy}
                 onClick={() => dispatch({ type: 'clear' })}
               >
                 Clear cart
@@ -297,7 +308,7 @@ export default function SymbiontRoutes({
               <CartLine
                 key={item.id}
                 item={item}
-                disabled={processing}
+                disabled={busy}
                 dispatch={dispatch}
               />
             ))}
@@ -319,6 +330,7 @@ export default function SymbiontRoutes({
             totals={totals}
             offerCode={state.offer?.code ?? null}
             processing={processing}
+            updating={pending}
             onCheckout={() =>
               dispatch({
                 type: 'checkout',
@@ -346,5 +358,15 @@ export default function SymbiontRoutes({
         </Typography>
       </Stack>
     </Box>
+  );
+}
+
+export default function DataRoutes(
+  props: Parameters<typeof SymbiontRoutes>[0],
+) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SymbiontRoutes {...props} />
+    </QueryClientProvider>
   );
 }

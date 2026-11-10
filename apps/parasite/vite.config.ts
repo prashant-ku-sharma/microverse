@@ -5,6 +5,7 @@ import { federationShared } from '@microverse/config/federation';
 
 export default defineConfig(({ mode }) =>
   mergeConfig(createAppConfig(5001), {
+    test: { setupFiles: ['./src/api/test-setup.ts'] },
     server: {
       origin: 'http://127.0.0.1:5001',
       cors: { origin: 'http://127.0.0.1:5000' },

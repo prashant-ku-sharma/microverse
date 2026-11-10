@@ -4,7 +4,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckIcon from '@mui/icons-material/Check';
 import { StatusIndicator, SurfaceCard } from '@microverse/shared-ui';
 import type { Product } from '@microverse/shared-types';
-import { products } from '../data/products';
+import { useQuery } from '@tanstack/react-query';
+import { getProduct } from '../api/client';
+import { ApiError } from '@microverse/mock-utils';
+import { LoadingIndicator } from '@microverse/shared-ui';
+import { Alert } from '@mui/material';
 import { useCatalogPath } from '../catalog-path';
 import { availability, formatPrice } from '../catalog';
 import { CartIntentButton, ProductRating } from '../components/ProductCard';
@@ -17,7 +21,26 @@ export function ProductDetail({
   const catalogPath = useCatalogPath();
   const { productId } = useParams();
   const { search } = useLocation();
-  const product = products.find((item) => item.id === productId);
+  const query = useQuery({
+    queryKey: ['product', productId],
+    queryFn: () => getProduct(productId ?? ''),
+  });
+  const product = query.data;
+  if (query.isPending) return <LoadingIndicator label="Loading product…" />;
+  if (
+    query.isError &&
+    !(query.error instanceof ApiError && query.error.status === 404)
+  )
+    return (
+      <Alert
+        severity="error"
+        action={
+          <Button onClick={() => void query.refetch()}>Retry product</Button>
+        }
+      >
+        {query.error.message}
+      </Alert>
+    );
   if (!product)
     return (
       <SurfaceCard>

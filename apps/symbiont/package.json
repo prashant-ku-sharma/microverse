@@ -24,7 +24,10 @@
     "@babel/runtime": "8.1.0",
     "react-router": "8.5.1",
     "@microverse/mycelium": "workspace:*",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@microverse/mock-utils": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "msw": "catalog:"
   },
   "devDependencies": {
     "@microverse/config": "workspace:*",
@@ -38,5 +41,10 @@
     "@testing-library/dom": "catalog:",
     "@module-federation/vite": "1.23.11",
     "@testing-library/user-event": "^14.6.1"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

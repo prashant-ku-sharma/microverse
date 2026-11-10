@@ -47,3 +47,7 @@ ECOSYSTEM registers the ESM entry, calls `loadRemote('symbiont/routes')` through
 Automated checks cover calculations and rounding, quantity bounds, fixture immutability, removals/clear/restore, empty checkout prevention, processing guards, receipt snapshots, timer cleanup, standalone shell, embedded ownership, cart UI flows, runtime API calls, invalid modules, timeouts, and Host failure containment.
 
 For browser verification, start SYMBIONT and ECOSYSTEM independently. Open the Host overview and choose Cart. Adjust quantities, remove items, clear/restore, and run simulated checkout. Confirm the Host remains on port 5000 while loaded sample illustrations come from 5002; products added through PARASITE keep its 5001 image URLs. The standalone app shows its own shell and separate state. Stop SYMBIONT and reload Cart: its route fallback appears while Overview/Profile remain usable. Already imported code can remain cached; a fresh page is required to demonstrate an offline entry. Repeat against independently built production previews.
+
+## Stage 8 data layer
+
+The existing cart service remains the mock repository and headless event consumer. MSW GET/POST/PATCH/DELETE delegates to this one owner engine; UI reads, quantity changes, and removals use the API. Owner notifications update its private Query cache, including coupon acknowledgements. Durable event ingress and local clear/sample/checkout workflows retain their existing path. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.

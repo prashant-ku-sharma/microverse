@@ -113,3 +113,7 @@ The Host explicitly calls registerRemotes/loadRemote for `commensal/routes`, `mu
 Entry defaults are `http://127.0.0.1:5003/remoteEntry.js` and `http://127.0.0.1:5004/remoteEntry.js`. `VITE_COMMENSAL_REMOTE_ENTRY` / `VITE_MUTANT_REMOTE_ENTRY` are public build/start overrides, not Nucleus. Start all five with pnpm dev, or each filtered dev command independently. Build with pnpm build and use each app's preview command after stopping dev.
 
 For outage verification, stop COMMENSAL, reload /profile, and navigate to Cart; then restart it. Stop MUTANT, reload /cart, and visit /offers: Cart remains usable without a persisted monetary quote, while Offers shows a contained failure. Profile still loads. Restart MUTANT and reload to clear cached imports; its saved code reconciles against the current cart. Already-loaded modules can remain usable after a server stops; a fresh document is necessary to test entry failure. No live health polling or runtime registry is implied.
+
+## Stage 8 data layer
+
+Each exposed route now provides its own matching QueryClientProvider/cache. MSW worker registration is joined through transport-only mock-utils infrastructure per window; the Host has no domain handler imports. All five public roots serve the identical generated worker script. Framework sharing and existing runtime exposes are unchanged. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.
