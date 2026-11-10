@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 8 — Mock backend and data management. Implementation and verification completed on 2026-11-10; milestone receipt pending. Completed stages: 1–8. Awaiting Stage 9.
+Stage 8 — Mock backend and data management. Complete and pushed on 2026-11-10. Completed stages: 1–8. Awaiting Stage 9.
 
 ## Completed Stage 1 scope
 
@@ -141,6 +141,10 @@ Stage 8 — Mock backend and data management. Implementation and verification co
 - Production previews passed using independently built outputs and real browser worker assets: all four Host routes loaded; product detail GET and saved Profile rendered; Cart PATCH changed 2→3 planters and recalculated WELCOME10; SAVE20 validation gave ₹894 savings and ₹3,675 total including ₹99 delivery. A failed validation kept SAVE20 active. Checkout receipt retained ₹3,675, count became zero, and reload restored an empty Cart. Healthy production Cart had no console errors/warnings. Profile API failure at 390px had no horizontal overflow. All task-owned servers were stopped after verification.
 - Initial checks caught the MSW 3 option rename (onUnhandledFrame), strict partial-profile merge typing, asynchronous test assumptions, and Vitest file-URL image fixtures. These were corrected; no verification failures remain. Mutation pending copy distinguishes an update from simulated checkout.
 - Final verification passed: pnpm test (170 tests across 25 files), pnpm build (all five apps), pnpm typecheck (all 10 projects), pnpm lint, pnpm format:check and pnpm install --frozen-lockfile --offline. Generated worker hashes match across all five public roots; the Host build contains no profile/cart persistence internals or product handler factory. The existing Host shared MUI provider chunk-size advisory remains non-blocking. Actual commit/push receipt follows the implementation commit without rewriting history.
+- Implementation commit: `a048b7aacbfacb438591d57d0045ad8ccbc91e84` (`feat: add msw mock apis and application data layers`).
+- Actual commit timestamp: 2026-11-10T19:45:51+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `7dadb07` to `a048b7a`.
+- This documentation receipt records the real milestone hash, timestamp and confirmed push without rewriting history. Stage 8 is complete; Stage 9 has not started.
 
 ## Architecture decisions
 
