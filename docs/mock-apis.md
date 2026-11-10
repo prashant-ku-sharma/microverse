@@ -77,3 +77,7 @@ Each application's api/test-setup.ts starts MSW setupServer with its own handler
 Coverage includes all endpoint methods, validation/statuses, cart stock guards, fresh repository restoration, profile merge/persistence/write failure, successful and failed coupon validation, stale validation response rejection, API empty states, loading, and existing federation/event regressions. Browser checks supplement Node interception with real Service Worker execution in standalone apps and the federated Host, development and production.
 
 Official sources checked on 2026-11-10: [MSW browser integration](https://mswjs.io/guides/integrations/browser), [MSW start](https://mswjs.io/api/setup-worker/start), [MSW 3 migration](https://mswjs.io/docs/migrations/2.x-to-3.x), and [TanStack Query queries](https://tanstack.com/query/latest/docs/framework/react/guides/queries). Installed types were also checked; MSW 3 uses onUnhandledFrame rather than the older onUnhandledRequest option.
+
+## Stage 9 runtime configuration
+
+NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).

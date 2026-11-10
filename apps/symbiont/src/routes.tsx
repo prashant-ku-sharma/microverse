@@ -1,3 +1,4 @@
+import { remoteRelease } from './release';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './api/query';
 import { useEffect, useRef } from 'react';
@@ -71,6 +72,7 @@ function SymbiontRoutes({ mode = 'standalone' }: SymbiontRoutesProps) {
         <Typography variant="overline" color="secondary.main">
           SYMBIONT / CART & CHECKOUT
         </Typography>
+        <Chip label={`SYMBIONT v${remoteRelease.version}`} variant="outlined" />
         <Chip
           label="Cart saved in this tab"
           variant="outlined"

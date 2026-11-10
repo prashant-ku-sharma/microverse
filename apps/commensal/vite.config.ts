@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) =>
               name: 'commensal',
               filename: 'remoteEntry.js',
               exposes: {
+                './release': './src/release.ts',
                 './routes': './src/routes.tsx',
               },
               shared: federationShared,

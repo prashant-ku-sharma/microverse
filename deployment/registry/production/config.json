@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "environment": "production",
+  "registry": "/nucleus/remotes.json",
+  "fallback": "/nucleus/fallback.json",
+  "trustedOrigins": [
+    "https://parasite.microverse.example",
+    "https://symbiont.microverse.example",
+    "https://commensal.microverse.example",
+    "https://mutant.microverse.example"
+  ]
+}

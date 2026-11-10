@@ -68,3 +68,7 @@ Product asset URLs are resolved against the remote module URL. The Host does not
 ## Stage 8 data layer
 
 Product list and detail now use owner-local MSW GET endpoints and TanStack Query. Fixtures remain PARASITE-owned; filtering/sorting stay local discovery logic. API loading, empty collection, 404, failure and retry are visible. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.
+
+## Stage 9 runtime configuration
+
+NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).

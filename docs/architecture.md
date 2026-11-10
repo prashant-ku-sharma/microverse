@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation: Stage 8
+## Current implementation: Stage 9
 
 MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. SYMBIONT owns a functional standalone cart, persistence/reconciliation service, and checkout simulation on port 5002. COMMENSAL owns an editable profile and preferences on port 5003. MUTANT owns coupon rules and selection on port 5004. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes all four organisms through runtime Module Federation, with shared framework contexts and isolated route failure boundaries.
 
@@ -41,11 +41,11 @@ Official references: [Vite requirements](https://vite.dev/guide/), [MUI installa
 
 ## Future architecture (not implemented)
 
-Ecosystem already owns composition and routing. It isolates each of the four remote routes and will later own the runtime registry and simulated authentication. Each organism owns its domain. MYCELIUM already carries versioned product/cart CustomEvent envelopes validated at runtime. Its persisted inbox and SYMBIONT-owned reconciliation handle consumer absence. Offer quotes and separate cart pricing facts support reconciliation; profile data stays private to COMMENSAL.
+Ecosystem already owns composition and routing. It isolates each of the four remote routes and now owns the runtime registry and will later own simulated authentication. Each organism owns its domain. MYCELIUM already carries versioned product/cart CustomEvent envelopes validated at runtime. Its persisted inbox and SYMBIONT-owned reconciliation handle consumer absence. Offer quotes and separate cart pricing facts support reconciliation; profile data stays private to COMMENSAL.
 
-Remotes must remain independently runnable and deployable. Further remote integrations must retain supported runtime APIs, configurable remote URLs, aligned shared dependencies, and isolated failure states. A remote deployment must not require a Host rebuild. Deployment automation and the registry are intentionally deferred.
+Remotes must remain independently runnable and deployable. Further remote integrations must retain supported runtime APIs, configurable remote URLs, aligned shared dependencies, and isolated failure states. A remote deployment must not require a Host rebuild. Deployment automation is intentionally deferred; NUCLEUS selects remote entries at runtime.
 
-Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. Deployment hosting is not configured in Stage 8.
+Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. Deployment hosting is not configured in Stage 9.
 
 ## PARASITE product ownership
 
@@ -57,7 +57,7 @@ The Host's `/products/*` route now consumes `parasite/routes` through the federa
 
 The Host's lazy loader explicitly registers the configured ESM remote and calls loadRemote. It has no source imports from any remote. The plugin shares compatible React/React DOM, JSX runtime subpaths, React Router, MUI, and Emotion with identical rules from config. loaded-first keeps the overview independent of remote availability. Embedded components use the Host theme and PARASITE uses its router; standalone entries keep their own providers.
 
-The shared Host boundary, per-remote timeouts, and loading fallbacks isolate all four remote routes separately. No Nucleus/runtime registry or live health monitor is implemented. MYCELIUM carries product/cart/offer business events. See [federation flow and verification](module-federation.md) and [ADR 0004](decisions/0004-first-runtime-federation.md).
+The shared Host boundary, per-remote timeouts, and loading fallbacks isolate all four remote routes separately. NUCLEUS validates runtime entries, metadata, compatibility and feature flags. No live health monitor is implemented. MYCELIUM carries product/cart/offer business events. See [federation flow and verification](module-federation.md) and [ADR 0004](decisions/0004-first-runtime-federation.md).
 
 ## SYMBIONT cart ownership
 
@@ -76,3 +76,7 @@ MUTANT owns catalog, date/minimum rules, percentage/delivery savings, single-cou
 ## MSW and data management
 
 Each remote owns its MSW handlers, typed fetch client, and private TanStack Query cache/provider. The Host serves only the shared generated Service Worker asset; it imports no domain handlers. Shared mock-utils coordinates one transport per window across federation bundles, with no business state. API calls stay within each owning remote. Existing native event ingress and durable Cart reconciliation continue against SYMBIONT's single mock repository. See [mock API contracts and failure scenarios](mock-apis.md) and [ADR 0008](decisions/0008-owner-local-mock-apis.md).
+
+## NUCLEUS runtime selection
+
+The Host has an empty compile-time remote map. Its loaders resolve one policy-validated registry snapshot per document, register the selected entries, check each ./release expose, and load application/service modules through the supported federation runtime. Exact trusted origins live in a separately controlled same-origin policy. Configuration errors may use an independently validated fallback; an invalid policy/fallback blocks remotes while the shell remains usable. Every remote keeps its own business state and standalone entry. See [NUCLEUS contracts and acceptance evidence](nucleus.md) and [ADR 0009](decisions/0009-nucleus-runtime-registry.md).

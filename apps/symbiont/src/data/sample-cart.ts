@@ -8,7 +8,10 @@ export const sampleCart: readonly CartItem[] = [
     name: 'Lumen task light',
     category: 'WORKSPACE',
     description: 'Warm light. A little more focus.',
-    image: new URL('/images/lumen-light.svg', assetOrigin).href,
+    image: new URL(
+      `${import.meta.env.BASE_URL}images/lumen-light.svg`,
+      assetOrigin,
+    ).href,
     unitPricePaise: 329900,
     quantity: 1,
     stock: 4,
@@ -18,7 +21,8 @@ export const sampleCart: readonly CartItem[] = [
     name: 'Arc ceramic mug',
     category: 'EVERYDAY',
     description: 'A slower start, in sage green.',
-    image: new URL('/images/arc-mug.svg', assetOrigin).href,
+    image: new URL(`${import.meta.env.BASE_URL}images/arc-mug.svg`, assetOrigin)
+      .href,
     unitPricePaise: 79900,
     quantity: 2,
     stock: 6,
@@ -28,7 +32,10 @@ export const sampleCart: readonly CartItem[] = [
     name: 'Seed pocket notebook',
     category: 'STATIONERY',
     description: 'Room for ideas to take root.',
-    image: new URL('/images/seed-notebook.svg', assetOrigin).href,
+    image: new URL(
+      `${import.meta.env.BASE_URL}images/seed-notebook.svg`,
+      assetOrigin,
+    ).href,
     unitPricePaise: 44900,
     quantity: 1,
     stock: 8,

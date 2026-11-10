@@ -1,5 +1,7 @@
 # Module Federation: four independent remotes
 
+**Current Stage 9:** the historical build-time entry configuration below is superseded by [NUCLEUS runtime selection](nucleus.md). The Host now compiles no remote URLs; policy/registry resolution feeds supported registerRemotes/loadRemote calls.
+
 Stages 4–7 integrate PARASITE, SYMBIONT, COMMENSAL, and MUTANT into ECOSYSTEM through genuine runtime Module Federation. The apps remain separate builds and servers. The Host has no remote source imports and does not bundle remote business fixtures.
 
 ## Selected implementation and verified references
@@ -117,3 +119,9 @@ For outage verification, stop COMMENSAL, reload /profile, and navigate to Cart; 
 ## Stage 8 data layer
 
 Each exposed route now provides its own matching QueryClientProvider/cache. MSW worker registration is joined through transport-only mock-utils infrastructure per window; the Host has no domain handler imports. All five public roots serve the identical generated worker script. Framework sharing and existing runtime exposes are unchanged. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.
+
+## Stage 9: NUCLEUS
+
+Official runtime/Vite documentation was rechecked before this change. The installed plugin/runtime and shared dependency policy are unchanged. All former entry helper files and Host VITE_*_REMOTE_ENTRY settings are removed. The plugin initializes sharing with remotes: {}; runtime adapters resolve validated NUCLEUS entries and register them explicitly. All four remotes expose ./release; application/service loading follows matching metadata. A document pins one selection, so reload is required to adopt changed entry URLs. No force override or second runtime instance is used.
+
+The built Cart 1.0.0 → 1.1.0 switch passed using only a registry edit and reload, with the Host artifact hash unchanged. [NUCLEUS](nucleus.md) documents commands, release bases/assets, allowlists, flags, fallback, production presets and verified evidence. The older URL override descriptions above describe the history through Stage 8, not current configuration.

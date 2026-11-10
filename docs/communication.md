@@ -111,3 +111,7 @@ COMMENSAL owns a separate profile record and sends no PII through MYCELIUM. Cust
 ## Stage 8 data layer
 
 The Stage 8 HTTP API does not replace MYCELIUM communication. Durable add intents still enter the SYMBIONT owner engine directly; its handlers expose the same repository without a second store. User coupon application validates through MUTANT HTTP before publishing. Automatic reconciliation, revision checks, quote leases, private profile state and cleanup remain intact. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.
+
+## Stage 9 runtime configuration
+
+NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).

@@ -18,7 +18,10 @@ export default defineConfig(({ mode }) =>
             federation({
               name: 'parasite',
               filename: 'remoteEntry.js',
-              exposes: { './routes': './src/routes.tsx' },
+              exposes: {
+                './release': './src/release.ts',
+                './routes': './src/routes.tsx',
+              },
               shared: federationShared,
               shareStrategy: 'loaded-first',
               dts: false,

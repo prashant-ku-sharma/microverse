@@ -1,6 +1,6 @@
 # MICROVERSE
 
-A biology-inspired microfrontend ecosystem, built incrementally. **Stage 8 adds owner-local MSW mock APIs and TanStack Query data layers.** All four federated remotes remain independently runnable. Product/profile reads, profile saves, cart item operations, and user coupon validation use real fetch requests intercepted by MSW. MYCELIUM continues to connect owner business events without cross-MFE API calls.
+A biology-inspired microfrontend ecosystem, built incrementally. **Stage 9 adds NUCLEUS runtime configuration.** The Host fetches a trusted-origin policy and validated registry, then registers/loads all four independent remotes through real Module Federation. Reload selects new remote URLs and release versions without rebuilding the Host. Owner-local MSW APIs, Query caches and MYCELIUM communication remain intact.
 
 ## Prerequisites
 
@@ -55,11 +55,11 @@ Each application has its own entry point, HTML, package manifest, Vite config, T
 
 Copy an application's `.env.example` to `.env.local` inside that application if overrides are needed. `VITE_APP_LABEL` is an optional public display label. In Ecosystem it overrides the sidebar brand (default MICROVERSE); in PARASITE it overrides the storefront brand; in SYMBIONT it overrides the standalone header; in COMMENSAL/MUTANT it overrides the standalone header. Vite reads application-local environment files at startup, so restart after edits.
 
-Only `VITE_*` variables are exposed to browser code. They are **public build-time values**, never credentials. Local environment files are ignored; examples are committed. Ports belong in Vite configuration, not environment files. Runtime remote registry configuration will be designed in its own stage; `.env` changes are not a runtime federation mechanism.
+Only `VITE_*` variables are exposed to browser code. They are **public build-time values**, never credentials. Local environment files are ignored; examples are committed. Ports belong in Vite configuration, not environment files. NUCLEUS reads `/nucleus/config.json` and its selected registry at runtime. Remote VITE_REMOTE_VERSION identifies each remote build; remote entry URLs no longer come from Host environment variables.
 
 ## Boundaries and next work
 
-Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; profile and offers remain in COMMENSAL and MUTANT respectively. MYCELIUM carries typed, validated product/cart events, with a persisted inbox and SYMBIONT-owned reconciliation when its consumer is absent. Authentication simulation, runtime registry, further resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
+Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; profile and offers remain in COMMENSAL and MUTANT respectively. MYCELIUM carries typed, validated product/cart events, with a persisted inbox and SYMBIONT-owned reconciliation when its consumer is absent. Authentication simulation, further resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
 
 Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Products dynamically loads PARASITE and Cart loads SYMBIONT. Profile and Offers dynamically load COMMENSAL and MUTANT. The cart count observes live MYCELIUM facts; the dashboard's configuration and activity panels remain explicit placeholders. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
 
@@ -73,7 +73,7 @@ See [architecture](docs/architecture.md), [foundation ADR](docs/decisions/0001-w
 
 Start `pnpm --filter @microverse/parasite dev` on 5001, `pnpm --filter @microverse/symbiont dev` on 5002, and `pnpm --filter @microverse/ecosystem dev` on 5000, or use `pnpm dev` for all apps. Open `http://127.0.0.1:5000/products` or `http://127.0.0.1:5000/cart`. Stopping either remote and reloading its Host route shows an isolated failure view while other Host routes remain usable. Already-loaded code may remain cached until a fresh request.
 
-See [Module Federation configuration, loading flow, and outage demonstration](docs/module-federation.md). No runtime remote registry is implemented. The entry URL overrides in Ecosystem's `.env.example` are build-time configuration.
+See [Module Federation configuration, loading flow, and outage demonstration](docs/module-federation.md). NUCLEUS resolves entries from runtime JSON and checks the remote's exposed release metadata. The former VITE_*_REMOTE_ENTRY overrides are removed. See [runtime configuration and the exact two-version Cart demonstration](docs/nucleus.md).
 
 ## Event-driven demonstration
 
@@ -90,3 +90,9 @@ See [COMMENSAL profile](docs/commensal.md), [MUTANT offer rules and demonstratio
 MSW is enabled in development and built previews; there is no real backend. Each remote owns its handlers, API client and Query cache. All five sites serve the generated worker script. Profile and cart saves remain local to this browser origin/tab.
 
 Open `/products?mock-products=slow` to see network loading, `/products?mock-products=error` for a retryable 503, `/profile?mock-profile=write-error` to test a failed save without losing the draft, or `/offers?mock-offers=empty` for an empty catalog. Remove the parameter and reload to recover. See [API contracts, ownership, scenarios and verification](docs/mock-apis.md).
+
+## Runtime remote configuration
+
+Development defaults are in apps/ecosystem/public/nucleus; canonical development/production presets are under deployment/registry. Edit/deploy registry JSON and reload to select a changed entry. Each remote exposes release metadata and NUCLEUS verifies version/compatibility before requesting its application. Fallback and feature flags are visible on the Ecosystem page. The production preset uses explicit .example placeholders requiring real controlled HTTPS origins.
+
+The critical Cart 1.0.0 → 1.1.0 test passed against an unchanged Host build. [NUCLEUS documentation](docs/nucleus.md) records the exact commands, mutable registry files, immutable output hash and limitations.

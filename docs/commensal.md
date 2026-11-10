@@ -19,3 +19,7 @@ Tests cover standalone/embedded layout, avatar, edit/save/remount, separate draf
 ## Stage 8 data layer
 
 Profile GET/PATCH now pass through owner-local MSW handlers and a private TanStack Query cache. Drafts are accepted only after successful persistence; failed PATCH preserves the draft and saved profile. Explicit reset also uses the mock API. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.
+
+## Stage 9 runtime configuration
+
+NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).

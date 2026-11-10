@@ -14,3 +14,9 @@ export interface CommensalRoutesProps {
 export interface MutantRoutesProps {
   mode?: 'standalone' | 'embedded';
 }
+
+export interface RemoteRelease {
+  id: 'parasite' | 'symbiont' | 'commensal' | 'mutant';
+  version: string;
+  compatibility: { hostApi: 1; mycelium: 1; reactMajor: 19; muiMajor: 9 };
+}

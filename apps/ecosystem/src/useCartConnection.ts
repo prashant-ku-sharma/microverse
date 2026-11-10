@@ -1,3 +1,4 @@
+import { RemoteDisabledError } from './nucleus/errors';
 import { useEffect, useState } from 'react';
 import { events, subscribe } from '@microverse/mycelium';
 import { loadCartService } from './federation/loadSymbiont';
@@ -6,7 +7,7 @@ import { loadCartService } from './federation/loadSymbiont';
 export function useCartConnection() {
   const [connection, setConnection] = useState<{
     count: number | null;
-    status: 'connecting' | 'ready' | 'unavailable';
+    status: 'connecting' | 'ready' | 'unavailable' | 'disabled';
   }>({ count: null, status: 'connecting' });
   useEffect(() => {
     let disposed = false;
@@ -27,8 +28,13 @@ export function useCartConnection() {
       .then((service) => {
         if (!disposed) stopService = service.startCartService();
       })
-      .catch(() => {
-        if (!disposed) setConnection({ count: null, status: 'unavailable' });
+      .catch((error: unknown) => {
+        if (!disposed)
+          setConnection({
+            count: null,
+            status:
+              error instanceof RemoteDisabledError ? 'disabled' : 'unavailable',
+          });
       });
     return () => {
       disposed = true;

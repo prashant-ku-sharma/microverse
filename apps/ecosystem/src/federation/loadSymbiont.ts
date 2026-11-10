@@ -1,7 +1,6 @@
-import { loadRemote, registerRemotes } from '@module-federation/runtime';
+import { loadRegisteredRemote } from '../nucleus/loader';
 import type { ComponentType } from 'react';
 import type { SymbiontRoutesProps } from '@microverse/shared-types';
-import { symbiontRemote } from './symbiontRemote';
 
 export interface SymbiontModule {
   default: ComponentType<SymbiontRoutesProps>;
@@ -10,23 +9,7 @@ export interface SymbiontModule {
 async function loadExpose<T>(
   expose: 'routes' | 'cart-service',
 ): Promise<T | null> {
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-  try {
-    registerRemotes([
-      symbiontRemote(import.meta.env.VITE_SYMBIONT_REMOTE_ENTRY),
-    ]);
-    return await Promise.race([
-      loadRemote<T>(`symbiont/${expose}`),
-      new Promise<never>((_, reject) => {
-        timeout = setTimeout(
-          () => reject(new Error('SYMBIONT loading timed out')),
-          12000,
-        );
-      }),
-    ]);
-  } finally {
-    clearTimeout(timeout);
-  }
+  return loadRegisteredRemote<T>('symbiont', expose);
 }
 /** Uses the plugin-initialized federation runtime; no source import or local fallback. */
 export async function loadSymbiont(): Promise<SymbiontModule> {

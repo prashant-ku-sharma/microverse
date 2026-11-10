@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) =>
               name: 'symbiont',
               filename: 'remoteEntry.js',
               exposes: {
+                './release': './src/release.ts',
                 './routes': './src/routes.tsx',
                 './cart-service': './src/cart-entry.ts',
               },

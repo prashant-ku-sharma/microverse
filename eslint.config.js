@@ -12,8 +12,13 @@ export default defineConfig([
     '**/coverage/**',
     '**/node_modules/**',
     '**/public/mockServiceWorker.js',
+    'deployment/.local/**',
   ]),
   js.configs.recommended,
+  {
+    files: ['deployment/scripts/*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
   tseslint.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],

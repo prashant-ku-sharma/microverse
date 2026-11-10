@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "features": {
+    "cartEvents": true,
+    "offerEvents": true
+  },
+  "remotes": {
+    "parasite": {
+      "name": "Parasite",
+      "version": "1.0.0",
+      "entry": "https://parasite.microverse.example/releases/1.0.0/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    },
+    "symbiont": {
+      "name": "Symbiont",
+      "version": "1.0.0",
+      "entry": "https://symbiont.microverse.example/releases/1.0.0/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    },
+    "commensal": {
+      "name": "Commensal",
+      "version": "1.0.0",
+      "entry": "https://commensal.microverse.example/releases/1.0.0/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    },
+    "mutant": {
+      "name": "Mutant",
+      "version": "1.0.0",
+      "entry": "https://mutant.microverse.example/releases/1.0.0/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { RegistryStatus } from '../nucleus/RegistryStatus';
 import { Link } from 'react-router';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import {
@@ -34,7 +35,7 @@ export function Ecosystem() {
         </SurfaceCard>
         <SurfaceCard>
           <StatusIndicator
-            label="Stage 7 · Four independent remotes"
+            label="Stage 9 · NUCLEUS runtime registry"
             tone="success"
           />
           <Typography variant="h2" sx={{ mt: 3, mb: 2 }}>
@@ -48,15 +49,17 @@ export function Ecosystem() {
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
             All four remotes load from their own servers and are isolated by
             Host-owned error boundaries. MYCELIUM carries validated events
-            between product discovery, the cart, and the Host count. Runtime
-            registry and authentication simulation remain future milestones. No
-            application imports another application’s source.
+            between product discovery, the cart, and the Host count. NUCLEUS
+            selects trusted remote entries at runtime. Authentication simulation
+            remains a future milestone. No application imports another
+            application’s source.
           </Typography>
           <Button component={Link} to="/" sx={{ mt: 3 }}>
             Return to overview
           </Button>
         </SurfaceCard>
       </Box>
+      <RegistryStatus />
     </Stack>
   );
 }

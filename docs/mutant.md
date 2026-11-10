@@ -35,3 +35,7 @@ Tests cover rules/boundaries/rounding/dates, rendering/details, standalone previ
 ## Stage 8 data layer
 
 The coupon catalog loads through GET /api/offers. User application first calls POST /api/offers/validate; failed or stale validation cannot publish an offer. Automatic eligibility/expiry reconciliation stays inside MUTANT and uses MYCELIUM cart context, without calling Cart HTTP APIs. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.
+
+## Stage 9 runtime configuration
+
+NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).

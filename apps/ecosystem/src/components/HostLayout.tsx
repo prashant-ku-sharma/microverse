@@ -33,6 +33,7 @@ import {
   StatusIndicator,
 } from '@microverse/shared-ui';
 
+import { NucleusNotice } from '../nucleus/RegistryStatus';
 import { useOffersConnection } from '../useOffersConnection';
 import { useCartConnection } from '../useCartConnection';
 
@@ -305,7 +306,9 @@ export function HostLayout() {
                     ? 'MYCELIUM · Cart connected'
                     : cart.status === 'connecting'
                       ? 'Connecting Cart…'
-                      : 'Cart unavailable'
+                      : cart.status === 'disabled'
+                        ? 'Cart connection disabled'
+                        : 'Cart unavailable'
                 }
                 tone={cart.status === 'ready' ? 'success' : 'warning'}
               />
@@ -339,6 +342,7 @@ export function HostLayout() {
             outline: 'none',
           }}
         >
+          <NucleusNotice />
           <Outlet />
         </Box>
         <Box
@@ -359,7 +363,7 @@ export function HostLayout() {
               MICROVERSE · A living architecture
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              STAGE 08 / MOCK DATA
+              STAGE 09 / NUCLEUS
             </Typography>
           </Stack>
         </Box>

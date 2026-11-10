@@ -4,3 +4,5 @@ coverage
 pnpm-lock.yaml
 
 **/public/mockServiceWorker.js
+
+deployment/.local/

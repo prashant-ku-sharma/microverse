@@ -24,6 +24,11 @@ vi.mock('./federation/loadAdditionalRemotes', () => ({
   })),
 }));
 
+vi.mock('./nucleus/RegistryStatus', () => ({
+  RegistryStatus: () => <p>Runtime registry</p>,
+  NucleusNotice: () => null,
+}));
+
 function renderHost(path = '/', desktop = true) {
   vi.stubGlobal(
     'matchMedia',

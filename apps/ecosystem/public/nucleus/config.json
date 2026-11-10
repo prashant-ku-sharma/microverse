@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "environment": "development",
+  "registry": "/nucleus/remotes.json",
+  "fallback": "/nucleus/fallback.json",
+  "trustedOrigins": [
+    "http://127.0.0.1:5001",
+    "http://127.0.0.1:5002",
+    "http://127.0.0.1:5003",
+    "http://127.0.0.1:5004"
+  ]
+}

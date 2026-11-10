@@ -24,7 +24,8 @@
     "@module-federation/runtime": "2.9.3",
     "@microverse/shared-types": "workspace:*",
     "@babel/runtime": "8.1.0",
-    "@microverse/mycelium": "workspace:*"
+    "@microverse/mycelium": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@microverse/config": "workspace:*",

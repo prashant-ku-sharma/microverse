@@ -1,3 +1,4 @@
+import { RemoteDisabledError } from '../nucleus/errors';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Link, MemoryRouter, Route, Routes } from 'react-router';
@@ -49,6 +50,15 @@ describe.each([
     expect(
       await screen.findByRole('heading', { name: `${name} embedded` }),
     ).toBeVisible();
+  });
+  it('explains an intentional runtime feature disable', async () => {
+    vi.mocked(loader).mockRejectedValue(new RemoteDisabledError());
+    mount();
+    expect(
+      await screen.findByRole('heading', { name: `${name} is disabled.` }),
+    ).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('runtime registry');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
   it('contains a load rejection and keeps Host navigation working', async () => {
     const user = userEvent.setup();

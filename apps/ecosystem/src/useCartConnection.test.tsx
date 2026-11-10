@@ -1,3 +1,4 @@
+import { RemoteDisabledError } from './nucleus/errors';
 import { act, render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -78,6 +79,11 @@ describe('Host MYCELIUM count projection', () => {
       finish?.({ startCartService: start });
     });
     expect(start).not.toHaveBeenCalled();
+  });
+  it('distinguishes a disabled background capability from a network outage', async () => {
+    vi.mocked(loadCartService).mockRejectedValue(new RemoteDisabledError());
+    render(<Connection />);
+    expect(await screen.findByText('disabled:unknown')).toBeVisible();
   });
   it('handles StrictMode lifetime replay without duplicate starts or leaked subscriptions', async () => {
     const stop = vi.fn();

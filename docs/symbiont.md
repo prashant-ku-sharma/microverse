@@ -51,3 +51,7 @@ For browser verification, start SYMBIONT and ECOSYSTEM independently. Open the H
 ## Stage 8 data layer
 
 The existing cart service remains the mock repository and headless event consumer. MSW GET/POST/PATCH/DELETE delegates to this one owner engine; UI reads, quantity changes, and removals use the API. Owner notifications update its private Query cache, including coupon acknowledgements. Durable event ingress and local clear/sample/checkout workflows retain their existing path. See [mock APIs](mock-apis.md) for contracts, fault scenarios and verification.
+
+## Stage 9 runtime configuration
+
+NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).

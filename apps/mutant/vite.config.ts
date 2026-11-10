@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) =>
               name: 'mutant',
               filename: 'remoteEntry.js',
               exposes: {
+                './release': './src/release.ts',
                 './routes': './src/routes.tsx',
                 './offers-service': './src/offers-entry.ts',
               },

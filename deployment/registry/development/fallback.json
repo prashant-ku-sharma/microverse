@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "features": {
+    "cartEvents": true,
+    "offerEvents": true
+  },
+  "remotes": {
+    "parasite": {
+      "name": "Parasite",
+      "version": "1.0.0",
+      "entry": "http://127.0.0.1:5001/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    },
+    "symbiont": {
+      "name": "Symbiont",
+      "version": "1.0.0",
+      "entry": "http://127.0.0.1:5002/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    },
+    "commensal": {
+      "name": "Commensal",
+      "version": "1.0.0",
+      "entry": "http://127.0.0.1:5003/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    },
+    "mutant": {
+      "name": "Mutant",
+      "version": "1.0.0",
+      "entry": "http://127.0.0.1:5004/remoteEntry.js",
+      "enabled": true,
+      "compatibility": {
+        "hostApi": 1,
+        "mycelium": 1,
+        "reactMajor": 19,
+        "muiMajor": 9
+      }
+    }
+  }
+}
