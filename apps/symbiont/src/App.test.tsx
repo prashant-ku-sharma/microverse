@@ -39,8 +39,8 @@ describe('SYMBIONT application', () => {
     expect(screen.getByRole('main')).toBeVisible();
     expect(screen.getAllByRole('article')).toHaveLength(3);
     expect(screen.getByTestId('subtotal')).toHaveTextContent('₹5,346.00');
-    expect(screen.getByTestId('discount')).toHaveTextContent('₹534.60');
-    expect(screen.getByTestId('total')).toHaveTextContent('₹4,811.40');
+    expect(screen.getByTestId('discount')).toHaveTextContent('₹0.00');
+    expect(screen.getByTestId('total')).toHaveTextContent('₹5,445.00');
     expect(screen.getByText('Cart saved in this tab')).toBeVisible();
     expect(
       screen.getByRole('img', { name: 'Lumen task light' }),
@@ -63,7 +63,7 @@ describe('SYMBIONT application', () => {
     expect(
       screen.getByLabelText('Lumen task light quantity'),
     ).toHaveTextContent('2');
-    expect(screen.getByTestId('total')).toHaveTextContent('₹7,780.50');
+    expect(screen.getByTestId('total')).toHaveTextContent('₹8,744.00');
     await user.click(increase);
     await user.click(increase);
     expect(increase).toBeDisabled();
@@ -113,7 +113,7 @@ describe('SYMBIONT application', () => {
       name: 'Demo order confirmed',
     });
     expect(heading).toHaveFocus();
-    expect(screen.getByText('₹3,373.20')).toBeVisible();
+    expect(screen.getByText('₹3,847.00')).toBeVisible();
     expect(
       screen.getByText('2 items in your receipt. Your cart is now empty.'),
     ).toBeVisible();

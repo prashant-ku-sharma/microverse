@@ -1,6 +1,6 @@
-# Module Federation: products and cart
+# Module Federation: four independent remotes
 
-Stages 4–5 integrate PARASITE and SYMBIONT into ECOSYSTEM through genuine runtime Module Federation. The apps remain separate builds and servers. The Host has no remote source imports and does not bundle product/cart fixtures.
+Stages 4–7 integrate PARASITE, SYMBIONT, COMMENSAL, and MUTANT into ECOSYSTEM through genuine runtime Module Federation. The apps remain separate builds and servers. The Host has no remote source imports and does not bundle remote business fixtures.
 
 ## Selected implementation and verified references
 
@@ -103,3 +103,13 @@ SYMBIONT additionally exposes ./cart-service from src/cart-entry.ts, a facade th
 loaded-first still prevents plugin-driven eager initialization of all remotes. The Host now deliberately requests the small cart service asynchronously after mounting its MYCELIUM listeners; overview/Products remain usable when SYMBIONT is offline. The count stays unknown until a validated committed fact arrives. Cart UI and the service share the same independently built remote module instance.
 
 MYCELIUM need not be a federation JavaScript singleton: compatible contracts communicate through native CustomEvents and an origin/tab inbox. It contains no cart business state. See [event flow, persistence, and cleanup](communication.md).
+
+## Stage 7: Profile and Offers
+
+Official [Vite configuration](https://module-federation.io/integrations/build-tool/vite) and [runtime APIs](https://module-federation.io/guide/runtime/runtime-api) were rechecked on 2026-11-10. Existing plugin/runtime versions and common singleton policy are retained. COMMENSAL (5003) exposes `./routes`; MUTANT (5004) exposes `./routes` and `./offers-service`. Each standalone owns createRoot/ThemeProvider/CssBaseline. Embedded entries consume Host layout/theme without nesting a shell, root, or router.
+
+The Host explicitly calls registerRemotes/loadRemote for `commensal/routes`, `mutant/routes`, and `mutant/offers-service`. Route wrappers use React.lazy, Suspense, module validation, a 12-second timeout, and separate RemoteBoundary instances. The offers facade exposes only startOffersService → cleanup. Its asynchronous connection cannot crash or block the Host; a service failure is logged, and the Offers route has its own visible loading/failure state. Dev/preview CORS allows port 5000. Common React/React DOM/router/MUI/Emotion and Babel fallback versions stay aligned.
+
+Entry defaults are `http://127.0.0.1:5003/remoteEntry.js` and `http://127.0.0.1:5004/remoteEntry.js`. `VITE_COMMENSAL_REMOTE_ENTRY` / `VITE_MUTANT_REMOTE_ENTRY` are public build/start overrides, not Nucleus. Start all five with pnpm dev, or each filtered dev command independently. Build with pnpm build and use each app's preview command after stopping dev.
+
+For outage verification, stop COMMENSAL, reload /profile, and navigate to Cart; then restart it. Stop MUTANT, reload /cart, and visit /offers: Cart remains usable without a persisted monetary quote, while Offers shows a contained failure. Profile still loads. Restart MUTANT and reload to clear cached imports; its saved code reconciles against the current cart. Already-loaded modules can remain usable after a server stops; a fresh document is necessary to test entry failure. No live health polling or runtime registry is implied.

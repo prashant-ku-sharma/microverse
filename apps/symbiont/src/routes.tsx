@@ -27,7 +27,7 @@ export default function SymbiontRoutes({
 }: SymbiontRoutesProps) {
   const { cart: state, dispatch, error, retry, reset } = useCart();
   const confirmation = useRef<HTMLHeadingElement>(null);
-  const totals = calculateTotals(state.items);
+  const totals = calculateTotals(state.items, state.offer);
   const processing = state.phase === 'processing';
   useEffect(() => {
     if (state.phase === 'confirmed') confirmation.current?.focus();
@@ -187,7 +187,7 @@ export default function SymbiontRoutes({
             sx={{ justifyContent: 'space-between', gap: 2 }}
           >
             <Typography color="text.secondary">
-              Sample discount · 10%
+              {state.order.offerCode ?? 'Coupon discount'}
             </Typography>
             <Typography color="secondary.main">
               −{formatMoney(state.order.totals.discountPaise)}
@@ -204,6 +204,16 @@ export default function SymbiontRoutes({
               {formatMoney(state.order.totals.totalPaise)}
             </Typography>
           </Stack>
+          <Typography variant="body2" color="text.secondary">
+            Delivery:{' '}
+            {formatMoney(
+              state.order.totals.shippingPaise -
+                state.order.totals.shippingDiscountPaise,
+            )}
+            {state.order.totals.shippingDiscountPaise > 0
+              ? ' · delivery coupon applied'
+              : ''}
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             {state.order.totals.itemCount} items in your receipt. Your cart is
             now empty.
@@ -307,6 +317,7 @@ export default function SymbiontRoutes({
           </Box>
           <CartSummary
             totals={totals}
+            offerCode={state.offer?.code ?? null}
             processing={processing}
             onCheckout={() =>
               dispatch({

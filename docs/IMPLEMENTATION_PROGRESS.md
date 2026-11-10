@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 6 — MYCELIUM event-driven communication. Complete and pushed on 2026-11-09. Completed stages: 1–6. Awaiting Stage 7.
+Stage 7 — COMMENSAL profile and MUTANT offers. Implementation and verification completed on 2026-11-10; milestone commit/push receipt pending. Completed stages: 1–7. Awaiting Stage 8.
 
 ## Completed Stage 1 scope
 
@@ -111,18 +111,32 @@ Stage 6 — MYCELIUM event-driven communication. Complete and pushed on 2026-11-
 - Follow-up fix: `3e062423a88003cd503954f4cc367c27addc16d7` (`fix: suppress cart facts after persistence failures`), created at 2026-11-09T18:36:12+05:30. Push confirmed: `git push origin main` advanced `03863fd` to `3e06242`.
 - This documentation receipt records actual hashes, creation dates, and confirmed pushes without rewriting history. Stage 6 is complete; no Stage 7 work was started.
 
+## Stage 7 scope and verification
+
+- Independent COMMENSAL profile, initials avatar, editable validated contact/address fields, draft/save/cancel, user/notification preferences, tab-scoped persistence, and error/reset recovery. Profile data remains private to its owner.
+- Independent MUTANT coupon catalog/details, minimum/date/processing eligibility, WELCOME10/SAVE20/FREESHIP, integer-paise savings, apply/remove/replace, persisted code, expiry handling, and explicitly marked standalone estimate.
+- Both expose routes through real federation on ports 5003/5004 with aligned framework singletons. Host /profile and /offers now load the remotes with isolated loading/error boundaries. Shared StandaloneShell contains only presentation.
+- Background ./offers-service consumes MYCELIUM pricing facts and publishes quotes/removals while the UI is absent. Separate pricing/snapshot-request events preserve original CART_UPDATED strict version-1 compatibility. Snapshot handshake, saved selection, basis revision, acknowledgement comparison, and leases handle startup/missed events without a shared business store.
+- SYMBIONT replaces its automatic discount with owner-confirmed quotes and ₹99 demo delivery. It rejects stale/expired quotes, bounds savings, preserves receipt totals, and migrates legacy saved cart records without losing processed intent IDs.
+- Actual implementation date: 2026-11-10 (Asia/Kolkata). No timestamps are altered.
+- Development browser verification passed: profile editing/preferences/reload, private standalone-origin state, all coupon benefits, replacement/removal, and SAVE20 becoming ineligible after a cart item removal. Offers had no horizontal overflow at 390/900px; desktop 1440px visual review and mobile navigation passed. Profile 390px had no horizontal overflow.
+- Production browser verification passed: Profile, Offers, and Cart used independently built servers; profile restored its saved edits; Offers confirmed WELCOME10; stopping COMMENSAL showed its contained fallback while Cart stayed usable. Stopping MUTANT showed its own fallback while Profile and Cart stayed usable; Cart reload displayed no stale persisted savings. Restart/reload reconciled the selected coupon.
+- Browser monetary evidence: 2 Moss planters + 1 Field bottle subtotal ₹4,270, SAVE20 savings ₹854, delivery ₹99, total ₹3,515. Removing the bottle invalidated SAVE20; FREESHIP yielded ₹2,980. WELCOME10 yielded ₹2,781 including delivery. Checkout receipt retained WELCOME10/₹298 savings/₹2,781 total; Host count became zero and reload kept Cart empty.
+- Healthy production Offers console had no errors/warnings before deliberate outages. Expected import failures during outages were contained. Task-owned development/preview servers are stopped after verification.
+- Final checks passed: pnpm test (155 tests across 21 files), pnpm build (all five apps), pnpm typecheck (all 10 projects), pnpm lint, pnpm format:check, and pnpm install --frozen-lockfile --offline. The existing Host shared MUI provider chunk-size advisory remains non-blocking. The actual commit/push receipt follows the implementation commit without rewriting history.
+
 ## Architecture decisions
 
-See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products; SYMBIONT owns cart state and checkout simulation. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration and [ADR 0005](decisions/0005-symbiont-cart-ownership.md) for cart ownership and [ADR 0006](decisions/0006-durable-mycelium-delivery.md) for durable event intent and service lifetime.
+See [ADR 0001](decisions/0001-workspace-foundation.md), [ADR 0002](decisions/0002-host-shell-and-design-system.md), and [ADR 0003](decisions/0003-parasite-product-ownership.md). The apps are independent standalone builds. Shared UI has no router or business state. The Host owns routing and failure isolation; PARASITE owns products; SYMBIONT owns cart state and checkout simulation. See [ADR 0004](decisions/0004-first-runtime-federation.md) for the runtime integration and [ADR 0005](decisions/0005-symbiont-cart-ownership.md) for cart ownership and [ADR 0006](decisions/0006-durable-mycelium-delivery.md) for durable event intent and service lifetime. [ADR 0007](decisions/0007-profile-and-offer-ownership.md) records private profile state, offer ownership, pricing compatibility, and quote reconciliation.
 
 ## Pending stages
 
-Stages 7–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
+Stages 8–12 await their implementation prompts. Their exact scope and sequence have not been supplied. Further business features, federation, communication, runtime registry, resilience, advanced testing, CI, and deployment workflows are deferred.
 
 ## Known limitations
 
-Only products/cart are integrated. Entry selection remains build-time configuration; Nucleus, immutable release/cache policy, authentication, deployment automation, and further event domains await their stages. Recovery from cached federation import failures uses a full reload. The tab/origin-scoped cart/inbox survives reload but is not a backend/account cart or cross-origin/cross-tab sync. Inbox capacity is 100 pending requests with visible rejection; diagnostic history is 100 records per module instance and applied IDs retain 1000 receipts. Corrupt inbox data is preserved/reported and needs manual inspection. Inventory and the fixed 10% discount remain sample data; checkout is a simulation. The existing Host shared MUI provider chunk-size advisory remains non-blocking.
+All four remotes are integrated. Entry selection remains build-time configuration; Nucleus, immutable release/cache policy, authentication, deployment automation, and further event domains await their stages. Recovery from cached federation import failures uses a full reload. The tab/origin-scoped cart/inbox survives reload but is not a backend/account cart or cross-origin/cross-tab sync. Inbox capacity is 100 pending requests with visible rejection; diagnostic history is 100 records per module instance and applied IDs retain 1000 receipts. Corrupt inbox data is preserved/reported and needs manual inspection. Inventory/coupons/delivery are mock data; checkout is a simulation. Profile/cart/offer selection are local to the origin/tab, not backend account data. Notification delivery and translations are not implemented. Coupons use fixed UTC fixture validity through 2027-12-31. The existing Host shared MUI provider chunk-size advisory remains non-blocking.
 
 ## Next milestone
 
-Await Stage 7 instructions. Do not proceed automatically.
+Await Stage 8 instructions. Do not proceed automatically.

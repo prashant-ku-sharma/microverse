@@ -33,6 +33,7 @@ import {
   StatusIndicator,
 } from '@microverse/shared-ui';
 
+import { useOffersConnection } from '../useOffersConnection';
 import { useCartConnection } from '../useCartConnection';
 
 const navigation = [
@@ -46,6 +47,7 @@ const navigation = [
 
 export function HostLayout() {
   const cart = useCartConnection();
+  useOffersConnection();
   const [menuOpen, setMenuOpen] = useState(false);
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
@@ -357,7 +359,7 @@ export function HostLayout() {
               MICROVERSE · A living architecture
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              STAGE 06 / MYCELIUM
+              STAGE 07 / ALL ORGANISMS
             </Typography>
           </Stack>
         </Box>

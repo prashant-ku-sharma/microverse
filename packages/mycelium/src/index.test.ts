@@ -51,6 +51,44 @@ describe('MYCELIUM typed transport', () => {
     acknowledge(event.id);
     expect(pendingEvents()).toEqual([]);
   });
+  it('validates offer wire amounts and source without changing legacy cart payloads', () => {
+    const callback = vi.fn();
+    stops.push(subscribe(events.OFFER_APPLIED, callback));
+    const quote = {
+      code: 'WELCOME10',
+      cartRevision: 2,
+      discountPaise: 10000,
+      shippingDiscountPaise: 0,
+      expiresAt: '2027-12-31T23:59:59.999Z',
+    };
+    const event = createMycelium('mutant').publish(events.OFFER_APPLIED, quote);
+    expect(callback).toHaveBeenCalledWith(event);
+    for (const payload of [
+      { ...quote, discountPaise: -1 },
+      { ...quote, shippingDiscountPaise: 0.5 },
+      { ...quote, cartRevision: -1 },
+      { ...quote, expiresAt: 'invalid' },
+      { ...quote, unknown: true },
+    ])
+      expect(eventSchema.safeParse({ ...event, payload }).success).toBe(false);
+    expect(
+      eventSchema.safeParse({ ...event, source: 'symbiont' }).success,
+    ).toBe(false);
+    const legacy = createMycelium('symbiont').publish(events.CART_UPDATED, {
+      itemCount: 1,
+      subtotalPaise: 100,
+      discountPaise: 0,
+      totalPaise: 100,
+      revision: 1,
+    });
+    expect(eventSchema.safeParse(legacy).success).toBe(true);
+    expect(
+      eventSchema.safeParse({
+        ...legacy,
+        payload: { ...legacy.payload, shippingPaise: 99 },
+      }).success,
+    ).toBe(false);
+  });
   it('subscribes once per callback and supports explicit and returned cleanup', () => {
     const callback = vi.fn();
     stops.push(subscribe(events.PRODUCT_ADDED, callback));

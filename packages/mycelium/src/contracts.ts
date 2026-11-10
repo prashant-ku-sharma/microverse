@@ -5,6 +5,10 @@ export const events = {
   PRODUCT_REMOVED: 'microverse:product:removed',
   CART_UPDATED: 'microverse:cart:updated',
   CART_CLEARED: 'microverse:cart:cleared',
+  CART_PRICING_UPDATED: 'microverse:cart:pricing-updated',
+  CART_REQUESTED: 'microverse:cart:requested',
+  OFFER_APPLIED: 'microverse:offer:applied',
+  OFFER_REMOVED: 'microverse:offer:removed',
 } as const;
 const id = z.string().min(1).max(120);
 const money = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
@@ -26,7 +30,61 @@ const metadata = {
   schemaVersion: z.literal(1),
   correlationId: z.uuid(),
 };
+export const pricingSchema = z.strictObject({
+  itemCount: z.number().int().min(0),
+  subtotalPaise: money,
+  shippingPaise: money,
+  cartRevision: z.number().int().min(0),
+  revision: z.number().int().min(0),
+  discountPaise: money,
+  shippingDiscountPaise: money,
+  offerCode: z.string().min(1).max(40).nullable(),
+  checkoutPending: z.boolean(),
+});
+export type CartPricing = z.infer<typeof pricingSchema>;
+export const offerQuoteSchema = z.strictObject({
+  code: z.string().min(1).max(40),
+  cartRevision: z.number().int().min(0),
+  discountPaise: money,
+  shippingDiscountPaise: money,
+  expiresAt: z.iso.datetime(),
+});
+export type OfferQuote = z.infer<typeof offerQuoteSchema>;
 export const eventSchema = z.discriminatedUnion('name', [
+  z.strictObject({
+    ...metadata,
+    name: z.literal(events.CART_PRICING_UPDATED),
+    source: z.literal('symbiont'),
+    payload: pricingSchema,
+  }),
+  z.strictObject({
+    ...metadata,
+    name: z.literal(events.CART_REQUESTED),
+    source: z.literal('mutant'),
+    payload: z.strictObject({}),
+  }),
+  z.strictObject({
+    ...metadata,
+    name: z.literal(events.OFFER_APPLIED),
+    source: z.literal('mutant'),
+    payload: offerQuoteSchema,
+  }),
+  z.strictObject({
+    ...metadata,
+    name: z.literal(events.OFFER_REMOVED),
+    source: z.literal('mutant'),
+    payload: z.strictObject({
+      code: z.string().min(1).max(40),
+      cartRevision: z.number().int().min(0),
+      reason: z.enum([
+        'user',
+        'ineligible',
+        'expired',
+        'cart-cleared',
+        'replaced',
+      ]),
+    }),
+  }),
   z.strictObject({
     ...metadata,
     name: z.literal(events.PRODUCT_ADDED),

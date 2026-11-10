@@ -4,7 +4,7 @@ Stage 5 introduces a functional cart at `http://127.0.0.1:5002/` and exposes the
 
 ## Ownership and state
 
-SYMBIONT owns its CartItem, reducer, initial fixtures, availability limits, price formatting, discount rules, and order receipt. These models remain inside the app. Its presentation contract is `SymbiontRoutesProps`, describing standalone versus embedded presentation.
+SYMBIONT owns its CartItem, reducer, initial fixtures, availability limits, price formatting, bounded quote composition, and order receipt. These models remain inside the app. Its presentation contract is `SymbiontRoutesProps`, describing standalone versus embedded presentation.
 
 State uses a SYMBIONT-owned reducer/service, exposed separately as ./cart-service for the Host's background lifetime and reused by its Cart UI. A fresh session starts empty. Product adds arrive through MYCELIUM; Load sample cart remains an explicit standalone demo option (Lumen light, Arc mugs, Seed notebook). Whole-number quantities respect stock; removal/clear are separate actions.
 
@@ -12,16 +12,11 @@ Cart items, revision, and processed event IDs persist atomically in this tab's s
 
 ## Monetary rules
 
-All prices and calculations use integer paise in INR. Line amount is unit price × quantity. Subtotal is the sum of line amounts; a fixed **local sample discount of 10%** is rounded once to the nearest paise. Final total is subtotal minus discount. This demo has no additional delivery/tax charges. MUTANT and coupon integration are deferred.
+All prices and calculations use integer paise in INR. Subtotal is the sum of unit price × quantity. Stage 7 removes the automatic sample discount. MUTANT owns coupon rules and supplies a revision-bound monetary quote through MYCELIUM; SYMBIONT never imports its catalog or rules. A nonempty cart has ₹99 demo delivery, an empty cart has none. Total = subtotal − merchandise discount + delivery − delivery saving. Discounts are bounded by their corresponding charge. No additional tax is added.
 
-Expected totals after explicitly loading the sample collection:
+A loaded sample cart without a coupon has 4 units, subtotal ₹5,346, delivery ₹99, and total ₹5,445. WELCOME10 yields ₹534.60 savings and total ₹4,910.40. FREESHIP waives ₹99 instead; coupons do not stack. See [MUTANT rules](mutant.md).
 
-| Value           |    Amount |
-| --------------- | --------: |
-| Units           |         4 |
-| Subtotal        | ₹5,346.00 |
-| Sample discount |   ₹534.60 |
-| Final total     | ₹4,811.40 |
+Cart item changes invalidate the previous quote and increment the cart basis revision. A quote for an older basis, during checkout, or after expiry is rejected. A generic lease timer removes expired adjustments even when MUTANT is absent. Checkout also checks the lease before capturing a receipt. Quotes are transient: reload starts from persisted items and MUTANT reconciles its saved code. Cart persistence schema 2 reads legacy schema 1 without losing items or processed IDs; the existing storage key is retained. The original CART_UPDATED wire schema remains unchanged.
 
 ## Simulated checkout
 

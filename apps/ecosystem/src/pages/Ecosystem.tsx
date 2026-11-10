@@ -34,7 +34,7 @@ export function Ecosystem() {
         </SurfaceCard>
         <SurfaceCard>
           <StatusIndicator
-            label="Stage 6 · MYCELIUM communication"
+            label="Stage 7 · Four independent remotes"
             tone="success"
           />
           <Typography variant="h2" sx={{ mt: 3, mb: 2 }}>
@@ -42,11 +42,11 @@ export function Ecosystem() {
           </Typography>
           <Typography color="text.secondary">
             Ecosystem owns navigation, page composition, and the application
-            shell. Products and Cart load PARASITE and SYMBIONT through Module
-            Federation; Profile and Offers remain Host-owned placeholders.
+            shell. Products, Cart, Profile, and Offers load all four independent
+            organisms through Module Federation.
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Both remotes load from their own servers and are isolated by
+            All four remotes load from their own servers and are isolated by
             Host-owned error boundaries. MYCELIUM carries validated events
             between product discovery, the cart, and the Host count. Runtime
             registry and authentication simulation remain future milestones. No

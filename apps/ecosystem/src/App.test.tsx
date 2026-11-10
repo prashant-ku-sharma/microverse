@@ -16,6 +16,14 @@ vi.mock('./federation/loadSymbiont', () => ({
   loadSymbiont: vi.fn(async () => ({ default: () => <h1>Cart</h1> })),
 }));
 
+vi.mock('./federation/loadAdditionalRemotes', () => ({
+  loadCommensal: vi.fn(async () => ({ default: () => <h1>Profile</h1> })),
+  loadMutant: vi.fn(async () => ({ default: () => <h1>Offers</h1> })),
+  loadOffersService: vi.fn(async () => ({
+    startOffersService: () => () => {},
+  })),
+}));
+
 function renderHost(path = '/', desktop = true) {
   vi.stubGlobal(
     'matchMedia',
@@ -54,8 +62,8 @@ describe('Ecosystem Host', () => {
       'A living system.',
     );
     expect(screen.getAllByRole('article')).toHaveLength(4);
-    expect(screen.getAllByText('Not connected')).toHaveLength(2);
-    expect(screen.getAllByText('Federation configured')).toHaveLength(2);
+    expect(screen.queryByText('Not connected')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Federation configured')).toHaveLength(4);
     expect(screen.getByText(/not a live event feed/)).toBeVisible();
     expect(
       screen.getByRole('img', { name: /One host, four independent organisms/ }),
@@ -91,15 +99,16 @@ describe('Ecosystem Host', () => {
   });
 
   it.each([
-    ['/profile', 'Profile', 'COMMENSAL'],
-    ['/offers', 'Offers', 'MUTANT'],
-  ])('renders %s directly as a Host-owned placeholder', (path, title, name) => {
+    ['/profile', 'Profile'],
+    ['/offers', 'Offers'],
+  ])('renders %s through federation', async (path, title) => {
     renderHost(path);
     expect(
-      screen.getByRole('heading', { level: 1, name: title }),
+      await screen.findByRole('heading', { level: 1, name: title }),
     ).toBeVisible();
-    expect(screen.getByText(`${name} / ORGANISM`)).toBeVisible();
-    expect(screen.getByText('Host-owned placeholder')).toBeVisible();
+    expect(
+      screen.queryByText('Host-owned placeholder'),
+    ).not.toBeInTheDocument();
     expect(document.title).toBe(`${title} | MICROVERSE`);
   });
 

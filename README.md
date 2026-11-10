@@ -1,6 +1,6 @@
 # MICROVERSE
 
-A biology-inspired microfrontend ecosystem, built incrementally. **Stage 6 connects PARASITE, SYMBIONT, and the Host cart count through MYCELIUM typed events.** Product adds are persisted before delivery; the independently federated cart service owns reconciliation and state. Both remotes continue to run standalone.
+A biology-inspired microfrontend ecosystem, built incrementally. **Stage 7 integrates all four independently running remotes.** COMMENSAL owns profile editing and preferences. MUTANT owns coupon eligibility and savings, communicating with SYMBIONT through MYCELIUM. Product requests and coupon choices reconcile across route navigation and reload.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ pnpm dev
 
 `pnpm dev` runs all five Vite servers concurrently. Ports are strict: an occupied port produces an error instead of silently changing the application URL.
 
-| Application | Identity        | URL                   | Future responsibility      |
+| Application | Identity        | URL                   | Responsibility             |
 | ----------- | --------------- | --------------------- | -------------------------- |
 | Ecosystem   | Host            | http://127.0.0.1:5000 | Composition and navigation |
 | Parasite    | Products remote | http://127.0.0.1:5001 | Product discovery          |
@@ -53,19 +53,19 @@ Each application has its own entry point, HTML, package manifest, Vite config, T
 
 ## Environment conventions
 
-Copy an application's `.env.example` to `.env.local` inside that application if overrides are needed. `VITE_APP_LABEL` is an optional public display label. In Ecosystem it overrides the sidebar brand (default MICROVERSE); in PARASITE it overrides the storefront brand; in SYMBIONT it overrides the standalone header; in the other organisms it overrides the identifying heading. Vite reads application-local environment files at startup, so restart after edits.
+Copy an application's `.env.example` to `.env.local` inside that application if overrides are needed. `VITE_APP_LABEL` is an optional public display label. In Ecosystem it overrides the sidebar brand (default MICROVERSE); in PARASITE it overrides the storefront brand; in SYMBIONT it overrides the standalone header; in COMMENSAL/MUTANT it overrides the standalone header. Vite reads application-local environment files at startup, so restart after edits.
 
 Only `VITE_*` variables are exposed to browser code. They are **public build-time values**, never credentials. Local environment files are ignored; examples are committed. Ports belong in Vite configuration, not environment files. Runtime remote registry configuration will be designed in its own stage; `.env` changes are not a runtime federation mechanism.
 
 ## Boundaries and next work
 
-Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; other business state will remain in its owning remote. MYCELIUM carries typed, validated product/cart events, with a persisted inbox and SYMBIONT-owned reconciliation when its consumer is absent. Additional remote integrations, authentication simulation, profile/offer business features, API mocks, resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
+Apps never import another app's code. Product data and discovery rules live in PARASITE. Cart state, totals, and simulated checkout live in SYMBIONT; profile and offers remain in COMMENSAL and MUTANT respectively. MYCELIUM carries typed, validated product/cart events, with a persisted inbox and SYMBIONT-owned reconciliation when its consumer is absent. Authentication simulation, runtime registry, API mocks, further resilience, Playwright, CI, and deployment workflows are deferred to their requested stages. Stage 1 builds can be served individually, but independent deployment pipelines are not implemented yet.
 
-Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Products dynamically loads PARASITE and Cart loads SYMBIONT. Profile and Offers remain Host-owned placeholders. The cart count observes live MYCELIUM facts; the dashboard's configuration and activity panels remain explicit placeholders. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
+Ecosystem provides `/`, `/products`, `/cart`, `/profile`, `/offers`, and `/ecosystem`. Products dynamically loads PARASITE and Cart loads SYMBIONT. Profile and Offers dynamically load COMMENSAL and MUTANT. The cart count observes live MYCELIUM facts; the dashboard's configuration and activity panels remain explicit placeholders. See the [design system](docs/design-system.md) for reusable exports and responsive conventions. Future production hosting must provide an index.html fallback for deep links.
 
 PARASITE runs independently on port 5001 with 12 local mock products, search, category/stock filters, sorting, detail pages, prices, ratings, and stock handling. Add to Cart publishes a durable MYCELIUM request; SYMBIONT decides cart quantities and stock handling. The Host products route consumes the `parasite/routes` expose at runtime. See [PARASITE development and architecture](docs/parasite.md).
 
-SYMBIONT provides quantity updates, removals, empty state, integer-paise totals, a local 10% sample discount, and checkout simulation with an order receipt. A fresh cart starts empty; sample loading remains explicit. In the Host it consumes product requests and persists its cart across route navigation/reload in this browser tab. Standalone ports keep separate sessions. See [SYMBIONT ownership and verification](docs/symbiont.md).
+SYMBIONT provides quantity updates, removals, empty state, integer-paise totals, MUTANT-confirmed coupon adjustments and ₹99 demo delivery, and checkout simulation with an order receipt. A fresh cart starts empty; sample loading remains explicit. In the Host it consumes product requests and persists its cart across route navigation/reload in this browser tab. Standalone ports keep separate sessions. See [SYMBIONT ownership and verification](docs/symbiont.md).
 
 See [architecture](docs/architecture.md), [foundation ADR](docs/decisions/0001-workspace-foundation.md), and [implementation progress](docs/IMPLEMENTATION_PROGRESS.md).
 
@@ -78,3 +78,9 @@ See [Module Federation configuration, loading flow, and outage demonstration](do
 ## Event-driven demonstration
 
 Open Products in the Host and add products before opening Cart: its count updates from SYMBIONT's background service. Navigate to Cart and reload; items remain. Stop SYMBIONT, reload Products, and save another add request. Restart SYMBIONT and reload the Host: its persisted inbox reconciles the request once. Communication is scoped to this Host origin/tab; standalone ports do not share a cart. See [event contracts, APIs, durability, and lifetime](docs/communication.md).
+
+## Profile and offers
+
+Run all apps with `pnpm dev`. Profile supports editable name/email/address and saved user/notification preferences. Offers displays WELCOME10 (10%, ₹1,000 minimum), SAVE20 (20%, ₹3,000 minimum), and FREESHIP (delivery waiver, ₹1,500 minimum). Coupons replace each other; eligibility uses the merchandise subtotal and current mock validity dates. Cart confirms the final quote. Standalone Offers has an explicit estimate form; it does not modify another origin's cart.
+
+See [COMMENSAL profile](docs/commensal.md), [MUTANT offer rules and demonstration](docs/mutant.md), and [ADR 0007](docs/decisions/0007-profile-and-offer-ownership.md). Profile/cart/selection persistence is local to the current origin and tab. No account, notification delivery, backend order, or payment is created.

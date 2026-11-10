@@ -5,7 +5,8 @@ import { PageHeader } from '@microverse/shared-ui';
 import { HostLayout } from './components/HostLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Ecosystem } from './pages/Ecosystem';
-import { OrganismPlaceholder } from './pages/OrganismPlaceholder';
+import { RemoteProfile } from './federation/RemoteProfile';
+import { RemoteOffers } from './federation/RemoteOffers';
 import { organisms } from './organisms';
 import { RemoteCart } from './federation/RemoteCart';
 import { RemoteProducts } from './federation/RemoteProducts';
@@ -36,18 +37,8 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="/cart" element={<RemoteCart />} />
         <Route path="/products/*" element={<RemoteProducts />} />
-        {organisms
-          .filter(
-            (organism) =>
-              organism.route !== '/products' && organism.route !== '/cart',
-          )
-          .map((organism) => (
-            <Route
-              key={organism.route}
-              path={organism.route}
-              element={<OrganismPlaceholder organism={organism} />}
-            />
-          ))}
+        <Route path="/profile" element={<RemoteProfile />} />
+        <Route path="/offers" element={<RemoteOffers />} />
         <Route path="/ecosystem" element={<Ecosystem />} />
         <Route
           path="*"

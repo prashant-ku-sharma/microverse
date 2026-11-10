@@ -13,19 +13,27 @@ describe('SYMBIONT cart rules', () => {
     expect(calculateTotals(sampleCart)).toEqual({
       itemCount: 4,
       subtotalPaise: 534600,
-      discountPaise: 53460,
-      totalPaise: 481140,
+      discountPaise: 0,
+      shippingPaise: 9900,
+      shippingDiscountPaise: 0,
+      totalPaise: 544500,
     });
     expect(
       calculateTotals([
         { ...sampleCart[0]!, unitPricePaise: 105, quantity: 1 },
       ]),
-    ).toMatchObject({ subtotalPaise: 105, discountPaise: 11, totalPaise: 94 });
+    ).toMatchObject({
+      subtotalPaise: 105,
+      discountPaise: 0,
+      totalPaise: 10005,
+    });
     expect(calculateTotals([])).toEqual({
       itemCount: 0,
       subtotalPaise: 0,
       discountPaise: 0,
       totalPaise: 0,
+      shippingPaise: 0,
+      shippingDiscountPaise: 0,
     });
   });
   it('updates only the selected item without mutating fixtures', () => {
@@ -38,7 +46,7 @@ describe('SYMBIONT cart rules', () => {
     expect(calculateTotals(updated.items)).toMatchObject({
       itemCount: 5,
       subtotalPaise: 614500,
-      totalPaise: 553050,
+      totalPaise: 624400,
     });
     expect(initial.items[1]?.quantity).toBe(2);
     expect(sampleCart[1]?.quantity).toBe(2);
@@ -58,7 +66,7 @@ describe('SYMBIONT cart rules', () => {
     expect(calculateTotals(removed.items)).toMatchObject({
       itemCount: 2,
       subtotalPaise: 374800,
-      totalPaise: 337320,
+      totalPaise: 384700,
     });
     const empty = cartReducer(removed, { type: 'clear' });
     expect(empty.items).toHaveLength(0);
@@ -90,7 +98,7 @@ describe('SYMBIONT cart rules', () => {
     expect(confirmed.items).toHaveLength(0);
     expect(confirmed.order?.items).toEqual(sampleCart);
     expect(confirmed.order?.items).not.toBe(initial.items);
-    expect(confirmed.order?.totals.totalPaise).toBe(481140);
+    expect(confirmed.order?.totals.totalPaise).toBe(544500);
     expect(confirmed.order?.id).toBe('DEMO-test');
     expect(cartReducer(confirmed, { type: 'complete' })).toBe(confirmed);
     expect(cartReducer(confirmed, order)).toBe(confirmed);

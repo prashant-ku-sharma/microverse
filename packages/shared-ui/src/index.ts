@@ -10,3 +10,4 @@ export {
   OrganismMark,
   OrganismCard,
 } from './components';
+export { StandaloneShell } from './StandaloneShell';

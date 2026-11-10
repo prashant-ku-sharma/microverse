@@ -1,3 +1,4 @@
+import type { OfferQuote } from '@microverse/mycelium';
 /** Cart models and rules belong to SYMBIONT, not shared infrastructure. */
 export interface CartItem {
   id: string;
@@ -14,18 +15,22 @@ export interface CartTotals {
   subtotalPaise: number;
   discountPaise: number;
   totalPaise: number;
+  shippingPaise: number;
+  shippingDiscountPaise: number;
 }
 export interface OrderReceipt {
   id: string;
   createdAt: string;
   items: readonly CartItem[];
   totals: CartTotals;
+  offerCode: string | null;
 }
 export interface CartState {
   items: readonly CartItem[];
   phase: 'cart' | 'processing' | 'confirmed';
   order: OrderReceipt | null;
   notice: string;
+  offer: OfferQuote | null;
 }
 export type CartAction =
   | { type: 'add'; product: Omit<CartItem, 'quantity'>; quantity: number }
@@ -36,19 +41,33 @@ export type CartAction =
   | { type: 'checkout'; id: string; createdAt: string }
   | { type: 'complete' };
 
-/** Fixed local demo discount: 10%; round once to the nearest paise. */
-export function calculateTotals(items: readonly CartItem[]): CartTotals {
+/** SYMBIONT composes bounded monetary quotes; MUTANT owns all promotional rules. */
+export function calculateTotals(
+  items: readonly CartItem[],
+  offer: OfferQuote | null = null,
+): CartTotals {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotalPaise = items.reduce(
     (sum, item) => sum + item.unitPricePaise * item.quantity,
     0,
   );
-  const discountPaise = Math.round(subtotalPaise / 10);
+  const shippingPaise = itemCount ? 9900 : 0;
+  const discountPaise = Math.min(
+    subtotalPaise,
+    Math.max(0, offer?.discountPaise ?? 0),
+  );
+  const shippingDiscountPaise = Math.min(
+    shippingPaise,
+    Math.max(0, offer?.shippingDiscountPaise ?? 0),
+  );
   return {
     itemCount,
     subtotalPaise,
     discountPaise,
-    totalPaise: subtotalPaise - discountPaise,
+    shippingPaise,
+    shippingDiscountPaise,
+    totalPaise:
+      subtotalPaise - discountPaise + shippingPaise - shippingDiscountPaise,
   };
 }
 export function createCart(items: readonly CartItem[]): CartState {
@@ -57,6 +76,7 @@ export function createCart(items: readonly CartItem[]): CartState {
     phase: 'cart',
     order: null,
     notice: '',
+    offer: null,
   };
 }
 export function cartReducer(state: CartState, action: CartAction): CartState {
@@ -65,6 +85,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
     return {
       ...state,
       phase: 'confirmed',
+      offer: null,
       items: [],
       notice: 'Demo order confirmed. Your cart is now empty.',
     };
@@ -93,6 +114,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
         ...state,
         phase: 'cart',
         order: null,
+        offer: null,
         items: existing
           ? state.items.map((item) =>
               item.id === existing.id ? { ...item, quantity } : item,
@@ -115,6 +137,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
         items: state.items.map((item) =>
           item.id === action.id ? { ...item, quantity: action.quantity } : item,
         ),
+        offer: null,
         notice: `${item.name} quantity updated to ${action.quantity}.`,
       };
     }
@@ -124,11 +147,12 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
       return {
         ...state,
         items: state.items.filter((item) => item.id !== action.id),
+        offer: null,
         notice: `${item.name} removed.`,
       };
     }
     case 'clear':
-      return { ...state, items: [], notice: 'Cart cleared.' };
+      return { ...state, items: [], offer: null, notice: 'Cart cleared.' };
     case 'checkout': {
       if (!state.items.length) return state;
       return {
@@ -138,7 +162,8 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
           id: action.id,
           createdAt: action.createdAt,
           items: state.items.map((item) => ({ ...item })),
-          totals: calculateTotals(state.items),
+          totals: calculateTotals(state.items, state.offer),
+          offerCode: state.offer?.code ?? null,
         },
         notice: 'Simulating checkout. No payment is taken.',
       };

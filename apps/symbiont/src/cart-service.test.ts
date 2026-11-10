@@ -46,7 +46,7 @@ describe('Product → SYMBIONT → cart facts', () => {
         ([update]) =>
           update.correlationId === event.correlationId &&
           update.payload.itemCount === 1 &&
-          update.payload.totalPaise === 134100,
+          update.payload.totalPaise === 158900,
       ),
     ).toBe(true);
     expect(pendingEvents()).toEqual([]);
@@ -207,6 +207,68 @@ describe('Product → SYMBIONT → cart facts', () => {
     expect(updated.mock.calls.at(-1)?.[0].payload.itemCount).toBe(0);
   });
 
+  it('applies only fresh MUTANT quotes, preserves the cart basis, and bounds monetary adjustments', () => {
+    const pricing = vi.fn();
+    stops.push(subscribe(events.CART_PRICING_UPDATED, pricing));
+    const service = createCartService();
+    stops.push(service.start());
+    producer.publish(events.PRODUCT_ADDED, { product, quantity: 1 });
+    const basis = pricing.mock.calls.at(-1)?.[0].payload.cartRevision;
+    const quote = {
+      code: 'EXTERNAL_QUOTE',
+      cartRevision: basis,
+      discountPaise: 14900,
+      shippingDiscountPaise: 0,
+      expiresAt: '2027-12-31T23:59:59.999Z',
+    };
+    createMycelium('mutant').publish(events.OFFER_APPLIED, quote);
+    expect(service.getSnapshot().cart.offer?.code).toBe('EXTERNAL_QUOTE');
+    expect(pricing.mock.calls.at(-1)?.[0].payload.cartRevision).toBe(basis);
+    service.dispatch({ type: 'quantity', id: 'moss', quantity: 2 });
+    expect(service.getSnapshot().cart.offer).toBeNull();
+    createMycelium('mutant').publish(events.OFFER_APPLIED, quote);
+    expect(service.getSnapshot().cart.offer).toBeNull();
+    const fresh = {
+      ...quote,
+      cartRevision: basis + 1,
+      discountPaise: 9999999,
+      shippingDiscountPaise: 999999,
+    };
+    createMycelium('mutant').publish(events.OFFER_APPLIED, fresh);
+    expect(pricing.mock.calls.at(-1)?.[0].payload.discountPaise).toBe(298000);
+    expect(pricing.mock.calls.at(-1)?.[0].payload.shippingDiscountPaise).toBe(
+      9900,
+    );
+    createMycelium('mutant').publish(events.OFFER_REMOVED, {
+      code: 'EXTERNAL_QUOTE',
+      cartRevision: basis + 1,
+      reason: 'user',
+    });
+    expect(service.getSnapshot().cart.offer).toBeNull();
+  });
+  it('responds to pricing requests and migrates a version-1 persisted cart without losing items', () => {
+    sessionStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        items: [{ ...product, quantity: 1 }],
+        appliedEventIds: [],
+        revision: 7,
+      }),
+    );
+    const pricing = vi.fn();
+    stops.push(subscribe(events.CART_PRICING_UPDATED, pricing));
+    const service = createCartService();
+    stops.push(service.start());
+    createMycelium('mutant').publish(events.CART_REQUESTED, {});
+    expect(pricing.mock.calls.at(-1)?.[0].payload.cartRevision).toBe(7);
+    expect(service.getSnapshot().cart.items[0]?.quantity).toBe(1);
+    service.dispatch({ type: 'quantity', id: 'moss', quantity: 2 });
+    expect(
+      JSON.parse(sessionStorage.getItem(CART_STORAGE_KEY)!).schemaVersion,
+    ).toBe(2);
+  });
+
   it('does not overwrite invalid persisted cart data until an explicit reset', () => {
     sessionStorage.setItem(CART_STORAGE_KEY, '{bad');
     const service = createCartService();
@@ -219,4 +281,21 @@ describe('Product → SYMBIONT → cart facts', () => {
       [],
     );
   });
+});
+
+it('expires a monetary quote lease even when the offers consumer is absent', async () => {
+  vi.useFakeTimers();
+  const service = createCartService();
+  stops.push(service.start());
+  producer.publish(events.PRODUCT_ADDED, { product, quantity: 1 });
+  createMycelium('mutant').publish(events.OFFER_APPLIED, {
+    code: 'LEASE',
+    cartRevision: 1,
+    discountPaise: 100,
+    shippingDiscountPaise: 0,
+    expiresAt: new Date(Date.now() + 10).toISOString(),
+  });
+  expect(service.getSnapshot().cart.offer?.code).toBe('LEASE');
+  await vi.advanceTimersByTimeAsync(12);
+  expect(service.getSnapshot().cart.offer).toBeNull();
 });

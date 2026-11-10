@@ -6,6 +6,7 @@ import {
   events,
   pendingEvents,
 } from '@microverse/mycelium';
+import type { OfferQuote } from '@microverse/mycelium';
 import { calculateTotals, cartReducer, createCart } from './cart';
 import type { CartAction, CartState } from './cart';
 
@@ -13,8 +14,7 @@ export const CART_STORAGE_KEY = 'microverse:symbiont:v1:cart';
 const itemSchema = cartProductSchema
   .extend({ quantity: z.number().int().min(1).max(999) })
   .refine((item) => item.quantity <= item.stock);
-const persistedSchema = z.strictObject({
-  schemaVersion: z.literal(1),
+const persistedFields = {
   items: z
     .array(itemSchema)
     .max(1000)
@@ -23,7 +23,17 @@ const persistedSchema = z.strictObject({
     ),
   appliedEventIds: z.array(z.uuid()).max(1000),
   revision: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
+};
+const legacySchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  ...persistedFields,
 });
+const persistedSchema = z.strictObject({
+  schemaVersion: z.literal(2),
+  ...persistedFields,
+  cartRevision: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
+});
+const restoredSchema = z.union([persistedSchema, legacySchema]);
 const bus = createMycelium('symbiont');
 interface Snapshot {
   cart: CartState;
@@ -35,11 +45,13 @@ export function createCartService() {
   let snapshot: Snapshot = { cart: createCart([]), error: null };
   let appliedEventIds: string[] = [];
   let revision = 0;
+  let cartRevision = 0;
   let initialized = false;
   let users = 0;
   let draining = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  let stopListening: (() => void) | undefined;
+  let quoteTimer: ReturnType<typeof setTimeout> | undefined;
+  let stopListening: (() => void)[] = [];
   const listeners = new Set<() => void>();
   const notify = () => listeners.forEach((listener) => listener());
   function fail() {
@@ -52,19 +64,47 @@ export function createCartService() {
   }
   function announce(correlationId?: string) {
     if (snapshot.error) return;
+    const { cart } = snapshot;
+    const totals = calculateTotals(cart.items, cart.offer);
     bus.publish(
       events.CART_UPDATED,
-      { ...calculateTotals(snapshot.cart.items), revision },
+      {
+        itemCount: totals.itemCount,
+        subtotalPaise: totals.subtotalPaise,
+        discountPaise: totals.discountPaise,
+        totalPaise: totals.totalPaise,
+        revision,
+      },
+      correlationId ? { correlationId } : {},
+    );
+    bus.publish(
+      events.CART_PRICING_UPDATED,
+      {
+        itemCount: totals.itemCount,
+        subtotalPaise: totals.subtotalPaise,
+        shippingPaise: totals.shippingPaise,
+        cartRevision,
+        revision,
+        discountPaise: totals.discountPaise,
+        shippingDiscountPaise: totals.shippingDiscountPaise,
+        offerCode: cart.offer?.code ?? null,
+        checkoutPending: cart.phase === 'processing',
+      },
       correlationId ? { correlationId } : {},
     );
   }
   function hydrate() {
     const raw = sessionStorage.getItem(CART_STORAGE_KEY);
     const stored = raw
-      ? persistedSchema.parse(JSON.parse(raw) as unknown)
+      ? restoredSchema.parse(JSON.parse(raw) as unknown)
       : null;
     appliedEventIds = stored?.appliedEventIds ?? [];
     revision = stored?.revision ?? 0;
+    cartRevision = stored
+      ? 'cartRevision' in stored
+        ? stored.cartRevision
+        : stored.revision
+      : 0;
     snapshot = { cart: createCart(stored?.items ?? []), error: null };
     initialized = true;
     notify();
@@ -75,7 +115,9 @@ export function createCartService() {
     ids = appliedEventIds,
   ) {
     const record = persistedSchema.parse({
-      schemaVersion: 1,
+      schemaVersion: 2,
+      cartRevision:
+        cart.items !== snapshot.cart.items ? cartRevision + 1 : cartRevision,
       items: cart.items,
       appliedEventIds: ids.slice(-1000),
       revision: revision + 1,
@@ -83,10 +125,63 @@ export function createCartService() {
     // One write commits both cart and deduplication receipt before any delivery acknowledgement.
     sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(record));
     revision = record.revision;
+    cartRevision = record.cartRevision;
     appliedEventIds = record.appliedEventIds;
     snapshot = { cart, error: null };
+    scheduleQuoteExpiry();
     notify();
     announce(correlationId);
+  }
+  function scheduleQuoteExpiry() {
+    clearTimeout(quoteTimer);
+    quoteTimer = undefined;
+    const quote = snapshot.cart.offer;
+    if (!quote || !users || snapshot.error) return;
+    quoteTimer = setTimeout(
+      () => {
+        quoteTimer = undefined;
+        if (
+          snapshot.cart.offer !== quote ||
+          snapshot.cart.phase === 'processing'
+        )
+          return;
+        if (Date.parse(quote.expiresAt) <= Date.now()) {
+          try {
+            commit({ ...snapshot.cart, offer: null });
+          } catch {
+            fail();
+          }
+        } else scheduleQuoteExpiry();
+      },
+      Math.min(
+        Math.max(1, Date.parse(quote.expiresAt) - Date.now() + 1),
+        2147483647,
+      ),
+    );
+  }
+  function receiveOffer(offer: OfferQuote, correlationId: string) {
+    if (
+      snapshot.error ||
+      snapshot.cart.phase === 'processing' ||
+      offer.cartRevision !== cartRevision ||
+      Date.parse(offer.expiresAt) <= Date.now() ||
+      !snapshot.cart.items.length
+    )
+      return;
+    const current = snapshot.cart.offer;
+    if (
+      current?.code === offer.code &&
+      current.discountPaise === offer.discountPaise &&
+      current.shippingDiscountPaise === offer.shippingDiscountPaise &&
+      current.cartRevision === offer.cartRevision &&
+      current.expiresAt === offer.expiresAt
+    )
+      return;
+    try {
+      commit({ ...snapshot.cart, offer }, correlationId);
+    } catch {
+      fail();
+    }
   }
   function drain() {
     if (draining || snapshot.cart.phase === 'processing') return;
@@ -112,6 +207,12 @@ export function createCartService() {
   function dispatch(action: CartAction) {
     try {
       if (!initialized) hydrate();
+      if (
+        action.type === 'checkout' &&
+        snapshot.cart.offer &&
+        Date.parse(snapshot.cart.offer.expiresAt) <= Date.now()
+      )
+        commit({ ...snapshot.cart, offer: null });
       const previous = snapshot.cart;
       const next = cartReducer(previous, action);
       if (next === previous) return;
@@ -152,10 +253,32 @@ export function createCartService() {
   function start() {
     users++;
     if (users === 1) {
-      stopListening = bus.subscribe(events.PRODUCT_ADDED, () => drain());
+      stopListening = [
+        bus.subscribe(events.PRODUCT_ADDED, () => drain()),
+        bus.subscribe(events.CART_REQUESTED, (event) =>
+          announce(event.correlationId),
+        ),
+        bus.subscribe(events.OFFER_APPLIED, (event) =>
+          receiveOffer(event.payload, event.correlationId),
+        ),
+        bus.subscribe(events.OFFER_REMOVED, (event) => {
+          if (
+            snapshot.cart.phase === 'processing' ||
+            event.payload.cartRevision !== cartRevision ||
+            snapshot.cart.offer?.code !== event.payload.code
+          )
+            return;
+          try {
+            commit({ ...snapshot.cart, offer: null }, event.correlationId);
+          } catch {
+            fail();
+          }
+        }),
+      ];
       try {
         if (!initialized) hydrate();
         drain();
+        scheduleQuoteExpiry();
         if (!snapshot.error) announce();
       } catch {
         fail();
@@ -172,9 +295,11 @@ export function createCartService() {
       if (stopped) return;
       stopped = true;
       if (--users !== 0) return;
-      stopListening?.();
-      stopListening = undefined;
+      stopListening.forEach((stop) => stop());
+      stopListening = [];
       clearTimeout(timer);
+      clearTimeout(quoteTimer);
+      quoteTimer = undefined;
       timer = undefined;
       // A cancelled simulation keeps its persisted cart, never a stuck processing phase.
       if (snapshot.cart.phase === 'processing') {
@@ -205,6 +330,7 @@ export function createCartService() {
       try {
         hydrate();
         drain();
+        scheduleQuoteExpiry();
         if (!snapshot.error) announce();
       } catch {
         fail();

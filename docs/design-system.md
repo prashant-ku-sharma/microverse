@@ -66,3 +66,7 @@ The organism map is static code-native SVG with an accessible title and descript
 `pnpm test` includes the shared UI suite and all five app suites. Tests cover theme context and baseline background, button variants and disabled state, loading/status text, headers/cards, sidebar links and active state, direct route rendering, unknown-route recovery, shortcuts, branding override, and mobile drawer behavior. Browser verification covers 390px phone, 768px tablet, and 1440px desktop layouts with no horizontal overflow.
 
 References: [MUI theming](https://mui.com/material-ui/customization/theming/), [responsive drawers](https://mui.com/material-ui/react-drawer/#responsive-drawer), and [React Router declarative navigation](https://reactrouter.com/start/declarative/navigating).
+
+## Stage 7 standalone presentation
+
+StandaloneShell is shared visual infrastructure for COMMENSAL and MUTANT: an organism mark, branded header, responsive container, and one main landmark. Each app keeps its own ThemeProvider/CssBaseline and business state; embedded routes use Host providers and add no second shell/main. Amber profile surfaces and coral offer accents use the same MUI component vocabulary.

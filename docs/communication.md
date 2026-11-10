@@ -1,6 +1,6 @@
 # MYCELIUM: typed events and durable reconciliation
 
-Stage 6 connects PARASITE, SYMBIONT, and ECOSYSTEM through browser CustomEvents. There are no application-to-application source imports, shared Redux store, or shared cart business state. MYCELIUM depends only on Zod 4.6.7, aligned through the pnpm catalog. SYMBIONT owns its cart service and persistence; ECOSYSTEM observes cart facts.
+Stages 6–7 connect PARASITE, SYMBIONT, MUTANT, and ECOSYSTEM through browser CustomEvents. There are no application-to-application source imports, shared Redux store, or shared cart business state. MYCELIUM depends only on Zod 4.6.7, aligned through the pnpm catalog. SYMBIONT owns its cart service and persistence; ECOSYSTEM observes cart facts.
 
 ## Version 1 contracts
 
@@ -13,7 +13,7 @@ Every envelope contains `id` (UUID), `name` (namespaced discriminator), `source`
 | `microverse:cart:updated`    | symbiont | `{ itemCount, subtotalPaise, discountPaise, totalPaise, revision }`: committed cart projection |
 | `microverse:cart:cleared`    | symbiont | `{ reason: 'user' \| 'checkout', revision }`: committed clear fact                             |
 
-The product transport snapshot includes ID, name, category, description, an HTTP(S) image URL, integer `unitPricePaise`, and stock. It deliberately omits discovery-specific fields such as ratings and materials. Version 1 uses INR. PARASITE converts its rupee fixture prices to paise at publication. SYMBIONT validates its own persisted items and owns merging, availability, rounding, discount, and checkout rules.
+The product transport snapshot includes ID, name, category, description, an HTTP(S) image URL, integer `unitPricePaise`, and stock. It deliberately omits discovery-specific fields such as ratings and materials. Version 1 uses INR. PARASITE converts its rupee fixture prices to paise at publication. SYMBIONT validates its own persisted items and owns merging, availability, final total composition, and checkout. MUTANT owns coupon eligibility and quote calculations.
 
 Zod validates publication and every subscription delivery. Unknown versions, invalid IDs/timestamps/sources, extra properties, malformed payloads, and mismatched native event names are rejected. Source fields express contract ownership; CustomEvents are not an authentication boundary. Incompatible future envelopes require an explicit new version/migration, not an implicit cast.
 
@@ -79,7 +79,7 @@ Session storage is intentionally scoped to **one origin and browser tab**, survi
 
 The service has a reference-counted start/stop API. The Host and Cart UI each hold a lifetime reference. Leaving the Cart page retains the Host's service; stopping its final owner unsubscribes and cancels a pending simulation without losing persisted items. Hook listeners and late asynchronous service loads are cleaned up under unmount/StrictMode replay.
 
-Checkout receipts and processing phase remain transient simulations. Reload restores the saved items as an editable cart. A completed simulation persists the empty cart and publishes clear/update facts. Requests arriving during processing are saved and applied afterward; new shopping activity can replace the transient confirmation with the new cart. The 10% sample discount is still SYMBIONT-local; no offer or checkout-completed event is introduced in this stage.
+Checkout receipts and processing phase remain transient simulations. Reload restores the saved items as an editable cart. A completed simulation persists the empty cart and publishes clear/update facts. Requests arriving during processing are saved and applied afterward; new shopping activity can replace the transient confirmation with the new cart. The receipt captures the confirmed coupon code, merchandise discount, delivery saving, and total. Stage 7 replaces the automatic sample discount with MUTANT quotes; no checkout-completed event is introduced.
 
 ## Diagnostics and verification
 
@@ -90,3 +90,20 @@ Tests cover public API publication/subscription/cleanup, native event validation
 Reproduce with the three filtered dev commands (or `pnpm dev`). Open the Host Products route, add items before visiting Cart, and verify its count. Reload and verify persistence. Stop SYMBIONT, reload Products, save another request, and reload again. Restart SYMBIONT and reload the Host to retry its cached federation load: the request is reconciled once. Quantity/remove/clear/checkout actions update the Host count. Native ESM failures may be cached, so recovery uses a full reload.
 
 Official references checked: [Zod schemas and discriminated unions](https://zod.dev/api), [federation runtime APIs](https://module-federation.io/guide/runtime/runtime-api). The existing supported registerRemotes/loadRemote APIs load both routes and the service; no Nucleus is implemented.
+
+## Stage 7: offer contracts and reconciliation
+
+All envelopes retain schemaVersion 1. Four additional names extend the discriminated union without changing the existing strict product/cart payloads:
+
+| Event                             | Source   | Payload                                                                                                                                                      |
+| --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `microverse:cart:requested`       | mutant   | Empty object; request a current pricing snapshot                                                                                                             |
+| `microverse:cart:pricing-updated` | symbiont | `itemCount`, `subtotalPaise`, `shippingPaise`, `cartRevision`, `revision`, `discountPaise`, `shippingDiscountPaise`, nullable `offerCode`, `checkoutPending` |
+| `microverse:offer:applied`        | mutant   | `code`, `cartRevision`, `discountPaise`, `shippingDiscountPaise`, UTC `expiresAt`                                                                            |
+| `microverse:offer:removed`        | mutant   | `code`, `cartRevision`, `reason` (user, ineligible, expired, cart-cleared, replaced)                                                                         |
+
+`cartRevision` is the merchandise basis; `revision` increments on every cart commit, including quote acknowledgement. Monetary values are integer INR paise. Cart emits pricing after each commit. MUTANT ignores stale facts, calculates a quote only for eligible non-processing carts, and compares acknowledged amounts before republishing. Replacement remove/apply facts share a correlation ID. SYMBIONT checks basis/expiry and clamps adjustments; it does not calculate coupon rules. Nested synchronous CustomEvents are guarded to avoid feedback loops.
+
+The Host starts MUTANT's federated `./offers-service` separately from `./routes`, catches loading failures, and never receives its state or mutation API. Both service and UI hold cleanup-safe lifetime references. MUTANT subscribes before requesting current pricing. If Cart starts later, its initial pricing fact triggers reconciliation. Only the selected code persists in MUTANT's record; quotes are not persisted in Cart. Reload therefore recomputes against current owner facts, even when one service starts first or misses a transient event. Null selections reconcile orphan quotes. Cart changes, clear, and expiry remove ineligible selections. Lease expiry in SYMBIONT prevents stale savings if MUTANT stops. Storage errors preserve saved data and offer Retry/Reset; expiry write failures stop retry timers.
+
+COMMENSAL owns a separate profile record and sends no PII through MYCELIUM. CustomEvents remain same-window transport: standalone origins 5003/5004 do not share Host storage. Standalone MUTANT uses an explicitly marked preview that emits no fabricated Cart facts. See [ADR 0007](decisions/0007-profile-and-offer-ownership.md).

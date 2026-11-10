@@ -7,3 +7,10 @@ export interface ParasiteRoutesProps {
 export interface SymbiontRoutesProps {
   mode?: 'standalone' | 'embedded';
 }
+
+export interface CommensalRoutesProps {
+  mode?: 'standalone' | 'embedded';
+}
+export interface MutantRoutesProps {
+  mode?: 'standalone' | 'embedded';
+}

@@ -6,10 +6,12 @@ import { formatMoney } from '../cart';
 
 export function CartSummary({
   totals,
+  offerCode,
   processing,
   onCheckout,
 }: {
   totals: CartTotals;
+  offerCode: string | null;
   processing: boolean;
   onCheckout: () => void;
 }) {
@@ -54,7 +56,7 @@ export function CartSummary({
         </Box>
         <Box>
           <Typography component="dt" color="secondary.main">
-            Sample discount · 10%
+            {offerCode ?? 'Coupon discount'}
           </Typography>
           <Typography
             component="dd"
@@ -64,6 +66,24 @@ export function CartSummary({
             −{formatMoney(totals.discountPaise)}
           </Typography>
         </Box>
+        <Box>
+          <Typography component="dt" color="text.secondary">
+            Demo delivery
+          </Typography>
+          <Typography component="dd">
+            {formatMoney(totals.shippingPaise)}
+          </Typography>
+        </Box>
+        {totals.shippingDiscountPaise > 0 && (
+          <Box>
+            <Typography component="dt" color="secondary.main">
+              Delivery saving
+            </Typography>
+            <Typography component="dd" color="secondary.main">
+              −{formatMoney(totals.shippingDiscountPaise)}
+            </Typography>
+          </Box>
+        )}
         <Box sx={{ pt: 2, borderTop: 1, borderColor: 'divider' }}>
           <Typography component="dt" sx={{ fontWeight: 600 }}>
             Total
@@ -82,7 +102,7 @@ export function CartSummary({
         color="text.secondary"
         sx={{ display: 'block', mt: 1 }}
       >
-        INR · No delivery or tax charges in this demo.
+        INR · ₹99 demo delivery; no additional tax charges.
       </Typography>
       <Button
         fullWidth
@@ -107,8 +127,8 @@ export function CartSummary({
           BETTER TOGETHER
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          A fixed sample discount shows how totals respond to your choices.
-          Offers integration arrives later.
+          Choose a coupon in Offers. MUTANT confirms its eligibility and savings
+          for this cart; coupons do not stack.
         </Typography>
       </Box>
     </SurfaceCard>
