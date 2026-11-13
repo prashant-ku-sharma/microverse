@@ -1,3 +1,4 @@
+import { RemoteMonitor } from '../immune/RemoteMonitor';
 import { RegistryStatus } from '../nucleus/RegistryStatus';
 import { Link } from 'react-router';
 import { Box, Button, Stack, Typography } from '@mui/material';
@@ -34,10 +35,7 @@ export function Ecosystem() {
           </Typography>
         </SurfaceCard>
         <SurfaceCard>
-          <StatusIndicator
-            label="Stage 9 · NUCLEUS runtime registry"
-            tone="success"
-          />
+          <StatusIndicator label="Stage 10 · IMMUNE SYSTEM" tone="success" />
           <Typography variant="h2" sx={{ mt: 3, mb: 2 }}>
             A home for independent applications
           </Typography>
@@ -59,6 +57,7 @@ export function Ecosystem() {
           </Button>
         </SurfaceCard>
       </Box>
+      <RemoteMonitor />
       <RegistryStatus />
     </Stack>
   );

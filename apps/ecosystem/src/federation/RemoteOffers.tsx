@@ -1,3 +1,4 @@
+import { RemoteView } from '../immune/RemoteView';
 import { lazy, Suspense, useState } from 'react';
 import { LoadingIndicator } from '@microverse/shared-ui';
 import { RemoteBoundary } from './RemoteBoundary';
@@ -8,12 +9,15 @@ export function RemoteOffers() {
   const [Routes] = useState(() => lazy(loadMutant));
   return (
     <RemoteBoundary
+      remoteId="mutant"
       organism="MUTANT"
       title="Offers are resting."
       application="offers"
     >
       <Suspense fallback={<LoadingIndicator label="Connecting to MUTANT…" />}>
-        <Routes mode="embedded" />
+        <RemoteView id="mutant">
+          <Routes mode="embedded" />
+        </RemoteView>
       </Suspense>
     </RemoteBoundary>
   );

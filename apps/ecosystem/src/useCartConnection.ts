@@ -1,3 +1,4 @@
+import { startObservedService } from './immune/recovery';
 import { RemoteDisabledError } from './nucleus/errors';
 import { useEffect, useState } from 'react';
 import { events, subscribe } from '@microverse/mycelium';
@@ -26,7 +27,11 @@ export function useCartConnection() {
     });
     loadCartService()
       .then((service) => {
-        if (!disposed) stopService = service.startCartService();
+        if (!disposed)
+          stopService = startObservedService(
+            'symbiont',
+            service.startCartService,
+          );
       })
       .catch((error: unknown) => {
         if (!disposed)

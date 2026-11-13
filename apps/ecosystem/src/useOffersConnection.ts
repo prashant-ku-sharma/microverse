@@ -1,3 +1,4 @@
+import { startObservedService } from './immune/recovery';
 import { useEffect } from 'react';
 import { loadOffersService } from './federation/loadAdditionalRemotes';
 /** Orchestration only: the remote owns selection, eligibility, and quote calculation. */
@@ -8,9 +9,10 @@ export function useOffersConnection() {
     loadOffersService()
       .then((module) => {
         if (disposed) return;
-        const cleanup = module.startOffersService();
-        if (typeof cleanup !== 'function')
-          throw new Error('Invalid offer lifetime cleanup');
+        const cleanup = startObservedService(
+          'mutant',
+          module.startOffersService,
+        );
         stop = cleanup;
       })
       .catch(() => {

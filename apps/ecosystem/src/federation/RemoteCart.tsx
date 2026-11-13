@@ -1,3 +1,4 @@
+import { RemoteView } from '../immune/RemoteView';
 import { lazy, Suspense, useState } from 'react';
 import { LoadingIndicator } from '@microverse/shared-ui';
 import { RemoteBoundary } from './RemoteBoundary';
@@ -8,12 +9,15 @@ export function RemoteCart() {
   const [Routes] = useState(() => lazy(loadSymbiont));
   return (
     <RemoteBoundary
+      remoteId="symbiont"
       organism="SYMBIONT"
       title="Your cart is resting."
       application="cart"
     >
       <Suspense fallback={<LoadingIndicator label="Connecting to SYMBIONT…" />}>
-        <Routes mode="embedded" />
+        <RemoteView id="symbiont">
+          <Routes mode="embedded" />
+        </RemoteView>
       </Suspense>
     </RemoteBoundary>
   );

@@ -1,3 +1,4 @@
+import { RemoteView } from '../immune/RemoteView';
 import { lazy, Suspense, useState } from 'react';
 import { LoadingIndicator } from '@microverse/shared-ui';
 import { RemoteBoundary } from './RemoteBoundary';
@@ -8,6 +9,7 @@ export function RemoteProfile() {
   const [Routes] = useState(() => lazy(loadCommensal));
   return (
     <RemoteBoundary
+      remoteId="commensal"
       organism="COMMENSAL"
       title="Your profile is resting."
       application="profile"
@@ -15,7 +17,9 @@ export function RemoteProfile() {
       <Suspense
         fallback={<LoadingIndicator label="Connecting to COMMENSAL…" />}
       >
-        <Routes mode="embedded" />
+        <RemoteView id="commensal">
+          <Routes mode="embedded" />
+        </RemoteView>
       </Suspense>
     </RemoteBoundary>
   );

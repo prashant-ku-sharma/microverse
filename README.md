@@ -1,6 +1,6 @@
 # MICROVERSE
 
-A biology-inspired microfrontend ecosystem, built incrementally. **Stage 9 adds NUCLEUS runtime configuration.** The Host fetches a trusted-origin policy and validated registry, then registers/loads all four independent remotes through real Module Federation. Reload selects new remote URLs and release versions without rebuilding the Host. Owner-local MSW APIs, Query caches and MYCELIUM communication remain intact.
+A biology-inspired microfrontend ecosystem, built incrementally. **Stage 10 adds IMMUNE SYSTEM remote resilience.** Separate boundaries, bounded loads, release checks, recovery actions and runtime observations keep individual failures contained. NUCLEUS continues selecting trusted entries without Host rebuilds; business state remains remote-owned. See [resilience and security guidance](docs/resilience.md).
 
 ## Prerequisites
 

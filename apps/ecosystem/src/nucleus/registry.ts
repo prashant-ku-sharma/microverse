@@ -1,3 +1,4 @@
+import { immune } from '../immune/store';
 import { policySchema, validateRegistry } from './schema';
 import type { Policy, Registry } from './schema';
 export interface RegistrySnapshot {
@@ -61,8 +62,10 @@ export function createRegistryClient(
         warning: null,
       };
     } catch {
+      const fallback = validateRegistry(await json(policy.fallback), policy);
+      immune.fallback();
       return {
-        registry: validateRegistry(await json(policy.fallback), policy),
+        registry: fallback,
         environment: policy.environment,
         source: 'fallback',
         warning:

@@ -31,7 +31,7 @@ function ParasiteRoutes({ mode = 'standalone' }: ParasiteRoutesProps) {
   const embedded = mode === 'embedded';
   const catalogPath = embedded ? '/products' : '/';
   const [cartNotice, setCartNotice] = useState<string | null>(null);
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   useEffect(() => {
     if (embedded) return;
     const product = products.find(
@@ -69,6 +69,14 @@ function ParasiteRoutes({ mode = 'standalone' }: ParasiteRoutesProps) {
     }
   }
 
+  if (
+    embedded &&
+    (import.meta.env.DEV ||
+      import.meta.env.VITE_ENABLE_RESILIENCE_TESTS === 'true') &&
+    new URLSearchParams(search).get('immune-render') === 'parasite'
+  ) {
+    throw new Error('Controlled PARASITE rendering failure');
+  }
   return (
     <CatalogPathContext value={catalogPath}>
       <Routes>

@@ -1,3 +1,4 @@
+import { createImmuneSystem } from '../immune/store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadRemote, registerRemotes } from '@module-federation/runtime';
 import { createRemoteLoader } from './loader';
@@ -9,6 +10,8 @@ vi.mock('@module-federation/runtime', () => ({
   loadRemote: vi.fn(),
   registerRemotes: vi.fn(),
 }));
+const makeLoader = (resolve: () => Promise<RegistrySnapshot>) =>
+  createRemoteLoader(resolve, createImmuneSystem());
 const snapshot = (): RegistrySnapshot => ({
   registry: registrySchema.parse(remotes),
   environment: 'development',
@@ -16,6 +19,7 @@ const snapshot = (): RegistrySnapshot => ({
   warning: null,
 });
 beforeEach(() => {
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.mocked(loadRemote).mockReset();
   vi.mocked(registerRemotes).mockClear();
 });
@@ -35,7 +39,7 @@ describe('NUCLEUS supported federation runtime integration', () => {
           },
         })
         .mockResolvedValueOnce({ default: Routes });
-      const load = createRemoteLoader(async () => data);
+      const load = makeLoader(async () => data);
       expect(await load(id, 'routes')).toEqual({ default: Routes });
       expect(registerRemotes).toHaveBeenCalledWith([
         { name: id, type: 'module', entry: data.registry.remotes[id].entry },
@@ -55,9 +59,9 @@ describe('NUCLEUS supported federation runtime integration', () => {
               compatibility: data.registry.remotes.symbiont.compatibility,
             },
           }
-        : {},
+        : { default: () => null, startCartService: () => () => {} },
     );
-    const load = createRemoteLoader(async () => data);
+    const load = makeLoader(async () => data);
     await Promise.all([
       load('symbiont', 'routes'),
       load('symbiont', 'cart-service'),
@@ -85,7 +89,7 @@ describe('NUCLEUS supported federation runtime integration', () => {
         kind === 'missing' ? null : { remoteRelease: release },
       );
       await expect(
-        createRemoteLoader(async () => data)('symbiont', 'routes'),
+        makeLoader(async () => data)('symbiont', 'routes'),
       ).rejects.toThrow();
       expect(loadRemote).toHaveBeenCalledOnce();
     },
@@ -95,7 +99,7 @@ describe('NUCLEUS supported federation runtime integration', () => {
     data.registry.remotes.commensal.enabled = false;
     data.registry.features.cartEvents = false;
     data.registry.features.offerEvents = false;
-    const load = createRemoteLoader(async () => data);
+    const load = makeLoader(async () => data);
     await expect(load('commensal', 'routes')).rejects.toBeInstanceOf(
       RemoteDisabledError,
     );
@@ -110,10 +114,10 @@ describe('NUCLEUS supported federation runtime integration', () => {
   });
   it('never registers or loads after configuration failure', async () => {
     await expect(
-      createRemoteLoader(async () => {
+      makeLoader(async () => {
         throw new Error('No policy');
       })('symbiont', 'routes'),
-    ).rejects.toThrow('No policy');
+    ).rejects.toThrow('Trusted runtime configuration');
     expect(registerRemotes).not.toHaveBeenCalled();
     expect(loadRemote).not.toHaveBeenCalled();
   });
@@ -121,15 +125,15 @@ describe('NUCLEUS supported federation runtime integration', () => {
     vi.useFakeTimers();
     vi.mocked(loadRemote).mockReturnValue(new Promise(() => {}));
     const failure = expect(
-      createRemoteLoader(async () => snapshot())('symbiont', 'routes'),
+      makeLoader(async () => snapshot())('symbiont', 'routes'),
     ).rejects.toThrow('timed out');
     await vi.advanceTimersByTimeAsync(12000);
     await failure;
     expect(vi.getTimerCount()).toBe(0);
     vi.mocked(loadRemote).mockRejectedValue(new Error('Offline'));
     await expect(
-      createRemoteLoader(async () => snapshot())('symbiont', 'routes'),
-    ).rejects.toThrow('Offline');
+      makeLoader(async () => snapshot())('symbiont', 'routes'),
+    ).rejects.toThrow('remote module');
   });
   it('uses a changed runtime URL in a new document loader without build-time configuration', async () => {
     for (const version of ['1.0.0', '1.1.0']) {
@@ -144,10 +148,10 @@ describe('NUCLEUS supported federation runtime integration', () => {
             compatibility: data.registry.remotes.symbiont.compatibility,
           },
         })
-        .mockResolvedValueOnce({ version });
+        .mockResolvedValueOnce({ version, default: () => null });
       expect(
-        await createRemoteLoader(async () => data)('symbiont', 'routes'),
-      ).toEqual({ version });
+        await makeLoader(async () => data)('symbiont', 'routes'),
+      ).toMatchObject({ version });
       expect(registerRemotes).toHaveBeenLastCalledWith([
         {
           name: 'symbiont',
@@ -156,5 +160,48 @@ describe('NUCLEUS supported federation runtime integration', () => {
         },
       ]);
     }
+  });
+  it('records timeout/incompatible states and ignores a late metadata completion', async () => {
+    vi.useFakeTimers();
+    const data = snapshot();
+    const observations = createImmuneSystem();
+    let finish: ((value: unknown) => void) | undefined;
+    vi.mocked(loadRemote).mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const failure = expect(
+      createRemoteLoader(async () => data, observations)('parasite', 'routes'),
+    ).rejects.toThrow('timed out');
+    await vi.advanceTimersByTimeAsync(12000);
+    await failure;
+    expect(observations.getSnapshot().remotes.parasite.status).toBe(
+      'timed-out',
+    );
+    finish?.({
+      remoteRelease: {
+        id: 'parasite',
+        version: '1.0.0',
+        compatibility: data.registry.remotes.parasite.compatibility,
+      },
+    });
+    await Promise.resolve();
+    expect(observations.getSnapshot().remotes.parasite.status).toBe(
+      'timed-out',
+    );
+    vi.mocked(loadRemote).mockResolvedValue({
+      remoteRelease: {
+        id: 'parasite',
+        version: '99.0.0',
+        compatibility: data.registry.remotes.parasite.compatibility,
+      },
+    });
+    await expect(
+      createRemoteLoader(async () => data, observations)('parasite', 'routes'),
+    ).rejects.toThrow('does not match');
+    expect(observations.getSnapshot().remotes.parasite.status).toBe(
+      'incompatible',
+    );
   });
 });

@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation: Stage 9
+## Current implementation: Stage 10
 
 MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. SYMBIONT owns a functional standalone cart, persistence/reconciliation service, and checkout simulation on port 5002. COMMENSAL owns an editable profile and preferences on port 5003. MUTANT owns coupon rules and selection on port 5004. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes all four organisms through runtime Module Federation, with shared framework contexts and isolated route failure boundaries.
 
@@ -11,7 +11,7 @@ MICROVERSE contains five independent React/Vite applications in a pnpm workspace
 | `/cart`       | Federated SYMBIONT cart and checkout simulation                                           |
 | `/profile`    | Federated COMMENSAL profile and preferences                                               |
 | `/offers`     | Federated MUTANT coupons and eligibility                                                  |
-| `/ecosystem`  | Host architecture overview                                                                |
+| `/ecosystem`  | Host architecture, NUCLEUS registry and IMMUNE SYSTEM observations                        |
 
 The Host owns layout, navigation, route composition, active links, titles, and route-change focus. Unknown routes render a recovery page. Organism metadata is navigation/display configuration only, never shared business state. No app imports another app. The design system is documented in [design-system.md](design-system.md); [ADR 0002](decisions/0002-host-shell-and-design-system.md) records the route/presentation boundary.
 
@@ -80,3 +80,7 @@ Each remote owns its MSW handlers, typed fetch client, and private TanStack Quer
 ## NUCLEUS runtime selection
 
 The Host has an empty compile-time remote map. Its loaders resolve one policy-validated registry snapshot per document, register the selected entries, check each ./release expose, and load application/service modules through the supported federation runtime. Exact trusted origins live in a separately controlled same-origin policy. Configuration errors may use an independently validated fallback; an invalid policy/fallback blocks remotes while the shell remains usable. Every remote keeps its own business state and standalone entry. See [NUCLEUS contracts and acceptance evidence](nucleus.md) and [ADR 0009](decisions/0009-nucleus-runtime-registry.md).
+
+## IMMUNE SYSTEM
+
+The Host observes each remote operation, isolates render failures and bounds remote loading. Monitoring distinguishes current states from historical module loads and explicitly reports that no genuine health check is configured. View retries remount locally; import retries use a fresh page to preserve safe background-owner lifetimes. See [resilience and security](resilience.md) and [ADR 0010](decisions/0010-remote-resilience-and-observations.md).
