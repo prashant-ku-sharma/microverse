@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 10 — IMMUNE SYSTEM remote resilience. Implementation and verification complete on 2026-11-13; actual commit/push receipt follows the implementation commit. Completed stages: 1–10. Stage 11 has not started.
+Stage 10 — IMMUNE SYSTEM remote resilience. Complete and pushed on 2026-11-13. Completed stages: 1–10. Awaiting Stage 11.
 
 ## Completed Stage 1 scope
 
@@ -191,3 +191,8 @@ Await Stage 11 instructions. Do not proceed automatically.
 - A real remoteEntry.js delayed 20 seconds produced Timed out after 12 seconds and remained timed out after late completion. Restoring the preview server and retrying recovered. Monitoring retained the timeout timestamp and new successful module load. Phone 390×844 layout had no horizontal overflow; desktop screenshot saved outside Git. All task-owned servers stopped; canonical registry restored; normal production builds disable controlled render faults.
 - Initial verification exposed an unstable test snapshot and a navigation/remount retry race; both were corrected and covered by focused tests. A regression test also ensures ordinary search navigation preserves view state. One existing Offers test hit its five-second limit under concurrent build/test load; the full suite passed on rerun without competing builds.
 - Final verification passed: pnpm test (216 tests across 31 files), pnpm build (all five apps), pnpm typecheck (all 10 projects), pnpm lint, pnpm format:check and pnpm install --frozen-lockfile --offline. After the final retry refinement, Host tests (95) and independent Host build/typecheck passed again. Normal PARASITE output contains no controlled-fault code. Existing shared MUI chunk advisory and jsdom scrollTo notices remain non-blocking. Actual commit/push receipt follows without rewriting history.
+
+- Implementation commit: `cc1320a9bbd89b1513f7cadccca061a868eada30` (`feat: implement immune system remote resilience`).
+- Actual author/committer timestamp: 2026-11-13T21:34:27+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `0a5342c` to `cc1320a`. The initial sandbox DNS failure was resolved by the permitted network-enabled push.
+- This documentation receipt records the actual milestone hash, timestamp and confirmed push without rewriting history. Stage 10 is complete; Stage 11 has not started.
