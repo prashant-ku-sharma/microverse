@@ -29,6 +29,8 @@ The root dev command starts all five independent Vite processes. Each port is st
 
 All five app packages support dev, build, preview, lint, typecheck, test and test:watch. `pnpm --filter '@microverse/symbiont...' build` includes required workspace dependencies; it does not build sibling applications. Shared packages expose source for Vite; their build validates TypeScript rather than emitting a separate distribution.
 
+The root unit command serializes workspace processes while each Vitest instance retains its own workers. This avoids multiplying app-level and file-level parallelism on small CI runners; assertions, test timeouts and retry counts are unchanged.
+
 ## Full end-to-end suite
 
 Stop task-owned dev/preview servers first. Ports 5000–5004 must be available on 127.0.0.1; port 5005 is reserved only for test-fixture readiness. The fixture uses that separate readiness port because macOS Control Center can answer requests on wildcard port 5000 even when explicit 127.0.0.1:5000 is available. Do not kill unrelated system services to run tests.
