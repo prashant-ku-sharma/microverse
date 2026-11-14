@@ -2,7 +2,7 @@
 
 A functional biology-inspired microfrontend ecosystem: five independent React/TypeScript applications, runtime Module Federation, validated CustomEvent communication, owner-local mock APIs, a runtime registry and contained remote failures. The final dashboard shows observed versions/status and metadata activity without inventing health or deployment facts.
 
-**Local integration and independent CI builds are verified. Live Netlify deployment remains unverified:** actual site URLs and credentials are unavailable. See [final acceptance](docs/acceptance.md) for exact evidence and incomplete live requirements.
+**Local and hosted integration/Playwright acceptance and independent CI builds are verified. Live Netlify deployment remains unverified:** actual site URLs and credentials are unavailable. See [final acceptance](docs/acceptance.md) for exact evidence and incomplete live requirements.
 
 ## Start the ecosystem
 

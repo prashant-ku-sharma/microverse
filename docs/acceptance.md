@@ -1,22 +1,22 @@
 # Final acceptance and delivery
 
-Verification date: 2026-11-14 (Asia/Kolkata). Status labels below are scoped: Verified means demonstrated in the local/CI scope stated; Partial means an external/live requirement is still pending. No live Netlify deployment has been performed. The final ten-case Playwright run passed without retries in 1.3 minutes, including all A–F scenarios.
+Verification date: 2026-11-14 (Asia/Kolkata). Status labels below are scoped: Verified means demonstrated in the local/CI scope stated; Partial means an external/live requirement is still pending. No live Netlify deployment has been performed. The final local ten-case Playwright run passed without retries in 1.3 minutes, including all A–F scenarios. The [hosted aggregate acceptance](https://github.com/prashant-ku-sharma/microverse/actions/runs/43590775434) also passed after a root test-worker scheduling correction; all five independent build jobs passed and their deployment jobs were skipped.
 
 | Requirement                                | Status                         | Verification evidence                                                                                                                                                                              |
 | ------------------------------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Five independent applications              | Verified locally               | Five filtered production builds, root concurrent dev command and standalone browser checks at ports 5000–5004; Playwright standalone/phone case                                                    |
-| Runtime Module Federation                  | Verified locally               | Real remoteEntry/chunk loading in Playwright; supported runtime call contract and export/release validation unit tests                                                                             |
-| Product-to-Cart communication              | Verified locally               | Playwright A; cart-service tests prove pre-mount durable replay, committed facts, correlation and deduplication                                                                                    |
-| Cart-to-Offers communication               | Verified locally               | Playwright B; offer service tests and pricing/quote revision validation                                                                                                                            |
-| Independent business state                 | Verified locally               | Owner services/private caches/persistence; Profile Host-vs-standalone persistence assertions and absence of cross-application imports                                                              |
-| Runtime remote registry                    | Verified locally               | Zod parsing/origin/flag/fallback tests; browser invalid-registry fallback and real selected-release changes                                                                                        |
-| Remote failure isolation                   | Verified locally               | Playwright D/F: controlled HTTP unavailability, recovery and incompatible metadata while other remotes work; boundary/timeout/late-result unit tests                                               |
-| Independent deployment                     | Partial                        | Five successful Stage 11 hosted build jobs; publication orchestration tests and independent local artifact publication. Live Netlify publication remains unverified without actual targets/secrets |
+| Five independent applications              | Verified locally and CI        | Five filtered production builds, root concurrent dev command and standalone browser checks at ports 5000–5004; Playwright standalone/phone case                                                    |
+| Runtime Module Federation                  | Verified locally and CI        | Real remoteEntry/chunk loading in Playwright; supported runtime call contract and export/release validation unit tests                                                                             |
+| Product-to-Cart communication              | Verified locally and CI        | Playwright A; cart-service tests prove pre-mount durable replay, committed facts, correlation and deduplication                                                                                    |
+| Cart-to-Offers communication               | Verified locally and CI        | Playwright B; offer service tests and pricing/quote revision validation                                                                                                                            |
+| Independent business state                 | Verified locally and CI        | Owner services/private caches/persistence; Profile Host-vs-standalone persistence assertions and absence of cross-application imports                                                              |
+| Runtime remote registry                    | Verified locally and CI        | Zod parsing/origin/flag/fallback tests; browser invalid-registry fallback and real selected-release changes                                                                                        |
+| Remote failure isolation                   | Verified locally and CI        | Playwright D/F: controlled HTTP unavailability, recovery and incompatible metadata while other remotes work; boundary/timeout/late-result unit tests                                               |
+| Independent deployment                     | Partial                        | Five successful Stage 12 hosted build jobs; publication orchestration tests and independent local artifact publication. Live Netlify publication remains unverified without actual targets/secrets |
 | Remote version update without Host rebuild | Verified locally; live pending | Playwright E independently publishes Cart 1.0.1, changes only registry, checks visible version and identical Host artifact SHA-256; no Host build runs during switching                            |
 | Rollback                                   | Verified locally; live pending | Playwright E selects retained Cart 1.0.0 again with unchanged Host hash; registry orchestration validates archived snapshots and retains release digests beyond 100 assets                         |
 | Unit tests                                 | Verified                       | 221 Vitest tests across 33 files, covering products, Cart/discount arithmetic, events/validation, registry/configuration and shared UI                                                             |
-| Integration tests                          | Verified locally               | Cross-owner Cart/Offers/Host integration and cleanup suites, private profile fact/persistence, API failures, plus 10 Node deployment orchestration tests; 231 total unit/integration tests         |
-| Playwright tests                           | Verified locally               | All 10 Chromium cases passed without retries: A–F, registry fallback, state feedback, standalone/phone/keyboard/console and checkout                                                               |
+| Integration tests                          | Verified locally and CI        | Cross-owner Cart/Offers/Host integration and cleanup suites, private profile fact/persistence, API failures, plus 10 Node deployment orchestration tests; 231 total unit/integration tests         |
+| Playwright tests                           | Verified locally and CI        | All 10 Chromium cases passed without retries: A–F, registry fallback, state feedback, standalone/phone/keyboard/console and checkout                                                               |
 | Documentation                              | Verified by review             | Final README, architecture/federation/communication/deployment/development/security/resilience guides, five Mermaid diagrams, decisions and actual milestone history                               |
 
 ## Functional evidence
@@ -41,20 +41,20 @@ Five app owners under apps/, genuine infrastructure under packages/, deployment 
 
 ## Git milestone history
 
-| Stage | Actual implementation commit                     | Milestone                                  |
-| ----- | ------------------------------------------------ | ------------------------------------------ |
-| 1     | `8dfdd61`                                        | Workspace foundation                       |
-| 2     | `c376f93`                                        | Host shell and MUI design system           |
-| 3     | `2b18f54`                                        | PARASITE products                          |
-| 4     | `7fc16e0`                                        | Genuine PARASITE federation                |
-| 5     | `6ccb034`                                        | SYMBIONT Cart                              |
-| 6     | `03863fd`                                        | MYCELIUM communication                     |
-| 7     | `7b2e2f3`                                        | COMMENSAL and MUTANT                       |
-| 8     | `a048b7a`                                        | MSW owner-local data layers                |
-| 9     | `9e02a13`                                        | NUCLEUS runtime registry                   |
-| 10    | `cc1320a`                                        | IMMUNE SYSTEM resilience                   |
-| 11    | `955f881`                                        | Independent CI/CD                          |
-| 12    | Recorded after commit in implementation progress | Final integration, tests and documentation |
+| Stage | Actual implementation commit                    | Milestone                                  |
+| ----- | ----------------------------------------------- | ------------------------------------------ |
+| 1     | `8dfdd61`                                       | Workspace foundation                       |
+| 2     | `c376f93`                                       | Host shell and MUI design system           |
+| 3     | `2b18f54`                                       | PARASITE products                          |
+| 4     | `7fc16e0`                                       | Genuine PARASITE federation                |
+| 5     | `6ccb034`                                       | SYMBIONT Cart                              |
+| 6     | `03863fd`                                       | MYCELIUM communication                     |
+| 7     | `7b2e2f3`                                       | COMMENSAL and MUTANT                       |
+| 8     | `a048b7a`                                       | MSW owner-local data layers                |
+| 9     | `9e02a13`                                       | NUCLEUS runtime registry                   |
+| 10    | `cc1320a`                                       | IMMUNE SYSTEM resilience                   |
+| 11    | `955f881`                                       | Independent CI/CD                          |
+| 12    | `83445b3` (CI scheduling correction: `8119b83`) | Final integration, tests and documentation |
 
 Actual timestamps, full hashes, hosted run links and push receipts are preserved in [implementation progress](IMPLEMENTATION_PROGRESS.md). No author/committer dates were altered, history rewritten or force pushes used.
 
@@ -67,3 +67,5 @@ Actual timestamps, full hashes, hosted run links and push receipts are preserved
 - Failed imports can require a fresh document; unsaved edits may be lost on Retry remote. Native imports are not cancelled by the visible timeout.
 - Previous releases grow platform storage. Worker migrations, release garbage collection, custom-domain adapter support and competing external publishers need reviewed operational work.
 - Mock coupons expire after 2027-12-31 UTC. Shared Host MUI chunk-size and jsdom scrollTo notices remain non-blocking; a transitive jsdom dependency's deprecation is reported without silently upgrading unrelated versions.
+
+Final code verification uses milestone `83445b3989bf32e3e89b0b98ca9354dc357a5526` plus scheduling correction `8119b834fa9604c4453c348da2dd816cf554b6bb`. The first aggregate CI run failed at the unit step; the corrected full run passed without relaxing assertions, timeouts or retries. Actual push/CI receipts are recorded in implementation progress.
