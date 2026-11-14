@@ -1,0 +1,65 @@
+name: Final integration and Playwright acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      [
+        'apps/**',
+        'packages/**',
+        'e2e/**',
+        'deployment/scripts/**',
+        'playwright.config.ts',
+        'package.json',
+        'pnpm-lock.yaml',
+        'tsconfig.base.json',
+        '.github/workflows/test-integration.yml',
+      ]
+  pull_request:
+    paths:
+      [
+        'apps/**',
+        'packages/**',
+        'e2e/**',
+        'deployment/scripts/**',
+        'playwright.config.ts',
+        'package.json',
+        'pnpm-lock.yaml',
+        'tsconfig.base.json',
+        '.github/workflows/test-integration.yml',
+      ]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: integration-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: integration-evidence-${{ github.run_id }}
+          path: |
+            playwright-report
+            test-results
+            deployment/.local/e2e/build-evidence.json
+          if-no-files-found: ignore
+          retention-days: 14

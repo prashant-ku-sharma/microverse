@@ -240,6 +240,17 @@ export function createCartService() {
           { correlationId },
         );
       }
+      if (action.type === 'complete' && next.order)
+        bus.publish(
+          events.CHECKOUT_COMPLETED,
+          {
+            orderId: next.order.id,
+            itemCount: next.order.totals.itemCount,
+            totalPaise: next.order.totals.totalPaise,
+            simulated: true,
+          },
+          { correlationId },
+        );
       if (action.type === 'checkout')
         timer = setTimeout(() => {
           timer = undefined;

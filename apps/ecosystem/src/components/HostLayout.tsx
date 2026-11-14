@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { activity } from '../activity';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import {
   AppBar,
@@ -47,6 +48,7 @@ const navigation = [
 ];
 
 export function HostLayout() {
+  useEffect(() => activity.start(), []);
   const cart = useCartConnection();
   useOffersConnection();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -68,17 +70,27 @@ export function HostLayout() {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+        position: 'relative',
         px: 2.5,
         py: 3,
       }}
     >
+      {!desktop && (
+        <IconButton
+          aria-label="Close navigation"
+          onClick={() => setMenuOpen(false)}
+          sx={{ position: 'absolute', right: 1, top: 1 }}
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
       <Stack
         direction="row"
         spacing={1.5}
         sx={{ alignItems: 'center', mb: 5, px: 0.5 }}
       >
         <OrganismMark size={37} />
-        <Box sx={{ minWidth: 0 }}>
+        <Box sx={{ minWidth: 0, maxWidth: { xs: 128, md: 'none' } }}>
           <Typography
             sx={{
               fontSize: '.88rem',
@@ -93,14 +105,6 @@ export function HostLayout() {
             Independent. Interconnected.
           </Typography>
         </Box>
-        {!desktop && (
-          <IconButton
-            aria-label="Close navigation"
-            onClick={() => setMenuOpen(false)}
-          >
-            <CloseIcon />
-          </IconButton>
-        )}
       </Stack>
       <Typography
         variant="overline"
@@ -363,7 +367,7 @@ export function HostLayout() {
               MICROVERSE · A living architecture
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              STAGE 10 / IMMUNE SYSTEM
+              STAGE 12 / CONNECTED ECOSYSTEM
             </Typography>
           </Stack>
         </Box>

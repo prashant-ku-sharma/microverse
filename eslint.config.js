@@ -16,7 +16,7 @@ export default defineConfig([
   ]),
   js.configs.recommended,
   {
-    files: ['deployment/scripts/*.mjs'],
+    files: ['deployment/scripts/*.mjs', 'e2e/*.mjs'],
     languageOptions: { globals: globals.node },
   },
   tseslint.configs.recommended,

@@ -59,7 +59,7 @@ Routing-aware actions can be passed as children/slots, for example `OrganismCard
 
 The Host uses a permanent sidebar at md and above, and a temporary MUI drawer below md. The temporary drawer supports Escape, backdrop dismissal, a close button, and dismissal after route selection. The header and footer remain in the shell. Navigation uses real links, active `aria-current`, and a skip-to-content link. Route changes update the document title and focus main content. Dashboard cards use a one/two/four-column grid depending on available viewport width.
 
-The organism map is static code-native SVG with an accessible title and description. It is a conceptual diagram, not connectivity telemetry. Application status and recent activity are explicitly labeled placeholders. No decorative controls imply unfinished actions.
+The organism map is static code-native SVG with an accessible title and description. It is a conceptual diagram, not connectivity telemetry. The final dashboard displays validated registry versions, observed module/view status, metadata-only MYCELIUM activity and timestamped runtime history. It explicitly states that no genuine health check or live deployment status is inferred. No decorative controls imply unfinished actions.
 
 ## Verification
 

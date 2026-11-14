@@ -1,7 +1,9 @@
+import type { RemoteId } from './nucleus/schema';
 import type { OrganismAccent } from '@microverse/shared-ui';
 
 /** Host navigation metadata only; no business data or remote imports. */
 export const organisms: readonly {
+  id: RemoteId;
   name: string;
   title: string;
   route: string;
@@ -10,6 +12,7 @@ export const organisms: readonly {
   accent: OrganismAccent;
 }[] = [
   {
+    id: 'parasite',
     name: 'PARASITE',
     title: 'Products',
     route: '/products',
@@ -19,6 +22,7 @@ export const organisms: readonly {
     accent: 'blue',
   },
   {
+    id: 'symbiont',
     name: 'SYMBIONT',
     title: 'Cart',
     route: '/cart',
@@ -28,6 +32,7 @@ export const organisms: readonly {
     accent: 'violet',
   },
   {
+    id: 'commensal',
     name: 'COMMENSAL',
     title: 'Profile',
     route: '/profile',
@@ -37,6 +42,7 @@ export const organisms: readonly {
     accent: 'amber',
   },
   {
+    id: 'mutant',
     name: 'MUTANT',
     title: 'Offers',
     route: '/offers',

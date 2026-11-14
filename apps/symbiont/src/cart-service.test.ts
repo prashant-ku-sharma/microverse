@@ -299,3 +299,26 @@ it('expires a monetary quote lease even when the offers consumer is absent', asy
   await vi.advanceTimersByTimeAsync(12);
   expect(service.getSnapshot().cart.offer).toBeNull();
 });
+
+it('publishes a simulated checkout fact only after the committed confirmation', async () => {
+  vi.useFakeTimers();
+  const completed = vi.fn(),
+    service = createCartService();
+  stops.push(subscribe(events.CHECKOUT_COMPLETED, completed), service.start());
+  producer.publish(events.PRODUCT_ADDED, { product, quantity: 1 });
+  service.dispatch({
+    type: 'checkout',
+    id: 'DEMO-verified',
+    createdAt: new Date().toISOString(),
+  });
+  expect(completed).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(900);
+  expect(service.getSnapshot().cart.phase).toBe('confirmed');
+  expect(completed).toHaveBeenCalledOnce();
+  expect(completed.mock.calls[0]?.[0].payload).toEqual({
+    orderId: 'DEMO-verified',
+    itemCount: 1,
+    totalPaise: 158900,
+    simulated: true,
+  });
+});

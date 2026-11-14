@@ -35,7 +35,10 @@ export function Ecosystem() {
           </Typography>
         </SurfaceCard>
         <SurfaceCard>
-          <StatusIndicator label="Stage 10 · IMMUNE SYSTEM" tone="success" />
+          <StatusIndicator
+            label="Stage 12 · Connected ecosystem"
+            tone="success"
+          />
           <Typography variant="h2" sx={{ mt: 3, mb: 2 }}>
             A home for independent applications
           </Typography>

@@ -106,3 +106,27 @@ Generated Host `_headers` enforces a CSP limited to self plus the four configure
 Local verification: ten Node orchestration tests exercise draft upload/publish, retained digests, immutable-version rejection, concurrency checks, corrupt/missing/incompatible releases, stale/unauthorized snapshots, CORS/MIME, all five preparations, failed browser gate and registry-only promotion/rollback with unchanged Host identity. API/browser dependencies are explicit test doubles in these tests, not live deployment evidence. All five actual versioned production outputs were independently built and their packaged inventories hashed. Actionlint validates all seven workflows. Playwright browser gates are implemented for CI but remain unexecuted against live targets because credentials/URLs are unavailable.
 
 Primary documentation: [Netlify API](https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/), [proxy rewrites](https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/), [custom headers](https://docs.netlify.com/manage/routing/headers/), [Playwright network routing](https://playwright.dev/docs/network), [pnpm filtering](https://pnpm.io/filtering).
+
+## Independent delivery flow
+
+```mermaid
+flowchart TD
+  Change[Application or shared dependency change] --> Scope[Relevant application workflow]
+  Scope --> Checks[Frozen install · lint · types · relevant tests]
+  Checks --> Build[Build target and required packages only]
+  Build --> Draft[Netlify draft retaining previous release digests]
+  Draft --> Verify[Verify assets · hashes · CORS · MIME · cache]
+  Verify --> Publish[Publish target and confirm production deploy ID]
+  Publish --> Kind{Remote release?}
+  Kind -->|No| HostDone[Host deployment complete]
+  Kind -->|Yes| Review[Review inactive remote release]
+  Review --> Promote[Separate manual NUCLEUS promotion]
+  Promote --> Validate[Trust/schema checks and candidate browser gate]
+  Validate --> Registry[Publish registry only · archive previous snapshot]
+  Registry --> Confirm[Real proxy browser gate · unchanged Host deploy ID]
+  Confirm --> Reload[Reload existing Host to select new remote]
+  Registry --> Rollback[Manual rollback to retained verified snapshot]
+  Rollback --> Reload
+```
+
+Stage 12 adds a full local Playwright suite and integration workflow. Its independently built Cart version-switch/rollback proves unchanged Host artifact hashes in local static publication; it is not a live Netlify deployment. The live procedure above remains pending target/secret setup. See [final acceptance](acceptance.md) for verification scope and evidence.

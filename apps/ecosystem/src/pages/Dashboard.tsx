@@ -2,16 +2,18 @@ import { Link } from 'react-router';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
-import {
-  OrganismCard,
-  SurfaceCard,
-  StatusIndicator,
-} from '@microverse/shared-ui';
+import { useSyncExternalStore } from 'react';
+import { nucleus } from '../nucleus/registry';
+import { immune } from '../immune/store';
+import { runtimeLabels } from '../immune/labels';
+import { ActivityPanel } from '../components/ActivityPanel';
+import { OrganismCard } from '@microverse/shared-ui';
 import { organisms } from '../organisms';
 import { Habitat } from '../components/Habitat';
 
 export function Dashboard() {
+  const config = useSyncExternalStore(nucleus.subscribe, nucleus.getSnapshot);
+  const runtime = useSyncExternalStore(immune.subscribe, immune.getSnapshot);
   return (
     <Stack spacing={4}>
       <Box
@@ -61,7 +63,7 @@ export function Dashboard() {
             color="text.secondary"
             sx={{ display: 'block', textAlign: 'center' }}
           >
-            CONCEPT MAP · CONFIGURATION, NOT LIVE HEALTH
+            CONCEPT MAP · NOT A HEALTH CHECK
           </Typography>
         </Box>
       </Box>
@@ -84,7 +86,10 @@ export function Dashboard() {
           ['04', 'Independent organisms'],
           ['01', 'Host application'],
           ['06', 'Workspace routes'],
-          ['04', 'Federation remotes configured'],
+          [
+            config.status === 'ready' ? '04' : '—',
+            'Validated registry entries',
+          ],
         ].map(([value, label]) => (
           <Box
             key={label}
@@ -152,7 +157,7 @@ export function Dashboard() {
               key={organism.name}
               {...organism}
               index={`0${i + 1}`}
-              statusLabel="Federated remote"
+              statusLabel={`${config.status === 'ready' ? `v${config.snapshot.registry.remotes[organism.id].version}` : 'Version unknown'} · ${runtimeLabels[runtime.remotes[organism.id].status]}`}
               action={
                 <Button
                   component={Link}
@@ -168,69 +173,12 @@ export function Dashboard() {
           ))}
         </Box>
       </Box>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
-          gap: 2,
-        }}
-      >
-        <SurfaceCard component="section" aria-labelledby="status-heading">
-          <Stack
-            direction="row"
-            sx={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              mb: 2,
-            }}
-          >
-            <Typography variant="h2" id="status-heading">
-              Habitat status
-            </Typography>
-            <StatusIndicator label="Preview only" tone="warning" />
-          </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Application configuration. No live health checks are running.
-          </Typography>
-          <Stack spacing={1.5}>
-            {organisms.map((o) => (
-              <Stack
-                key={o.name}
-                direction="row"
-                sx={{ justifyContent: 'space-between', gap: 1 }}
-              >
-                <Typography variant="body2">{o.name}</Typography>
-                <StatusIndicator label="Federation configured" />
-              </Stack>
-            ))}
-          </Stack>
-        </SurfaceCard>
-        <SurfaceCard component="section" aria-labelledby="activity-heading">
-          <Typography variant="h2" id="activity-heading">
-            Recent activity
-          </Typography>
-          <Stack
-            spacing={1.5}
-            sx={{ alignItems: 'center', textAlign: 'center', py: 3 }}
-          >
-            <HistoryOutlinedIcon
-              sx={{ color: 'text.secondary', fontSize: 30 }}
-            />
-            <Typography variant="h3" component="p">
-              A quiet beginning
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ maxWidth: 330 }}
-            >
-              MYCELIUM logs event diagnostics in the browser console. This panel
-              is a placeholder, not a live event feed.
-            </Typography>
-          </Stack>
-        </SurfaceCard>
-      </Box>
+      <Typography variant="body2" color="text.secondary">
+        Runtime status describes module loads and view commits in this page. No
+        genuine health check is configured. Products, cart, profile and coupons
+        use local mock APIs; no live deployment status is inferred.
+      </Typography>
+      <ActivityPanel />
     </Stack>
   );
 }

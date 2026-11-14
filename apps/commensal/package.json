@@ -26,7 +26,8 @@
     "zod": "catalog:",
     "@microverse/mock-utils": "workspace:*",
     "@tanstack/react-query": "catalog:",
-    "msw": "catalog:"
+    "msw": "catalog:",
+    "@microverse/mycelium": "workspace:*"
   },
   "devDependencies": {
     "@microverse/config": "workspace:*",

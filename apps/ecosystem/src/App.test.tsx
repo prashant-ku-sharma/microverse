@@ -61,15 +61,18 @@ afterEach(() => {
 });
 
 describe('Ecosystem Host', () => {
-  it('renders four organism cards and honest status/activity placeholders', () => {
+  it('renders four organism cards with observed status and metadata-only activity', () => {
     renderHost();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'A living system.',
     );
     expect(screen.getAllByRole('article')).toHaveLength(4);
     expect(screen.queryByText('Not connected')).not.toBeInTheDocument();
-    expect(screen.getAllByText('Federation configured')).toHaveLength(4);
-    expect(screen.getByText(/not a live event feed/)).toBeVisible();
+    expect(screen.getAllByText(/Version unknown/)).toHaveLength(4);
+    expect(screen.getByText(/Payloads are private/)).toBeVisible();
+    expect(
+      screen.getByText(/No genuine health check is configured/),
+    ).toBeVisible();
     expect(
       screen.getByRole('img', { name: /One host, four independent organisms/ }),
     ).toBeVisible();

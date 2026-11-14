@@ -1,3 +1,4 @@
+import { createMycelium, events } from '@microverse/mycelium';
 import { z } from 'zod';
 const text = (min: number, max: number) => z.string().trim().min(min).max(max);
 export const profileSchema = z.strictObject({
@@ -67,6 +68,9 @@ export function saveProfile(value: Profile): Profile {
     PROFILE_KEY,
     JSON.stringify({ schemaVersion: 1, profile }),
   );
+  createMycelium('commensal').publish(events.PROFILE_UPDATED, {
+    scope: 'browser-tab',
+  });
   return profile;
 }
 export function initials(name: string) {

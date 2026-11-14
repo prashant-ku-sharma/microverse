@@ -51,3 +51,29 @@ Use [the production CSP example](../deployment/security/csp.production.example) 
 CSP limits resource execution/loading, not the privileges of approved remote code. Truly untrusted applications need a separate security boundary, such as sandboxed cross-origin iframes and a restricted messaging protocol; that architecture is not implemented here.
 
 Primary references: [Federation runtime APIs](https://module-federation.io/guide/runtime/runtime-api), [React error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary), [MDN CSP reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy).
+
+## Failure handling flow
+
+```mermaid
+flowchart TD
+  Route[Request organism route or owner lifecycle] --> Policy[Validate NUCLEUS policy and registry]
+  Policy -->|Primary invalid| Fallback[Validate separate fallback]
+  Fallback -->|Invalid| Block[Block remote imports · retain Host navigation]
+  Policy -->|Valid| Release[Load and validate remote release metadata]
+  Fallback -->|Valid| Release
+  Release -->|Mismatch| Incompatible[Incompatible state]
+  Release -->|Compatible| Load[Load actual expose with bounded wait]
+  Load -->|Timeout| Timeout[Timed out · ignore late completion]
+  Load -->|Failure| Failed[Failed state]
+  Load -->|Success| View[Render or start owner service]
+  View -->|Render failure| Boundary[Per-remote error boundary]
+  View -->|Success| Available[Record observed availability · not health]
+  Boundary --> ViewRetry[Retry view remount]
+  ViewRetry --> View
+  Failed --> Retry[Retry remote in fresh document]
+  Timeout --> Retry
+  Incompatible --> Retry
+  Retry --> Policy
+```
+
+The final dashboard uses these existing observations rather than status placeholders. Local Playwright explicitly verifies unavailable-remote isolation/recovery, compatibility rejection and invalid-registry fallback; the IMMUNE SYSTEM unit tests retain timeout/late-result and render-recovery coverage. No genuine health probe or remote security sandbox has been added.

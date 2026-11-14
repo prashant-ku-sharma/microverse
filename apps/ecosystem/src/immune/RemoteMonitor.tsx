@@ -5,17 +5,8 @@ import { SurfaceCard } from '@microverse/shared-ui';
 import { nucleus } from '../nucleus/registry';
 import { remoteIds } from '../nucleus/schema';
 import { immune } from './store';
-import type { RuntimeStatus } from './store';
 import { remotePaths, retryRemote } from './recovery';
-const labels: Record<RuntimeStatus, string> = {
-  'not-loaded': 'Not loaded',
-  loading: 'Loading',
-  available: 'Available',
-  failed: 'Failed',
-  'timed-out': 'Timed out',
-  incompatible: 'Incompatible',
-  disabled: 'Disabled',
-};
+import { runtimeLabels as labels } from './labels';
 const when = (value: string) =>
   new Date(value).toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',

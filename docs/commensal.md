@@ -23,3 +23,7 @@ Profile GET/PATCH now pass through owner-local MSW handlers and a private TanSta
 ## Stage 9 runtime configuration
 
 NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).
+
+## Final integration
+
+A successful persisted save publishes microverse:profile:updated through MYCELIUM with only the browser-tab scope. Name, email, address and preferences are never copied into that event or the Host feed. Validation/storage failures publish no successful save fact. Profile remains independently owned and persisted; final browser acceptance verifies Host refresh persistence and an unchanged standalone-origin seed.

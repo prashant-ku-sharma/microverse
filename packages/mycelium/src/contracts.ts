@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
 export const events = {
+  PROFILE_UPDATED: 'microverse:profile:updated',
+  CHECKOUT_COMPLETED: 'microverse:checkout:completed',
   PRODUCT_ADDED: 'microverse:product:added',
   PRODUCT_REMOVED: 'microverse:product:removed',
   CART_UPDATED: 'microverse:cart:updated',
@@ -51,6 +53,23 @@ export const offerQuoteSchema = z.strictObject({
 });
 export type OfferQuote = z.infer<typeof offerQuoteSchema>;
 export const eventSchema = z.discriminatedUnion('name', [
+  z.strictObject({
+    ...metadata,
+    name: z.literal(events.PROFILE_UPDATED),
+    source: z.literal('commensal'),
+    payload: z.strictObject({ scope: z.literal('browser-tab') }),
+  }),
+  z.strictObject({
+    ...metadata,
+    name: z.literal(events.CHECKOUT_COMPLETED),
+    source: z.literal('symbiont'),
+    payload: z.strictObject({
+      orderId: id,
+      itemCount: z.number().int().min(1),
+      totalPaise: money,
+      simulated: z.literal(true),
+    }),
+  }),
   z.strictObject({
     ...metadata,
     name: z.literal(events.CART_PRICING_UPDATED),

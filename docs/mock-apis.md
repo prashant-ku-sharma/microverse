@@ -27,7 +27,7 @@ Each app has the generated `public/mockServiceWorker.js`; ECOSYSTEM hosts the id
 
 Federation may bundle several copies of mock-utils. A versioned Symbol.for key holds one **transport-only** worker/start promise and registered-domain names per window. All remotes use that transport's worker.use API instead of starting competing workers at the same scope. It contains no business data or query cache. A failed startup clears the handle for a later attempt. Separate standalone origins use their own worker/window/session. Full reload after handler HMR changes rebuilds registrations.
 
-Clients use same-origin /api URLs. Unhandled asset/federation traffic bypasses MSW. Service Workers need localhost/loopback or HTTPS and the root worker script must be served as JavaScript. This project intentionally enables mocks in built demos because no real backend exists. Deployment/real-backend selection remains future work; do not mistake a Vite preview for a server API. Regenerate vendor scripts after changing the MSW version:
+Clients use same-origin /api URLs. Unhandled asset/federation traffic bypasses MSW. Service Workers need localhost/loopback or HTTPS and the root worker script must be served as JavaScript. This project intentionally enables mocks in built demos because no real backend exists. Independent deployment is configured for these mock demonstrations; replacing MSW with a real backend remains outside scope. Do not mistake a Vite preview for a server API. Regenerate vendor scripts after changing the MSW version:
 
 ```sh
 pnpm --filter @microverse/parasite exec msw init public --save

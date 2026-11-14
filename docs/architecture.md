@@ -1,90 +1,62 @@
 # Architecture
 
-## Current implementation: Stage 11
+MICROVERSE is a five-application React/TypeScript pnpm workspace using genuine runtime Module Federation. ECOSYSTEM owns composition and infrastructure; each organism owns its business model, API handlers, TanStack Query cache, persistence and standalone entry. Applications never import another application's source. There is no shared business store.
 
-MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. SYMBIONT owns a functional standalone cart, persistence/reconciliation service, and checkout simulation on port 5002. COMMENSAL owns an editable profile and preferences on port 5003. MUTANT owns coupon rules and selection on port 5004. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes all four organisms through runtime Module Federation, with shared framework contexts and isolated route failure boundaries.
+```mermaid
+flowchart TD
+  Browser[Browser] --> Host[ECOSYSTEM · port 5000]
+  Host --> Nucleus[NUCLEUS · trusted policy and runtime registry]
+  Host --> Immune[IMMUNE SYSTEM · boundaries and observations]
+  Host -->|runtime federation| Products[PARASITE · port 5001]
+  Host -->|runtime federation| Cart[SYMBIONT · port 5002]
+  Host -->|runtime federation| Profile[COMMENSAL · port 5003]
+  Host -->|runtime federation| Offers[MUTANT · port 5004]
+  Products <--> Events[MYCELIUM · validated CustomEvents]
+  Cart <--> Events
+  Offers <--> Events
+  Profile --> Events
+  Events --> Host
+  Products --> ProductAPI[Product-owned MSW API and Query cache]
+  Cart --> CartAPI[Cart-owned MSW API and persistence]
+  Profile --> ProfileAPI[Profile-owned MSW API and persistence]
+  Offers --> OfferAPI[Offer-owned MSW API and rules]
+  Shared[shared-ui · MUI and Emotion] --> Host
+  Shared --> Products
+  Shared --> Cart
+  Shared --> Profile
+  Shared --> Offers
+```
 
-| Route         | Rendered page                                                                             |
-| ------------- | ----------------------------------------------------------------------------------------- |
-| `/`           | Dashboard, four organism cards, conceptual map, explicit status and activity placeholders |
-| `/products/*` | Federated PARASITE catalog and product detail routes                                      |
-| `/cart`       | Federated SYMBIONT cart and checkout simulation                                           |
-| `/profile`    | Federated COMMENSAL profile and preferences                                               |
-| `/offers`     | Federated MUTANT coupons and eligibility                                                  |
-| `/ecosystem`  | Host architecture, NUCLEUS registry and IMMUNE SYSTEM observations                        |
+## Responsibilities and routes
 
-The Host owns layout, navigation, route composition, active links, titles, and route-change focus. Unknown routes render a recovery page. Organism metadata is navigation/display configuration only, never shared business state. No app imports another app. The design system is documented in [design-system.md](design-system.md); [ADR 0002](decisions/0002-host-shell-and-design-system.md) records the route/presentation boundary.
+| Owner     | Responsibility                                                                                                  | Host route        |
+| --------- | --------------------------------------------------------------------------------------------------------------- | ----------------- |
+| ECOSYSTEM | Shell, navigation/router, composition, registry/policy, remote boundaries, observed status/activity, Cart count | `/`, `/ecosystem` |
+| PARASITE  | Product listing/detail, search, filters, sorting, prices, stock and add requests                                | `/products/*`     |
+| SYMBIONT  | Cart reconciliation, quantities, integer-paise totals, confirmed discounts, persistence and simulated checkout  | `/cart`           |
+| COMMENSAL | Profile validation, editing, preferences, local persistence and privacy-preserving save facts                   | `/profile`        |
+| MUTANT    | Coupon eligibility, validity, minimums, selection, percentage/free-shipping quotes and reconciliation           | `/offers`         |
 
-## Shared infrastructure
+The Host supplies one router/theme for embedded routes; standalone entries supply their own root, router where needed, theme and navigation. Host route titles and focus management support keyboard navigation. Dashboard cards show configured versions and current module/view observations, not invented server health or deployments. Its event feed retains only validated metadata observed while the shell is mounted; business payloads stay private. Recent runtime observations are separately timestamped and may predate the current page.
 
-| Package                    | Current export                                             | Intended boundary                          |
-| -------------------------- | ---------------------------------------------------------- | ------------------------------------------ |
-| `@microverse/shared-ui`    | `microverseTheme`, tokens, components                      | MUI visual infrastructure                  |
-| `@microverse/config`       | Empty root, `./vite`, `./test-setup`, `./federation`       | Development configuration                  |
-| `@microverse/shared-types` | Product and exposed-route interfaces                       | Genuine cross-app contracts                |
-| `@microverse/mycelium`     | Typed Zod event contracts, transport, durable intent inbox | Event infrastructure, never business state |
-| `@microverse/mock-utils`   | Transport bootstrap, HTTP errors, latency and scenarios    | Shared mock infrastructure                 |
+## Genuine shared infrastructure
 
-Source exports keep development simple. Applications bundle shared source into their own build output; no package distribution or publication is needed at this stage. This is build-time infrastructure sharing, not runtime Module Federation.
+- `packages/mycelium`: typed Zod-validated event contracts, CustomEvent transport, opaque durable product-intent inbox and diagnostics. No cart/offer/profile rules.
+- `packages/shared-ui`: MUI dark theme/tokens and reusable presentation components. No router, API or business state.
+- `packages/shared-types`: product, embedded-entry and release contracts.
+- `packages/mock-utils`: MSW transport/bootstrap, latency/failure scenarios and HTTP helpers. No domain handlers or seeds.
+- `packages/config`: strict/shared Vite/test and federation singleton configuration.
 
-## Toolchain decisions
+The Host asynchronously starts the small SYMBIONT and MUTANT lifecycle facades so incoming intents and Cart pricing reconcile even when their route UI is absent. Each facade returns cleanup and exposes no mutation/store API to the Host. Owner services use reference-counted lifetimes; route unmount does not create a second owner. The Host listens to facts to display the count and activity only.
 
-- pnpm workspaces and a committed lockfile provide a single dependency graph; a catalog aligns React, MUI, Emotion, and Vite versions.
-- Node 24 LTS is the supported runtime. React 19, Vite 8, MUI 9, and Vitest 5 are stable selected releases. TypeScript 5.9 stays within typescript-eslint's supported range; TypeScript 7 is intentionally not selected.
-- Strict TypeScript is inherited by every workspace project, with unchecked indexed access and exact optional property checks enabled.
-- ESLint flat configuration checks TypeScript, React Hooks, and refresh compatibility. Prettier owns formatting.
-- Material UI with Emotion is the styling baseline. The custom dark theme supplies forest surfaces, emerald actions, organism accent colors, typography, spacing, and component defaults. Each standalone app owns its provider and baseline reset.
-- Each app uses the same Vite factory but supplies its own strict port, making config consistent without coupling business logic.
-- Vitest and React Testing Library check Host navigation/routes/drawer behavior, shared UI/theme semantics, and each standalone app. Shared cleanup prevents DOM leakage.
+## Runtime and persistence
 
-Official references: [Vite requirements](https://vite.dev/guide/), [MUI installation](https://mui.com/material-ui/getting-started/installation/), [pnpm parallel execution](https://pnpm.io/cli/run#--parallel), and [typescript-eslint dependency support](https://typescript-eslint.io/users/dependency-versions/). Peer dependency compatibility was checked against npm registry metadata during implementation. The selected federation library's official configuration and runtime documentation were verified before Stage 4 integration; references are recorded in [module-federation.md](module-federation.md).
+NUCLEUS fetches one validated snapshot per document. An operator-controlled exact-origin policy precedes registration; compatible exposed release metadata precedes application/service loading. No Host rebuild is required to select an already trusted remote version. Per-remote loading/error boundaries isolate ordinary failures, with bounded waits and explicit recovery. See [federation](module-federation.md), [registry](nucleus.md), and [resilience](resilience.md).
 
-## Future architecture (not implemented)
+MSW is deliberately included in built demonstrations. Owner APIs are intercepted in the browser rather than served by a real backend. Each origin/tab has private session persistence; embedded owners share the Host origin but use distinct namespaced keys. Product intents are persisted before dispatch, and Cart commits state plus applied IDs before acknowledgement. Cart state remains SYMBIONT-owned; MYCELIUM is not a centralized business store. MUTANT reconciles via Cart facts/request-response events, never remote source imports.
 
-Ecosystem already owns composition and routing. It isolates each of the four remote routes and now owns the runtime registry and will later own simulated authentication. Each organism owns its domain. MYCELIUM already carries versioned product/cart CustomEvent envelopes validated at runtime. Its persisted inbox and SYMBIONT-owned reconciliation handle consumer absence. Offer quotes and separate cart pricing facts support reconciliation; profile data stays private to COMMENSAL.
+## Delivery, security and limits
 
-Remotes must remain independently runnable and deployable. Further remote integrations must retain supported runtime APIs, configurable remote URLs, aligned shared dependencies, and isolated failure states. A remote deployment must not require a Host rebuild. Deployment automation is intentionally deferred; NUCLEUS selects remote entries at runtime.
+Each application has an independent Netlify pipeline/target. A separate registry target enables validated promotion/rollback without publishing the Host. Live targets/credentials are unavailable; live deployment is unverified. Local independently built release switching and CI builds are separate verified scopes. See [deployment](deployment.md), [development](development.md), and [acceptance](acceptance.md).
 
-Production static hosting must configure an index.html fallback for BrowserRouter deep links; Vite development already supplies that fallback. Deployment hosting is not configured in Stage 9.
-
-## PARASITE product ownership
-
-The shared Product interface is a contract only. PARASITE owns its deterministic mock API inventory, local product illustrations, search/category/stock filters, sorting, price formatting, detail presentation, and availability rules. Its own BrowserRouter stores discovery choices in URL parameters; local lazy-loaded route chunks are ordinary static application assets.
-
-The Host's `/products/*` route now consumes `parasite/routes` through the federation runtime. PARASITE is reached independently at `http://127.0.0.1:5001/`, with details at `/products/:productId`. Add to Cart publishes durable product intent through MYCELIUM without changing cart state or product inventory. There are no cross-app imports or shared business stores. See [PARASITE documentation](parasite.md) and [ADR 0003](decisions/0003-parasite-product-ownership.md).
-
-## Runtime federation boundary
-
-The Host's lazy loader explicitly registers the configured ESM remote and calls loadRemote. It has no source imports from any remote. The plugin shares compatible React/React DOM, JSX runtime subpaths, React Router, MUI, and Emotion with identical rules from config. loaded-first keeps the overview independent of remote availability. Embedded components use the Host theme and PARASITE uses its router; standalone entries keep their own providers.
-
-The shared Host boundary, per-remote timeouts, and loading fallbacks isolate all four remote routes separately. NUCLEUS validates runtime entries, metadata, compatibility and feature flags. No live health monitor is implemented. MYCELIUM carries product/cart/offer business events. See [federation flow and verification](module-federation.md) and [ADR 0004](decisions/0004-first-runtime-federation.md).
-
-## SYMBIONT cart ownership
-
-SYMBIONT owns cart fixtures, models, reducer, quantity/stock rules, integer-paise totals, bounded quote composition, demo delivery, and checkout receipts. Its ./routes entry renders inside /cart without a second root/theme/shell. Standalone keeps its own providers and layout. Its federated headless service owns the persisted cart and deduplication receipts. MYCELIUM carries opaque intent/facts; the Host projects a count. Tab-scoped state survives reload/unmount, separate from PARASITE and the Host. See [SYMBIONT documentation](symbiont.md) and [ADR 0005](decisions/0005-symbiont-cart-ownership.md).
-
-## MYCELIUM communication boundary
-
-The Host requests SYMBIONT's ./cart-service asynchronously after subscribing to cart facts. The shell remains usable if that service is unavailable. Cart UI uses the same remote-owned module instance. Product requests are validated and persisted before CustomEvent dispatch; the owner commits cart + receipt before acknowledgement. No business state or calculations live in MYCELIUM. See [communication architecture](communication.md) and [ADR 0006](decisions/0006-durable-mycelium-delivery.md).
-
-## COMMENSAL and MUTANT ownership
-
-COMMENSAL owns its Zod-validated demo profile, draft/save/cancel workflow, avatar initials, address, and preferences. It writes only its own tab-scoped sessionStorage record. No profile data is published or imported by the Host or another remote. Notification/language selections are saved preferences, not working notification or translation services. See [COMMENSAL](commensal.md).
-
-MUTANT owns catalog, date/minimum rules, percentage/delivery savings, single-coupon selection, and persisted selection. Its `./offers-service` runs independently of the Offers UI; the Host requests its lifecycle asynchronously. It consumes MYCELIUM cart pricing facts and publishes revision-bound, expiring monetary quotes. SYMBIONT accepts a current quote, clamps discounts to subtotal/delivery, and composes the total without knowing any coupon code rules. Separate pricing/request events preserve the original strict CART_UPDATED version-1 payload. Private state is never moved into MYCELIUM. See [MUTANT](mutant.md) and [ADR 0007](decisions/0007-profile-and-offer-ownership.md).
-
-## MSW and data management
-
-Each remote owns its MSW handlers, typed fetch client, and private TanStack Query cache/provider. The Host serves only the shared generated Service Worker asset; it imports no domain handlers. Shared mock-utils coordinates one transport per window across federation bundles, with no business state. API calls stay within each owning remote. Existing native event ingress and durable Cart reconciliation continue against SYMBIONT's single mock repository. See [mock API contracts and failure scenarios](mock-apis.md) and [ADR 0008](decisions/0008-owner-local-mock-apis.md).
-
-## NUCLEUS runtime selection
-
-The Host has an empty compile-time remote map. Its loaders resolve one policy-validated registry snapshot per document, register the selected entries, check each ./release expose, and load application/service modules through the supported federation runtime. Exact trusted origins live in a separately controlled same-origin policy. Configuration errors may use an independently validated fallback; an invalid policy/fallback blocks remotes while the shell remains usable. Every remote keeps its own business state and standalone entry. See [NUCLEUS contracts and acceptance evidence](nucleus.md) and [ADR 0009](decisions/0009-nucleus-runtime-registry.md).
-
-## IMMUNE SYSTEM
-
-The Host observes each remote operation, isolates render failures and bounds remote loading. Monitoring distinguishes current states from historical module loads and explicitly reports that no genuine health check is configured. View retries remount locally; import retries use a fresh page to preserve safe background-owner lifetimes. See [resilience and security](resilience.md) and [ADR 0010](decisions/0010-remote-resilience-and-observations.md).
-
-## Independent delivery
-
-Five application pipelines build only each target and its dependency graph. Netlify remote release directories retain previous versions; the sixth NUCLEUS site publishes registry snapshots independently. The Host keeps its own origin trust policy and proxies only active/fallback JSON. Candidate and published browser gates validate promotion/rollback without a Host build/deploy. Live deployment is not yet verified; see [deployment](deployment.md) and [ADR 0011](decisions/0011-independent-netlify-deployments.md).
+Federation code executes with Host privileges. Boundaries and CSP do not sandbox malicious approved code. Origin policy, code/deployment review, HTTPS, secret isolation and CSP remain necessary. No real authentication, account backend, payment, notification delivery or translation service is implemented. Monetary data, inventory, coupons and checkout are explicitly mock/simulated. [Architecture decisions](decisions/) and [implementation history](IMPLEMENTATION_PROGRESS.md) record actual milestones and limitations.

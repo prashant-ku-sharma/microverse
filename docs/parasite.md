@@ -43,7 +43,7 @@ Examples:
 
 No product data or product business rules were placed in shared-ui, mock-utils, config, or Mycelium. No application imports another application's source. React Router is declared in PARASITE's own manifest, and its own BrowserRouter wraps its own entry point. The shared MUI/Emotion theme remains in use.
 
-Catalog and detail pages use ordinary local React.lazy/Suspense imports with the shared LoadingIndicator. This splits the static build into smaller route bundles; it is not runtime Module Federation. Stage 4 adds a separate federation entry for Host consumption; local route splitting is still ordinary in-app code splitting. No runtime registry is implemented.
+Catalog and detail pages use ordinary local React.lazy/Suspense imports with the shared LoadingIndicator. This splits the static build into smaller route bundles; it is not runtime Module Federation. Stage 4 adds a separate federation entry for Host consumption; local route splitting is still ordinary in-app code splitting. Cross-application selection is now handled by Host-owned NUCLEUS; local route splitting remains separate from runtime federation.
 
 ## Stock and Add to Cart semantics
 

@@ -246,3 +246,36 @@ describe('MYCELIUM typed transport', () => {
     expect(sessionStorage.length).toBe(1);
   });
 });
+
+it('validates private profile-save and explicitly simulated checkout contracts', () => {
+  const profile = createMycelium('commensal').publish(events.PROFILE_UPDATED, {
+    scope: 'browser-tab',
+  });
+  expect(
+    eventSchema.safeParse({ ...profile, source: 'parasite' }).success,
+  ).toBe(false);
+  expect(
+    eventSchema.safeParse({
+      ...profile,
+      payload: { scope: 'browser-tab', email: 'private@example.com' },
+    }).success,
+  ).toBe(false);
+  const checkout = createMycelium('symbiont').publish(
+    events.CHECKOUT_COMPLETED,
+    {
+      orderId: 'DEMO-verified',
+      itemCount: 1,
+      totalPaise: 10000,
+      simulated: true,
+    },
+  );
+  expect(
+    eventSchema.safeParse({
+      ...checkout,
+      payload: { ...checkout.payload, simulated: false },
+    }).success,
+  ).toBe(false);
+  expect(eventSchema.safeParse({ ...checkout, schemaVersion: 2 }).success).toBe(
+    false,
+  );
+});

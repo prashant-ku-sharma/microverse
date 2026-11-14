@@ -55,3 +55,7 @@ The existing cart service remains the mock repository and headless event consume
 ## Stage 9 runtime configuration
 
 NUCLEUS now selects remote entries from validated runtime JSON; earlier Host VITE_*_REMOTE_ENTRY descriptions are superseded. Each remote exposes ./release with build identity and compatibility, checked before its routes/lifecycle facade. Owner APIs, private state, and MYCELIUM contracts remain unchanged. See [NUCLEUS](nucleus.md).
+
+## Final integration
+
+After committing simulated checkout completion, SYMBIONT publishes microverse:checkout:completed with its receipt ID/count/total and simulated=true, correlated with the committed Cart facts. The Host observes metadata only. Final Playwright acceptance verifies the receipt amount, count clearing and completion event, alongside actual independent Cart artifact promotion/rollback without a Host rebuild.
