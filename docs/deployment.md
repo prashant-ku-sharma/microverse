@@ -1,6 +1,6 @@
 # Independent deployment and CI/CD
 
-Stage 11 implements GitHub Actions for five independent Netlify application sites and a sixth static NUCLEUS site. **No live deployment was performed during this stage:** Netlify credentials and actual site URLs were unavailable in the workspace. Workflow definitions, build outputs and orchestration tests are verified locally; the live Netlify API, proxy/CSP headers and browser acceptance gates remain unverified until configured. Illustrative domains are never substituted for real targets.
+Stage 11 implements GitHub Actions for five independent Netlify application sites and a sixth static NUCLEUS site. **No live deployment was performed during this stage:** Netlify credentials and actual site URLs were unavailable in the workspace. All five GitHub-hosted verify-build jobs also passed for commit 955f88188401bfbd36d1e78d3ce33943805f1cda; every live deployment job was skipped. Workflow definitions, build outputs and orchestration tests are verified locally; the live Netlify API, proxy/CSP headers and browser acceptance gates remain unverified until configured. Illustrative domains are never substituted for real targets.
 
 ## Decision and topology
 

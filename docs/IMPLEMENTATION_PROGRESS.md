@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 11 — independent deployment and CI/CD. Implementation and local verification complete on 2026-11-14; live deployment remains unverified because actual Netlify targets and credentials are unavailable. Completed implementation stages: 1–11. Awaiting Stage 12.
+Stage 11 — independent deployment and CI/CD. Complete and pushed on 2026-11-14; all five GitHub CI build jobs passed. Live deployment remains unverified because actual Netlify targets and credentials are unavailable. Completed implementation stages: 1–11. Awaiting Stage 12.
 
 ## Completed Stage 1 scope
 
@@ -210,4 +210,11 @@ Await Stage 12 instructions. Do not proceed automatically.
 - Independently built all five applications and required packages with filtered commands; four remote production builds used version 1.11.1 and versioned Vite bases. Prepared the actual outputs outside Git and verified all packaged inventory hashes (Host 23 files, Parasite 56, Symbiont 47, Commensal 41, Mutant 43). Normal default build outputs were restored afterward.
 - Official Netlify API/proxy/header and Playwright docs were consulted. All seven YAML workflows pass actionlint 1.7.12; the downloaded official binary matched its published SHA-256. Playwright 1.65.0 is pinned in the lockfile; only this CI browser dependency was added.
 - Deployment orchestration tests use explicit in-memory Netlify/browser test doubles: verified registry promotion 1.0.0→1.1.0→rollback, retained both releases, unchanged simulated Host identity, failed candidate gate, stale snapshots, corrupt/missing/incompatible assets, untrusted/tampered history, version overwrite, retention beyond 100 files, concurrent publication, CORS/MIME/cache, bounded readiness and five publish-directory layouts. These results are not live deployment evidence.
-- Live Netlify publication, GitHub-hosted execution and the real browser promotion/rollback demonstration remain unverified. No live deployment was attempted without credentials/actual URLs. Setup and pending acceptance are documented in deployment.md. The current adapter supports six canonical Netlify origins in one team; custom domains, competing publishers, worker migrations and release garbage collection require later reviewed changes. Actual commit/push receipt follows without rewriting history.
+- Live Netlify publication and the real browser promotion/rollback demonstration remain unverified. GitHub-hosted build verification was subsequently confirmed as recorded below. No live deployment was attempted without credentials/actual URLs. Setup and pending acceptance are documented in deployment.md. The current adapter supports six canonical Netlify origins in one team; custom domains, competing publishers, worker migrations and release garbage collection require later reviewed changes. Actual commit/push receipt follows without rewriting history.
+
+- Implementation commit: `955f88188401bfbd36d1e78d3ce33943805f1cda` (`ci: add independent microfrontend deployment pipelines`).
+- Actual commit timestamp: 2026-11-14T15:48:00+05:30.
+- Push confirmed: `git push origin main` advanced `main` from `5ea0051` to `955f881`. The sandbox DNS restriction was resolved using the permitted network-enabled push.
+- Actual GitHub-hosted runs for this exact commit all completed successfully: [Ecosystem](https://github.com/prashant-ku-sharma/microverse/actions/runs/43584647849), [Parasite](https://github.com/prashant-ku-sharma/microverse/actions/runs/43584647854), [Symbiont](https://github.com/prashant-ku-sharma/microverse/actions/runs/43584647754), [Commensal](https://github.com/prashant-ku-sharma/microverse/actions/runs/43584647747), [Mutant](https://github.com/prashant-ku-sharma/microverse/actions/runs/43584647886).
+- Public GitHub jobs API confirmed `application / verify-build` succeeded and `application / deploy` was skipped in every run. This verifies hosted installation/lint/types/tests/target builds/artifact upload, **not** a live deployment. The manually invoked NUCLEUS/browser gates have not run against live targets.
+- This documentation receipt records actual hashes, timestamps, CI job outcomes and confirmed push without rewriting history. Stage 11 implementation is complete; live acceptance is explicitly pending configuration. Stage 12 has not started.
