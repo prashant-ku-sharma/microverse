@@ -1,6 +1,6 @@
 # MICROVERSE
 
-A biology-inspired microfrontend ecosystem, built incrementally. **Stage 10 adds IMMUNE SYSTEM remote resilience.** Separate boundaries, bounded loads, release checks, recovery actions and runtime observations keep individual failures contained. NUCLEUS continues selecting trusted entries without Host rebuilds; business state remains remote-owned. See [resilience and security guidance](docs/resilience.md).
+A biology-inspired microfrontend ecosystem, built incrementally. **Stage 11 adds independent GitHub Actions/Netlify pipelines, immutable remote releases and separately validated NUCLEUS promotion/rollback.** Live deployment remains unverified because actual targets and credentials are unavailable. See [deployment setup and acceptance](docs/deployment.md).
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ Use `pnpm --filter @microverse/parasite dev` for a single application. The same 
 pnpm build         # Type-check packages; build all five apps into their own dist/
 pnpm lint          # ESLint across the workspace, no warnings allowed
 pnpm typecheck     # Strict TypeScript across apps and packages
-pnpm test          # Shared UI + all five app suites (Vitest / React Testing Library)
+pnpm test          # App/shared Vitest suites plus deployment orchestration tests
 pnpm format:check  # Verify Prettier formatting
 pnpm format        # Apply formatting
 ```
@@ -95,4 +95,6 @@ Open `/products?mock-products=slow` to see network loading, `/products?mock-prod
 
 Development defaults are in apps/ecosystem/public/nucleus; canonical development/production presets are under deployment/registry. Edit/deploy registry JSON and reload to select a changed entry. Each remote exposes release metadata and NUCLEUS verifies version/compatibility before requesting its application. Fallback and feature flags are visible on the Ecosystem page. The production preset uses explicit .example placeholders requiring real controlled HTTPS origins.
 
-The critical Cart 1.0.0 → 1.1.0 test passed against an unchanged Host build. [NUCLEUS documentation](docs/nucleus.md) records the exact commands, mutable registry files, immutable output hash and limitations.
+The Stage 9 local-build Cart 1.0.0 → 1.1.0 acceptance test passed against an unchanged Host build. Stage 11 live deployment acceptance remains pending. [NUCLEUS documentation](docs/nucleus.md) records the exact commands, mutable registry files, immutable output hash and limitations.
+
+Independent deployment setup, secrets, CSP, release retention, promotion and rollback are documented in [deployment.md](docs/deployment.md). `pnpm test:deployment` runs deployment orchestration tests without credentials or a browser; CI promotion additionally requires the real-browser gate.

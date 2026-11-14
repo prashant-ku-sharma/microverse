@@ -1,0 +1,106 @@
+name: Independent application pipeline
+on:
+  workflow_call:
+    inputs:
+      app:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify-build:
+    outputs:
+      release-version: ${{ steps.identity.outputs.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      APP: ${{ inputs.app }}
+      RELEASE_VERSION: 1.${{ github.run_number }}.${{ github.run_attempt }}
+      VITE_ENABLE_RESILIENCE_TESTS: 'false'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Check GitHub Actions definitions with checksum-verified actionlint
+        run: |
+          curl --fail --location --retry 3 -o "$RUNNER_TEMP/actionlint.tar.gz" https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          printf '%s  %s\n' '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8' "$RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes=
+      - name: Record artifact release identity
+        id: identity
+        run: printf 'version=%s\n' "$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Validate target and pipeline code
+        run: |
+          case "$APP" in ecosystem|parasite|symbiont|commensal|mutant) ;; *) exit 1 ;; esac
+          pnpm test:deployment
+          pnpm exec eslint deployment/scripts --max-warnings 0
+      - name: Lint target and dependency graph
+        run: pnpm --filter "@microverse/${APP}..." lint
+      - name: Strict target and dependency type checks
+        run: pnpm --filter "@microverse/${APP}..." typecheck
+      - name: Relevant application and infrastructure tests
+        run: pnpm --filter "@microverse/${APP}..." --if-present test
+      - name: Build only this application and its dependencies
+        env:
+          VITE_REMOTE_VERSION: ${{ env.RELEASE_VERSION }}
+        run: |
+          if [ "$APP" = ecosystem ]; then
+            pnpm --filter "@microverse/${APP}..." build
+          else
+            pnpm --filter "@microverse/${APP}^..." build
+            pnpm --filter "@microverse/${APP}" build --base "/releases/${RELEASE_VERSION}/"
+          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build-${{ inputs.app }}
+          path: apps/${{ inputs.app }}/dist
+          if-no-files-found: error
+          retention-days: 14
+  deploy:
+    needs: verify-build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.DEPLOY_TARGETS_JSON != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production-${{ inputs.app }}
+    concurrency:
+      group: netlify-${{ inputs.app }}
+      cancel-in-progress: false
+    env:
+      APP: ${{ inputs.app }}
+      RELEASE_VERSION: ${{ needs.verify-build.outputs.release-version }}
+      DEPLOY_TARGETS_JSON: ${{ vars.DEPLOY_TARGETS_JSON }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: build-${{ inputs.app }}
+          path: apps/${{ inputs.app }}/dist
+      - name: Prepare public hosting rules and immutable release metadata
+        run: node deployment/scripts/prepare-deployment.mjs
+      - name: Deploy draft, verify bytes, publish and confirm production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: node deployment/scripts/deploy-application.mjs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: deployment-${{ inputs.app }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: deployment-receipt.json
+          if-no-files-found: error
+          retention-days: 90

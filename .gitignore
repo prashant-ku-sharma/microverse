@@ -13,3 +13,6 @@ playwright-report/
 test-results/
 
 /deployment/.local/
+
+/deployment-receipt.json
+/nucleus-receipt.json

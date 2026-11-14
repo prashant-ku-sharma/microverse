@@ -1,0 +1,75 @@
+name: Validate and promote or roll back NUCLEUS
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        options: [promote, rollback, initialize]
+        required: true
+      expected_snapshot:
+        description: Current canonical registry SHA-256, or none for initialization
+        type: string
+        required: true
+      remote:
+        type: choice
+        options: [symbiont, parasite, commensal, mutant]
+        default: symbiont
+      version:
+        description: Verified release version to promote
+        type: string
+      snapshot:
+        description: Archived SHA-256 for rollback
+        type: string
+      initial_versions:
+        description: Initialization only - JSON mapping all four remote IDs to deployed versions
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: netlify-nucleus
+  cancel-in-progress: false
+jobs:
+  promote:
+    if: github.ref == 'refs/heads/main'
+    environment: production-nucleus
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DEPLOY_TARGETS_JSON: ${{ vars.DEPLOY_TARGETS_JSON }}
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_SNAPSHOT: ${{ inputs.expected_snapshot }}
+      REMOTE: ${{ inputs.remote }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      SNAPSHOT: ${{ inputs.snapshot }}
+      INITIAL_VERSIONS: ${{ inputs.initial_versions }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:deployment
+      - run: pnpm exec eslint deployment/scripts --max-warnings 0
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Verify release bytes and trust policy, atomically publish registry only
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: node deployment/scripts/manage-nucleus.mjs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nucleus-${{ github.run_id }}-${{ github.run_attempt }}
+          path: nucleus-receipt.json
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: nucleus-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          path: deployment/.local/smoke
+          if-no-files-found: ignore
+          retention-days: 14

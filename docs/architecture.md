@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation: Stage 10
+## Current implementation: Stage 11
 
 MICROVERSE contains five independent React/Vite applications in a pnpm workspace. Ecosystem now owns a responsive shell and six React Router routes. PARASITE now owns a functional standalone product catalog and detail routes on port 5001. SYMBIONT owns a functional standalone cart, persistence/reconciliation service, and checkout simulation on port 5002. COMMENSAL owns an editable profile and preferences on port 5003. MUTANT owns coupon rules and selection on port 5004. All apps consume the expanded shared MUI theme; ECOSYSTEM consumes all four organisms through runtime Module Federation, with shared framework contexts and isolated route failure boundaries.
 
@@ -84,3 +84,7 @@ The Host has an empty compile-time remote map. Its loaders resolve one policy-va
 ## IMMUNE SYSTEM
 
 The Host observes each remote operation, isolates render failures and bounds remote loading. Monitoring distinguishes current states from historical module loads and explicitly reports that no genuine health check is configured. View retries remount locally; import retries use a fresh page to preserve safe background-owner lifetimes. See [resilience and security](resilience.md) and [ADR 0010](decisions/0010-remote-resilience-and-observations.md).
+
+## Independent delivery
+
+Five application pipelines build only each target and its dependency graph. Netlify remote release directories retain previous versions; the sixth NUCLEUS site publishes registry snapshots independently. The Host keeps its own origin trust policy and proxies only active/fallback JSON. Candidate and published browser gates validate promotion/rollback without a Host build/deploy. Live deployment is not yet verified; see [deployment](deployment.md) and [ADR 0011](decisions/0011-independent-netlify-deployments.md).

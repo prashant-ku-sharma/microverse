@@ -1,0 +1,39 @@
+name: Deploy parasite
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/parasite/**'
+      - 'packages/**'
+      - 'deployment/**'
+      - '.github/workflows/**'
+      - 'apps/ecosystem/src/nucleus/schema.ts'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - 'eslint.config.js'
+      - '.prettierrc.json'
+      - '.node-version'
+  pull_request:
+    paths:
+      - 'apps/parasite/**'
+      - 'packages/**'
+      - 'deployment/**'
+      - '.github/workflows/**'
+      - 'apps/ecosystem/src/nucleus/schema.ts'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - 'eslint.config.js'
+      - '.prettierrc.json'
+      - '.node-version'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  application:
+    uses: ./.github/workflows/_deploy-application.yml
+    with:
+      app: parasite
