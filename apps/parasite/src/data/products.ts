@@ -204,9 +204,12 @@ const productData: readonly Product[] = [
   },
 ];
 
-// Resolve public assets against this remote module's origin, never the Host page origin.
+// Resolve assets against the remote's own versioned base, never the Host page.
 const productModuleUrl = import.meta.url;
 export const products: readonly Product[] = productData.map((product) => ({
   ...product,
-  image: new URL(product.image, productModuleUrl).href,
+  image: new URL(
+    `${import.meta.env.BASE_URL}${product.image.slice(1)}`,
+    productModuleUrl,
+  ).href,
 }));

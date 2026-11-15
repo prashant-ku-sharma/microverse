@@ -20,6 +20,10 @@ export function ProductLayout() {
       <Box
         component="a"
         href="#product-main"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById('product-main')?.focus();
+        }}
         sx={{
           position: 'fixed',
           top: -100,

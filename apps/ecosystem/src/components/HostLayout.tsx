@@ -234,6 +234,10 @@ export function HostLayout() {
       <Box
         component="a"
         href="#main-content"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById('main-content')?.focus();
+        }}
         sx={{
           position: 'fixed',
           left: 16,

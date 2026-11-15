@@ -16,6 +16,29 @@ test('Pages subpath: four real remotes, mock APIs, events and hash-route refresh
   await expect(
     nav.getByRole('link', { name: 'Cart (1 item)', exact: true }),
   ).toBeVisible();
+  const hero = page.getByRole('img', {
+    name: 'Self-watering planter with sculptural green leaves',
+    exact: true,
+  });
+  await expect(hero).toBeVisible();
+  await expect
+    .poll(() =>
+      hero.evaluate(
+        (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+      ),
+    )
+    .toBe(true);
+  await page
+    .getByRole('link', { name: 'Explore the collection', exact: true })
+    .click();
+  expect(page.url()).toContain('/microverse/#/products');
+  await page
+    .getByRole('link', { name: 'Skip to content', exact: true })
+    .focus();
+  await page.keyboard.press('Enter');
+  expect(page.url()).toContain('/microverse/#/products');
+  await expect(page.locator('#main-content')).toBeFocused();
+
   await nav.getByRole('link', { name: /^Cart/ }).click();
   await page
     .getByRole('button', {

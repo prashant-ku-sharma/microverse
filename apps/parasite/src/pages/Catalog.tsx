@@ -99,6 +99,12 @@ export function Catalog({
           <Button
             component="a"
             href="#collection"
+            onClick={(event) => {
+              event.preventDefault();
+              document
+                .getElementById('collection')
+                ?.scrollIntoView({ behavior: 'smooth' });
+            }}
             variant="outlined"
             endIcon={<ArrowOutwardIcon />}
             sx={{ mt: 3 }}
