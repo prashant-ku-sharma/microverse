@@ -46,6 +46,26 @@ export const policySchema = z
     environment: z.enum(['development', 'production']),
     registry: registryPath,
     fallback: registryPath,
+    remoteBasePaths: z
+      .strictObject({
+        parasite: z
+          .string()
+          .max(200)
+          .regex(/^\/(?:[a-zA-Z0-9_-]+\/)*$/),
+        symbiont: z
+          .string()
+          .max(200)
+          .regex(/^\/(?:[a-zA-Z0-9_-]+\/)*$/),
+        commensal: z
+          .string()
+          .max(200)
+          .regex(/^\/(?:[a-zA-Z0-9_-]+\/)*$/),
+        mutant: z
+          .string()
+          .max(200)
+          .regex(/^\/(?:[a-zA-Z0-9_-]+\/)*$/),
+      })
+      .optional(),
     trustedOrigins: z
       .array(
         z
@@ -92,7 +112,9 @@ export function validateRegistry(input: unknown, policy: Policy): Registry {
       throw new Error(`NUCLEUS: insecure ${id} origin`);
     if (
       policy.environment === 'production' &&
-      !url.pathname.startsWith(`/releases/${remote.version}/`)
+      !url.pathname.startsWith(
+        `${policy.remoteBasePaths?.[id] ?? '/'}releases/${remote.version}/`,
+      )
     )
       throw new Error(`NUCLEUS: ${id} needs a versioned release path`);
   }

@@ -81,6 +81,20 @@ describe('NUCLEUS schema and trust policy', () => {
   });
 });
 describe('NUCLEUS loading and fallback', () => {
+  it('loads policy and snapshots beneath a Pages project base', async () => {
+    const fetcher = responses(development, remotes);
+    await createRegistryClient(
+      fetcher,
+      'https://owner.github.io',
+      '/microverse/',
+    ).load();
+    expect(String(fetcher.mock.calls[0]?.[0])).toBe(
+      'https://owner.github.io/microverse/nucleus/config.json',
+    );
+    expect(String(fetcher.mock.calls[1]?.[0])).toBe(
+      'https://owner.github.io/microverse/nucleus/remotes.json',
+    );
+  });
   it('pins one snapshot, deduplicates startup and avoids cached/redirected config', async () => {
     const fetcher = responses(development, remotes);
     const client = createRegistryClient(fetcher);

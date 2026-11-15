@@ -9,7 +9,11 @@ export const remotePaths: Record<RemoteId, string> = {
 export function retryRemote(id: RemoteId) {
   immune.retry(id, 'page');
   // A fresh document clears native ESM/federation failures and repins trusted configuration.
-  window.location.assign(remotePaths[id]);
+  window.location.assign(
+    import.meta.env.VITE_ROUTER_MODE === 'hash'
+      ? `${import.meta.env.BASE_URL}#${remotePaths[id]}`
+      : remotePaths[id],
+  );
 }
 export function startObservedService(id: RemoteId, start: () => () => void) {
   const token = immune.begin(id, 'background-start', 'service');

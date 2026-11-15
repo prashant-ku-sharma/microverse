@@ -130,3 +130,7 @@ flowchart TD
 ```
 
 Stage 12 adds a full local Playwright suite and integration workflow. Its independently built Cart version-switch/rollback proves unchanged Host artifact hashes in local static publication; it is not a live Netlify deployment. The live procedure above remains pending target/secret setup. See [final acceptance](acceptance.md) for verification scope and evidence.
+
+## GitHub Pages demo
+
+The user-requested cohosted GitHub Pages deployment is documented in [github-pages.md](github-pages.md). Its workflow publishes the Host and four real federation remotes as one static site; it does not replace or claim verification of independent Netlify promotion/rollback.

@@ -16,7 +16,8 @@
     "test": "pnpm -r --workspace-concurrency=1 --if-present test && pnpm test:deployment",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:deployment": "node --test deployment/scripts/*.test.mjs"
+    "test:deployment": "node --test deployment/scripts/*.test.mjs",
+    "build:pages": "node deployment/scripts/build-pages.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",

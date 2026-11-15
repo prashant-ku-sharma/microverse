@@ -16,6 +16,7 @@ type State =
 export function createRegistryClient(
   fetcher: typeof fetch = (...args) => fetch(...args),
   origin = location.origin,
+  base = import.meta.env.BASE_URL,
 ) {
   let pending: Promise<RegistrySnapshot> | undefined;
   let state: State = { status: 'idle', message: null };
@@ -27,12 +28,15 @@ export function createRegistryClient(
     try {
       return await Promise.race([
         (async () => {
-          const response = await fetcher(new URL(path, origin), {
-            cache: 'no-store',
-            redirect: 'error',
-            credentials: 'same-origin',
-            signal: controller.signal,
-          });
+          const response = await fetcher(
+            new URL(`.${path}`, new URL(base, origin)),
+            {
+              cache: 'no-store',
+              redirect: 'error',
+              credentials: 'same-origin',
+              signal: controller.signal,
+            },
+          );
           if (!response.ok)
             throw new Error('NUCLEUS: configuration request failed');
           const text = await response.text();

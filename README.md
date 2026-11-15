@@ -4,6 +4,8 @@ A functional biology-inspired microfrontend ecosystem: five independent React/Ty
 
 **Local and hosted integration/Playwright acceptance and independent CI builds are verified. Live Netlify deployment remains unverified:** actual site URLs and credentials are unavailable. See [final acceptance](docs/acceptance.md) for exact evidence and incomplete live requirements.
 
+**Public demo:** [Open MICROVERSE on GitHub Pages](https://prashant-ku-sharma.github.io/microverse/). See [Pages deployment details and limitations](docs/github-pages.md).
+
 ## Start the ecosystem
 
 Requires Node.js 24 LTS and pnpm 11.25.0. Use [pnpm's official installation instructions](https://pnpm.io/installation) if necessary.

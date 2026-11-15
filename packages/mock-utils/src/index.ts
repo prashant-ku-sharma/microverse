@@ -79,7 +79,9 @@ export async function ensureMockApi(
   root[transportKey] ??= import('msw/browser').then(({ setupWorker }) => {
     const worker = setupWorker();
     const ready = worker.start({
-      serviceWorker: { url: '/mockServiceWorker.js' },
+      serviceWorker: {
+        url: import.meta.env.VITE_MOCK_WORKER_URL ?? '/mockServiceWorker.js',
+      },
       onUnhandledFrame: 'bypass',
       quiet: true,
     });
