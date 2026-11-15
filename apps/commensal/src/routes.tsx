@@ -412,7 +412,8 @@ function CommensalRoutes(props: CommensalRoutesProps) {
     mutationFn: resetProfile,
     onSuccess: (profile) => queryClient.setQueryData(['profile'], profile),
   });
-  if (query.isPending) return <LoadingIndicator label="Loading profile…" />;
+  if (query.isPending)
+    return <LoadingIndicator fullPage label="Loading profile…" />;
   if (query.isError)
     return (
       <Alert

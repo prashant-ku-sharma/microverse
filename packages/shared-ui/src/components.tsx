@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CircularProgress,
+  Modal,
   Stack,
   Typography,
 } from '@mui/material';
@@ -73,16 +74,58 @@ export function StatusIndicator({
 
 export function LoadingIndicator({
   label = 'Loading organism…',
+  fullPage = false,
 }: {
   label?: string;
+  fullPage?: boolean;
 }) {
-  return (
-    <Stack role="status" spacing={2} sx={{ alignItems: 'center', py: 5 }}>
-      <CircularProgress size={26} aria-hidden="true" />
-      <Typography variant="body2" color="text.secondary">
+  const indicator = (
+    <Stack
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      tabIndex={fullPage ? -1 : undefined}
+      spacing={2}
+      sx={{
+        alignItems: 'center',
+        py: 5,
+        px: 3,
+        textAlign: 'center',
+        outline: 0,
+      }}
+    >
+      <CircularProgress size={fullPage ? 44 : 26} aria-hidden="true" />
+      {fullPage && (
+        <Typography variant="overline" color="primary.main">
+          MICROVERSE
+        </Typography>
+      )}
+      <Typography variant={fullPage ? 'h6' : 'body2'} color="text.secondary">
         {label}
       </Typography>
+      {fullPage && (
+        <Typography variant="body2" color="text.secondary">
+          Preparing your habitat. Please wait.
+        </Typography>
+      )}
     </Stack>
+  );
+  return fullPage ? (
+    <Modal
+      open
+      aria-label="Page loading"
+      sx={{
+        zIndex: (theme) => theme.zIndex.modal + 1,
+        display: 'grid',
+        placeItems: 'center',
+        bgcolor: 'rgba(11, 18, 16, 0.96)',
+        backdropFilter: 'blur(6px)',
+      }}
+    >
+      {indicator}
+    </Modal>
+  ) : (
+    indicator
   );
 }
 

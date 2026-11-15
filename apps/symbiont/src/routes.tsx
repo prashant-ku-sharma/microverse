@@ -44,7 +44,7 @@ function SymbiontRoutes({ mode = 'standalone' }: SymbiontRoutesProps) {
     if (state.phase === 'confirmed') confirmation.current?.focus();
   }, [state.phase]);
   const restore = () => dispatch({ type: 'restore', items: sampleCart });
-  if (loading) return <LoadingIndicator label="Loading cart…" />;
+  if (loading) return <LoadingIndicator fullPage label="Loading cart…" />;
   return (
     <Box component="section" aria-label="SYMBIONT cart" sx={{ minWidth: 0 }}>
       {error && (

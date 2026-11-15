@@ -94,7 +94,7 @@ describe('Ecosystem Host', () => {
       'Overview',
     ]) {
       await user.click(within(nav).getByRole('link', { name }));
-      expect(within(nav).getByRole('link', { name })).toHaveAttribute(
+      expect(await within(nav).findByRole('link', { name })).toHaveAttribute(
         'aria-current',
         'page',
       );

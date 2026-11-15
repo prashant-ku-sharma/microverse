@@ -36,8 +36,8 @@ describe('Host remote failure isolation', () => {
       'Connecting to PARASITE',
     );
     expect(
-      screen.getByRole('navigation', { name: 'Host navigation' }),
-    ).toBeVisible();
+      screen.queryByRole('navigation', { name: 'Host navigation' }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders the exposed component in embedded mode', async () => {

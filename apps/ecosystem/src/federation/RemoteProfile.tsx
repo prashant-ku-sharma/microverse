@@ -15,7 +15,9 @@ export function RemoteProfile() {
       application="profile"
     >
       <Suspense
-        fallback={<LoadingIndicator label="Connecting to COMMENSAL…" />}
+        fallback={
+          <LoadingIndicator fullPage label="Connecting to COMMENSAL…" />
+        }
       >
         <RemoteView id="commensal">
           <Routes mode="embedded" />

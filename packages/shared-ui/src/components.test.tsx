@@ -68,6 +68,27 @@ describe('shared design system', () => {
     );
   });
 
+  it('covers the viewport, traps focus and releases the application after loading', () => {
+    const { rerender } = render(
+      <>
+        <button>Application action</button>
+        <LoadingIndicator fullPage label="Loading Products…" />
+      </>,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Loading Products…');
+    expect(screen.getByRole('status')).toHaveFocus();
+    expect(
+      screen.queryByRole('button', { name: 'Application action' }),
+    ).not.toBeInTheDocument();
+    expect(document.body).toHaveStyle({ overflow: 'hidden' });
+    rerender(<button>Application action</button>);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Application action' }),
+    ).toBeVisible();
+    expect(document.body.style.overflow).not.toBe('hidden');
+  });
+
   it('renders semantic headers, card content, and caller-owned organism actions', async () => {
     const user = userEvent.setup();
     const open = vi.fn();

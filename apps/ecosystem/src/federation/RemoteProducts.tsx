@@ -14,7 +14,9 @@ export function RemoteProducts() {
       title="Products are resting."
       application="product"
     >
-      <Suspense fallback={<LoadingIndicator label="Connecting to PARASITE…" />}>
+      <Suspense
+        fallback={<LoadingIndicator fullPage label="Connecting to PARASITE…" />}
+      >
         <RemoteView id="parasite">
           <Routes mode="embedded" />
         </RemoteView>

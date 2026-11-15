@@ -26,7 +26,8 @@ export function ProductDetail({
     queryFn: () => getProduct(productId ?? ''),
   });
   const product = query.data;
-  if (query.isPending) return <LoadingIndicator label="Loading product…" />;
+  if (query.isPending)
+    return <LoadingIndicator fullPage label="Loading product…" />;
   if (
     query.isError &&
     !(query.error instanceof ApiError && query.error.status === 404)

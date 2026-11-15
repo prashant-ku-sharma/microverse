@@ -14,7 +14,9 @@ export function RemoteCart() {
       title="Your cart is resting."
       application="cart"
     >
-      <Suspense fallback={<LoadingIndicator label="Connecting to SYMBIONT…" />}>
+      <Suspense
+        fallback={<LoadingIndicator fullPage label="Connecting to SYMBIONT…" />}
+      >
         <RemoteView id="symbiont">
           <Routes mode="embedded" />
         </RemoteView>

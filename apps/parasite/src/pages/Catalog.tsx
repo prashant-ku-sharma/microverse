@@ -59,7 +59,8 @@ export function Catalog({
     );
   }
 
-  if (query.isPending) return <LoadingIndicator label="Loading collection…" />;
+  if (query.isPending)
+    return <LoadingIndicator fullPage label="Loading collection…" />;
   if (query.isError)
     return (
       <Alert

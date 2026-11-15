@@ -63,7 +63,8 @@ function MutantRoutes({ mode = 'standalone' }: MutantRoutesProps) {
   const applied = Boolean(state.code && state.cart?.offerCode === state.code);
   const saving =
     (state.cart?.discountPaise ?? 0) + (state.cart?.shippingDiscountPaise ?? 0);
-  if (query.isPending) return <LoadingIndicator label="Loading offers…" />;
+  if (query.isPending)
+    return <LoadingIndicator fullPage label="Loading offers…" />;
   if (query.isError)
     return (
       <Alert

@@ -95,7 +95,9 @@ function ParasiteRoutes({ mode = 'standalone' }: ParasiteRoutesProps) {
             index
             element={
               <Suspense
-                fallback={<LoadingIndicator label="Loading products…" />}
+                fallback={
+                  <LoadingIndicator fullPage label="Loading products…" />
+                }
               >
                 <Catalog onRequest={requestCart} />
               </Suspense>
@@ -105,7 +107,9 @@ function ParasiteRoutes({ mode = 'standalone' }: ParasiteRoutesProps) {
             path={embedded ? ':productId' : 'products/:productId'}
             element={
               <Suspense
-                fallback={<LoadingIndicator label="Loading product details…" />}
+                fallback={
+                  <LoadingIndicator fullPage label="Loading product details…" />
+                }
               >
                 <ProductDetail onRequest={requestCart} />
               </Suspense>

@@ -35,3 +35,9 @@ Official references: [Pages custom workflows](https://docs.github.com/en/pages/g
 ## Verified publication
 
 On 2026-11-15, [workflow 43701123205](https://github.com/prashant-ku-sharma/microverse/actions/runs/43701123205) published commit `b9aa176cadf6a85bcb911ce85a51472daa68d029` successfully. The live registry confirmed all four remotes at 1.2.1. Both live Chromium checks passed (32.9s), including shopping/coupon/profile flows, artwork, keyboard skip navigation, hash refresh and standalone entries. See implementation progress for the complete receipt.
+
+## Habitat navigation feedback
+
+Habitat navigation displays a shared full-page MUI loading overlay while remote code or initial page data is pending. It announces the current loading phase, traps keyboard focus, locks document scrolling and blocks duplicate interactions until the destination is ready. Existing error boundaries replace the overlay on remote failure. Inline monitoring indicators and background refreshes remain inline.
+
+The Host and standalone Products router explicitly use React Router's supported `useTransitions={false}` option. Otherwise, its default transition retains the previous page while a remote suspends and can suppress visible navigation feedback. This choice makes the existing Suspense fallbacks commit immediately; it does not reduce download time or add an artificial minimum delay. See the [React Router transition documentation](https://reactrouter.com/explanation/react-transitions).

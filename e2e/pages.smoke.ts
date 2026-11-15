@@ -94,3 +94,45 @@ test('Pages standalone entry points load independently', async ({
     ).toBeVisible();
   }
 });
+
+test('habitat navigation shows a full-page loader immediately through module and data loading', async ({
+  page,
+}, testInfo) => {
+  let release = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/remotes/parasite/**/remoteEntry.js', async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.goto('./?mock-products=slow');
+  await page
+    .getByRole('navigation', { name: 'Application navigation' })
+    .getByRole('link', { name: 'Products', exact: true })
+    .click();
+  try {
+    const status = page.getByRole('status');
+    await expect(status).toContainText('Connecting to PARASITE', {
+      timeout: 1500,
+    });
+    await expect(status).toBeFocused();
+    await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
+    const overlay = page.getByLabel('Page loading', { exact: true });
+    const box = await overlay.boundingBox();
+    expect(box).toEqual({ x: 0, y: 0, ...page.viewportSize() });
+    await page.screenshot({
+      path: testInfo.outputPath('full-page-loading.png'),
+    });
+  } finally {
+    release();
+  }
+  await expect(page.getByRole('status')).toContainText('Loading collection');
+  await expect(
+    page.getByRole('heading', { name: 'The collection', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel('Page loading', { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole('navigation', { name: 'Application navigation' }),
+  ).toBeVisible();
+});

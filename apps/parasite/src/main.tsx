@@ -17,7 +17,7 @@ createRoot(root).render(
   <StrictMode>
     <ThemeProvider theme={microverseTheme}>
       <CssBaseline />
-      <Router>
+      <Router useTransitions={false}>
         <App />
       </Router>
     </ThemeProvider>

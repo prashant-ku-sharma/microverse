@@ -14,7 +14,9 @@ export function RemoteOffers() {
       title="Offers are resting."
       application="offers"
     >
-      <Suspense fallback={<LoadingIndicator label="Connecting to MUTANT…" />}>
+      <Suspense
+        fallback={<LoadingIndicator fullPage label="Connecting to MUTANT…" />}
+      >
         <RemoteView id="mutant">
           <Routes mode="embedded" />
         </RemoteView>
