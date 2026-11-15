@@ -280,3 +280,10 @@ No next implementation stage. Stop after Stage 12. Pending external live accepta
 - This is a shared visual refinement applied consistently to the Host and four remote initial loading states. No new architecture or implementation stage was introduced. Verification and publication receipts follow after actual completion.
 
 - Local verification passed: lint, strict typecheck, formatting, 103 shared UI/Host tests, all five Pages builds and all three Chromium Pages scenarios (13.2s). Reviewed the captured pending-state screenshot: the sidebar, header and application frame remain visible beneath the light tint, with a compact centered loading surface.
+
+### Confirmed subtle-overlay publication — 2026-11-15
+
+- Implementation commit `639857974ecb7f0902784ca072c9d1686609a8b4`, actual creation time 2026-11-15T18:30:27+05:30; push confirmed `99752d2..6398579 main -> main`.
+- [Pages workflow 43716980727](https://github.com/prashant-ku-sharma/microverse/actions/runs/43716980727) completed successfully for that exact commit, including its full verification and actual publication.
+- Live targeted Chromium command (`PAGES_URL=https://prashant-ku-sharma.github.io/microverse/ pnpm exec playwright test --config e2e/pages.config.ts --grep "habitat navigation"`) passed: **1 test, 7.1s**. The captured public-site loading view confirms the application frame remains visible under a light transparent tint and the small loading label replaces the previous branded screen. Focus, immediate appearance, initial-data loading and cleanup still pass.
+- User-requested refinement is live at https://prashant-ku-sharma.github.io/microverse/. No change in actual download speed is claimed.
