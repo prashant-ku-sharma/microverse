@@ -273,3 +273,10 @@ No next implementation stage. Stop after Stage 12. Pending external live accepta
 - [Pages workflow 43712292286](https://github.com/prashant-ku-sharma/microverse/actions/runs/43712292286) completed successfully for that exact commit, including validation, tests, five application builds, three Chromium artifact scenarios and actual Pages publication.
 - Final public-site command `PAGES_URL=https://prashant-ku-sharma.github.io/microverse/ pnpm exec playwright test --config e2e/pages.config.ts`: **3 passed (39.9s)**. Verified the focused viewport-covering loader appears within the 1.5-second assertion while the Products entry is deliberately held, remains through slow initial data loading, then clears. Existing shopping, coupons, profile persistence, artwork, keyboard skip navigation and all four standalone entries still pass.
 - Request complete on https://prashant-ku-sharma.github.io/microverse/. This improves feedback; it does not claim reduced network download time. No additional implementation stage was started.
+
+## Post-Stage 12 — Subtle loading overlay (2026-11-15)
+
+- User requested a transparent, calmer loading treatment that keeps the application visible. Replaced the nearly opaque blurred screen with a single 14% charcoal tint (disabled MUI's additional default backdrop), and replaced the large branded loading screen with a compact spinner/phase-label surface. Removed the extra wait message and blur. Existing immediate loading feedback, accessible status/focus, scroll locking and duplicate-click prevention remain unchanged.
+- This is a shared visual refinement applied consistently to the Host and four remote initial loading states. No new architecture or implementation stage was introduced. Verification and publication receipts follow after actual completion.
+
+- Local verification passed: lint, strict typecheck, formatting, 103 shared UI/Host tests, all five Pages builds and all three Chromium Pages scenarios (13.2s). Reviewed the captured pending-state screenshot: the sidebar, header and application frame remain visible beneath the light tint, with a compact centered loading surface.

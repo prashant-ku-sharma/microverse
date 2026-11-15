@@ -85,41 +85,40 @@ export function LoadingIndicator({
       aria-live="polite"
       aria-atomic="true"
       tabIndex={fullPage ? -1 : undefined}
-      spacing={2}
+      direction={fullPage ? 'row' : 'column'}
+      spacing={fullPage ? 1.5 : 2}
       sx={{
         alignItems: 'center',
-        py: 5,
-        px: 3,
+        py: fullPage ? 1.5 : 5,
+        px: fullPage ? 2.5 : 3,
+        ...(fullPage && {
+          maxWidth: 'calc(100vw - 32px)',
+          bgcolor: 'background.paper',
+          border: 1,
+          borderColor: 'divider',
+          borderRadius: 2,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.14)',
+        }),
         textAlign: 'center',
         outline: 0,
       }}
     >
-      <CircularProgress size={fullPage ? 44 : 26} aria-hidden="true" />
-      {fullPage && (
-        <Typography variant="overline" color="primary.main">
-          MICROVERSE
-        </Typography>
-      )}
-      <Typography variant={fullPage ? 'h6' : 'body2'} color="text.secondary">
+      <CircularProgress size={24} aria-hidden="true" sx={{ flexShrink: 0 }} />
+      <Typography variant="body2" color="text.secondary">
         {label}
       </Typography>
-      {fullPage && (
-        <Typography variant="body2" color="text.secondary">
-          Preparing your habitat. Please wait.
-        </Typography>
-      )}
     </Stack>
   );
   return fullPage ? (
     <Modal
       open
+      hideBackdrop
       aria-label="Page loading"
       sx={{
         zIndex: (theme) => theme.zIndex.modal + 1,
         display: 'grid',
         placeItems: 'center',
-        bgcolor: 'rgba(11, 18, 16, 0.96)',
-        backdropFilter: 'blur(6px)',
+        bgcolor: 'rgba(11, 18, 16, 0.14)',
       }}
     >
       {indicator}

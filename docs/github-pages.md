@@ -38,6 +38,6 @@ On 2026-11-15, [workflow 43701123205](https://github.com/prashant-ku-sharma/micr
 
 ## Habitat navigation feedback
 
-Habitat navigation displays a shared full-page MUI loading overlay while remote code or initial page data is pending. It announces the current loading phase, traps keyboard focus, locks document scrolling and blocks duplicate interactions until the destination is ready. Existing error boundaries replace the overlay on remote failure. Inline monitoring indicators and background refreshes remain inline.
+Habitat navigation displays a shared full-page MUI loading overlay while remote code or initial page data is pending. Its compact spinner and phase label sit over a light 14% charcoal tint, leaving the application visible without blur or a large branded interruption. It announces the current loading phase, traps keyboard focus, locks document scrolling and blocks duplicate interactions until the destination is ready. Existing error boundaries replace the overlay on remote failure. Inline monitoring indicators and background refreshes remain inline.
 
 The Host and standalone Products router explicitly use React Router's supported `useTransitions={false}` option. Otherwise, its default transition retains the previous page while a remote suspends and can suppress visible navigation feedback. This choice makes the existing Suspense fallbacks commit immediately; it does not reduce download time or add an artificial minimum delay. See the [React Router transition documentation](https://reactrouter.com/explanation/react-transitions).
