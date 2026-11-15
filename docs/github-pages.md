@@ -31,3 +31,7 @@ This workflow rebuilds the complete Pages artifact on changes. It does not claim
 Pages cannot apply the existing Netlify `_headers` or proxy configuration. Federated code executes with Host privileges; origin/path allowlisting is not a sandbox. GitHub controls response headers and caching. Use the documented independent hosting configuration when strict HTTP CSP headers or independently retained releases are required. All API responses and checkout operations here are MSW simulations, not a real backend or payment system.
 
 Official references: [Pages custom workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), [publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+
+## Verified publication
+
+On 2026-11-15, [workflow 43701123205](https://github.com/prashant-ku-sharma/microverse/actions/runs/43701123205) published commit `b9aa176cadf6a85bcb911ce85a51472daa68d029` successfully. The live registry confirmed all four remotes at 1.2.1. Both live Chromium checks passed (32.9s), including shopping/coupon/profile flows, artwork, keyboard skip navigation, hash refresh and standalone entries. See implementation progress for the complete receipt.
